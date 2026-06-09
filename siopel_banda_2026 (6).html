@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIOPEL vs Techo de Banda – 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg:#0f1117; --bg2:#1a1d27;
+    --txt:#e2e4ed; --txt2:#8b90a8; --brd:rgba(255,255,255,.08);
+    --amber:#F5C36B; --blue:#78AEDE; --gray:#B4B2A9;
+    --purple:#AFA9EC; --dkblue:#85B7EB; --teal:#5DCAA5; --coral:#F0997B;
+    --fill:rgba(120,174,222,.13); --green:#5DCAA5; --btn-on:#78AEDE;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;padding:20px;}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+  .card{background:var(--bg2);border-radius:10px;padding:13px 15px;border:1px solid var(--brd);}
+  .card-label{font-size:11px;color:var(--txt2);margin-bottom:3px;}
+  .card-val{font-size:19px;font-weight:600;}
+  .card-val.green{color:var(--green);}
+  .toggle-row{display:flex;gap:8px;margin-bottom:8px;}
+  .btn{padding:7px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;}
+  .btn-on{background:var(--btn-on);color:#fff;}
+  .btn-off{background:var(--bg2);color:var(--txt2);border:1px solid var(--brd);}
+  .mode-desc{font-size:12px;color:var(--txt2);margin-bottom:10px;min-height:17px;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 15px;margin-bottom:10px;font-size:12px;color:var(--txt2);}
+  .leg-item{display:flex;align-items:center;gap:5px;}
+  .leg-line{width:20px;height:0;display:inline-block;}
+  .leg-solid{border-top:2px solid var(--blue);}
+  .leg-d1{border-top:2px dashed var(--amber);}
+  .leg-d2{border-top:1.5px dotted var(--gray);}
+  .leg-d3{border-top:1.5px dashed var(--purple);}
+  .leg-d4{border-top:1.5px dashed var(--dkblue);}
+  .leg-d5{border-top:1.5px dashed var(--teal);}
+  .leg-d6{border-top:1.5px dashed var(--coral);}
+  /* chart container includes space for x-axis labels */
+  .chart-wrap{position:relative;width:100%;height:480px;}
+  .stamp{font-size:11px;color:var(--txt2);margin-top:10px;padding:6px 10px;
+         background:var(--bg2);border-radius:6px;display:inline-block;border:1px solid var(--brd);}
+  .stamp span{color:var(--txt);font-weight:500;}
+  .footnote{font-size:10.5px;color:var(--txt2);margin-top:8px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="cards">
+  <div class="card"><div class="card-label">techo (8/6)</div><div class="card-val">$1.773,23</div></div>
+  <div class="card"><div class="card-label">último SIOPEL (8/6)</div><div class="card-val">$1.446,50</div></div>
+  <div class="card"><div class="card-label">brecha al techo</div><div class="card-val green">+22.6%</div></div>
+  <div class="card"><div class="card-label">prom. brecha 6M (dic–may)</div><div class="card-val">+15.7%</div></div>
+</div>
+
+<div class="toggle-row">
+  <button id="bH" class="btn btn-on"  onclick="sw('hist')">📊 Histórico completo</button>
+  <button id="bP" class="btn btn-off" onclick="sw('proj')">🔮 Proyección (may →)</button>
+</div>
+<div id="mD" class="mode-desc"></div>
+
+<div class="legend">
+  <span class="leg-item"><span class="leg-line leg-d1"></span>techo oficial</span>
+  <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
+  <span class="leg-item"><span class="leg-line leg-d2"></span>prom. brecha 6M (15.7%)</span>
+  <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
+    <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
+    <span class="leg-item"><span class="leg-line leg-d4"></span>mantiene brecha ~23%</span>
+    <span class="leg-item"><span class="leg-line leg-d5"></span>brecha 15%</span>
+    <span class="leg-item"><span class="leg-line leg-d6"></span>brecha 5%</span>
+  </span>
+</div>
+
+<div class="chart-wrap">
+  <canvas id="mc3"></canvas>
+</div>
+
+<div class="stamp">
+  Última actualización: <span>8 jun 2026</span> &nbsp;·&nbsp;
+  SIOPEL: <span>$1.446,50</span> &nbsp;·&nbsp;
+  Techo: <span>$1.773,23</span> &nbsp;·&nbsp;
+  Brecha: <span>+22.6%</span> &nbsp;·&nbsp;
+  Prom. 6M: <span>15.7%</span>
+</div>
+
+<p class="footnote">
+  SIOPEL: datos reales dic 2025–8/6/2026. Techo may: interpolado desde ancla 14/5 ($1.729,14).
+  Techo mar–may 2026: IPC real ene 2.9%, feb 2.7%, mar 2.9%.
+  Brecha = (techo − SIOPEL) / SIOPEL. Prom. 6M: cierres mensuales dic 2025–may 2026.
+  Proyecciones: REM BCRA (7-may-2026).
+</p>
+
+<script>
+(function(){
+  var gc='rgba(255,255,255,.07)', tc='rgba(255,255,255,.80)';
+  var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)';
+  var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#85B7EB', SCB='#5DCAA5', SCC='#F0997B';
+  function N(n){ return new Array(n).fill(null); }
+
+  /* ── Pretty label map: internal key → display string ── */
+  var LM = {
+    'Dic 25':'DIC 25','Ene 26':'ENE 26','Feb':'FEB 26','Mar':'MAR 26','Abr':'ABR 26',
+    '1/5':'01-MAY','4/5':'04-MAY','5/5':'05-MAY','6/5':'06-MAY','7/5':'07-MAY',
+    '8/5':'08-MAY','11/5':'11-MAY','12/5':'12-MAY','13/5':'13-MAY','14/5':'14-MAY',
+    '15/5':'15-MAY','18/5':'18-MAY','19/5':'19-MAY','20/5':'20-MAY','21/5':'21-MAY',
+    '22/5':'22-MAY','26/5':'26-MAY','27/5':'27-MAY','28/5':'28-MAY','29/5':'29-MAY',
+    '1/6':'01-JUN','2/6':'02-JUN','3/6':'03-JUN','4/6':'04-JUN','5/6':'05-JUN',
+    '8/6':'08-JUN','9/6':'09-JUN','10/6':'10-JUN','11/6':'11-JUN','12/6':'12-JUN',
+    '16/6':'16-JUN','17/6':'17-JUN','18/6':'18-JUN','19/6':'19-JUN','22/6':'22-JUN',
+    '23/6':'23-JUN','24/6':'24-JUN','25/6':'25-JUN','26/6':'26-JUN','29/6':'29-JUN',
+    '30/6':'30-JUN',
+    'Jul':'JUL 26','Ago':'AGO 26','Sep':'SEP 26','Oct':'OCT 26','Nov':'NOV 26','Dic 26':'DIC 26'
+  };
+
+  /* ── Techo calculations ── */
+  var mayDays=[1,4,5,6,7,8,11,12,13,14,15,18,19,20,21,22,26,27,28,29];
+  var tMayAll=mayDays.map(function(d){ return Math.round((1729.14+(d-14)*1.861)*10)/10; });
+  var tJun=[1762.64,1764.15,1765.66,1767.17,1768.68,1773.23,1774.75,1776.27,1777.79,
+            1779.31,1785.41,1786.94,1788.47,1790.00,1794.60,1796.13,1797.67,1799.21,
+            1800.75,1805.38,1806.92];
+  var tProj=[1848,1887,1925,1962,1999,2035];
+  var pTall=[1806.92,1848,1887,1925,1962,1999,2035];
+
+  /* ── SIOPEL ── */
+  var sM=[1455,1447,1397,1382,1391];
+  var sMay=[1391,1402.5,1393,1388,1396,1398,1391.5,1384,1392,1391,
+            1394.5,1397,1398,1397,1389.5,1403,1411,1412.5,1410,1408];
+  var sJunActual=[1426,1427,1438.5,1435.5,1440.5,1446.5];
+
+  /* ══ HIST: 46 pts ══ */
+  var hT=[1519,1564,1607,1654,1700].concat(tMayAll, tJun);
+  var hS=sM.concat(sMay, sJunActual, N(15));
+  var hA=hT.map(function(t){ return Math.round(t/1.157); });
+  var hLbl=['Dic 25','Ene 26','Feb','Mar','Abr',
+    '1/5','4/5','5/5','6/5','7/5','8/5','11/5','12/5','13/5','14/5',
+    '15/5','18/5','19/5','20/5','21/5','22/5','26/5','27/5','28/5','29/5',
+    '1/6','2/6','3/6','4/6','5/6','8/6','9/6','10/6','11/6','12/6',
+    '16/6','17/6','18/6','19/6','22/6','23/6','24/6','25/6','26/6','29/6','30/6'];
+
+  /* Pre-build display labels for hist (empty string = hidden tick) */
+  var hShow=new Set(['Dic 25','Ene 26','Feb','Mar','Abr',
+    '1/5','15/5','29/5',
+    '1/6','4/6','5/6','8/6','12/6','22/6','30/6']);
+  var hDispLbl=hLbl.map(function(l){ return hShow.has(l)?(LM[l]||l):''; });
+
+  var hPt=N(46); hPt[25]=3; hPt[26]=3; hPt[27]=3; hPt[28]=3; hPt[29]=3; hPt[30]=7;
+
+  /* ══ PROJ: 31 pts ══ */
+  var pT=[1718,1731,1744,1757].concat(tJun, tProj);
+  var pS=[1398,1394.5,1403,1408].concat(sJunActual, N(21));
+  var pA=pT.map(function(t){ return Math.round(t/1.157); });
+  var pREM=N(24).concat([1445,1460,1500,1533,1579,1628,1676]);
+  var pSCA=N(24).concat(pTall.map(function(t){ return Math.round(t/1.231); }));
+  var pSCB=N(24).concat(pTall.map(function(t){ return Math.round(t*0.85); }));
+  var pSCC=N(24).concat(pTall.map(function(t){ return Math.round(t*0.95); }));
+  var pLbl=['8/5','15/5','22/5','29/5',
+    '1/6','2/6','3/6','4/6','5/6','8/6','9/6','10/6','11/6','12/6',
+    '16/6','17/6','18/6','19/6','22/6','23/6','24/6','25/6','26/6','29/6','30/6',
+    'Jul','Ago','Sep','Oct','Nov','Dic 26'];
+
+  var pShow=new Set(['8/5','29/5','1/6','4/6','5/6','8/6','30/6',
+    'Jul','Ago','Sep','Oct','Nov','Dic 26']);
+  var pDispLbl=pLbl.map(function(l){ return pShow.has(l)?(LM[l]||l):''; });
+
+  var pPt=N(31); pPt[4]=3; pPt[5]=3; pPt[6]=3; pPt[7]=3; pPt[8]=3; pPt[9]=7;
+  var pPtSc=N(31); for(var k=24;k<31;k++) pPtSc[k]=3;
+
+  var mode='hist';
+
+  /* ── ZONES PLUGIN ── */
+  var zPlug={id:'z', beforeDraw:function(c){
+    var ctx=c.ctx, ca=c.chartArea, xs=c.scales.x;
+    try{
+      var ia=mode==='hist'?30:9, ib=mode==='hist'?31:10;
+      var xA=(xs.getPixelForValue(ia)+xs.getPixelForValue(ib))/2;
+      ctx.save();
+      ctx.fillStyle='rgba(255,255,255,.04)';
+      ctx.fillRect(xA,ca.top,ca.right-xA,ca.bottom-ca.top);
+      ctx.strokeStyle='rgba(255,255,255,.18)';
+      ctx.setLineDash([4,3]); ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(xA,ca.top); ctx.lineTo(xA,ca.bottom); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font='9px system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
+      ctx.textAlign='right'; ctx.fillText('08-JUN ←',xA-3,ca.top+13);
+      ctx.textAlign='left';  ctx.fillText('→ sin SIOPEL',xA+3,ca.top+13);
+      if(mode==='proj'){
+        var xB=(xs.getPixelForValue(24)+xs.getPixelForValue(25))/2;
+        ctx.strokeStyle='rgba(255,255,255,.32)';
+        ctx.setLineDash([6,3]); ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(xB,ca.top); ctx.lineTo(xB,ca.bottom); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle='rgba(255,255,255,.45)';
+        ctx.textAlign='right'; ctx.fillText('JUN ←',xB-3,ca.top+13);
+        ctx.textAlign='left';  ctx.fillText('→ PROY.',xB+3,ca.top+13);
+      }
+      ctx.restore();
+    }catch(e){}
+  }};
+
+  /* ── CHART ── */
+  var chart=new Chart(document.getElementById('mc3'),{
+    type:'line', plugins:[zPlug],
+    data:{labels:hDispLbl, datasets:[
+      {label:'Techo',data:hT,borderColor:TECH,borderWidth:2,borderDash:[6,3],
+       pointRadius:0,fill:false,tension:.15,spanGaps:true},
+      {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:2.5,
+       pointRadius:hPt,pointBackgroundColor:DOLAR,
+       fill:{target:0,below:FILL},tension:.15,spanGaps:false},
+      {label:'Prom. brecha 6M (15.7%)',data:hA,borderColor:AVGC,borderWidth:1.5,
+       borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
+      {label:'REM',data:N(46),borderColor:REMC,borderWidth:1.5,
+       borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
+      {label:'Mantiene brecha ~23%',data:N(46),borderColor:SCA,borderWidth:1.5,
+       borderDash:[7,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
+      {label:'Brecha 15%',data:N(46),borderColor:SCB,borderWidth:1.5,
+       borderDash:[5,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
+      {label:'Brecha 5%',data:N(46),borderColor:SCC,borderWidth:1.5,
+       borderDash:[6,3],pointRadius:0,fill:false,tension:.2,spanGaps:false}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#1a1d27',titleColor:'#e2e4ed',bodyColor:'#8b90a8',
+          borderColor:'rgba(255,255,255,.12)',borderWidth:1,padding:10,
+          filter:function(item){ return item.raw!==null; },
+          callbacks:{
+            title:function(items){
+              /* Raw label from original array (not display label) */
+              var idx=items[0].dataIndex;
+              var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
+              return LM[raw]||raw||'';
+            },
+            label:function(ctx){
+              var v=ctx.raw; if(v===null) return null;
+              var ts=mode==='hist'?hT:pT;
+              var t=ts[ctx.dataIndex]||0;
+              var b=(t&&Math.abs(v-t)>0.5)?' (+'+Math.round((t-v)/v*100)+'% al techo)':'';
+              var fmt=parseFloat(v).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:1});
+              return '  '+ctx.dataset.label+': $'+fmt+b;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          /* Force enough height so rotated labels are never clipped */
+          afterFit: function(scale){ if(scale.height<60) scale.height=60; },
+          grid:{color:gc},
+          ticks:{
+            color:tc,
+            font:{size:10, weight:'600'},
+            maxRotation:45,
+            minRotation:30,
+            autoSkip:false,
+            padding:4
+          }
+        },
+        y:{
+          min:1200, max:1900,
+          grid:{color:gc},
+          ticks:{color:tc,font:{size:11},
+            callback:function(v){ return '$'+v.toLocaleString('es-AR'); }
+          }
+        }
+      }
+    }
+  });
+
+  /* ── SWITCH ── */
+  window.sw=function(m){
+    mode=m; var isH=(m==='hist');
+    chart.data.labels=isH?hDispLbl:pDispLbl;
+    var nd=[
+      isH?hT:pT, isH?hS:pS, isH?hA:pA,
+      isH?N(46):pREM, isH?N(46):pSCA, isH?N(46):pSCB, isH?N(46):pSCC
+    ];
+    chart.data.datasets.forEach(function(ds,i){
+      ds.data=nd[i];
+      if(i===1) ds.pointRadius=isH?hPt:pPt;
+      if(i>2)   ds.pointRadius=isH?0:pPtSc;
+    });
+    chart.options.scales.y.min=isH?1200:1300;
+    chart.options.scales.y.max=isH?1900:2100;
+    chart.update('none');
+    var bH=document.getElementById('bH'), bP=document.getElementById('bP');
+    bH.className='btn '+(isH?'btn-on':'btn-off');
+    bP.className='btn '+(isH?'btn-off':'btn-on');
+    document.getElementById('mD').textContent=isH
+      ?'Datos reales SIOPEL dic 2025 – 04-JUN. Hover para ver nivel y brecha de cada rueda.'
+      :'Mayo real + techo jun oficial + escenarios TC desde jul 2026.';
+    document.getElementById('legP').style.display=isH?'none':'flex';
+  };
+
+  sw('hist');
+})();
+</script>
+</body>
+</html>
