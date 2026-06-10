@@ -15,10 +15,10 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;padding:20px;}
-  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-  .card{background:var(--bg2);border-radius:10px;padding:13px 15px;border:1px solid var(--brd);}
-  .card-label{font-size:11px;color:var(--txt2);margin-bottom:3px;}
-  .card-val{font-size:19px;font-weight:600;}
+  .cards{display:flex;gap:8px;margin-bottom:16px;justify-content:center;}
+  .card{background:var(--bg2);border-radius:10px;padding:10px 14px;border:1px solid var(--brd);min-width:0;flex:0 0 auto;}
+  .card-label{font-size:10px;color:var(--txt2);margin-bottom:2px;white-space:nowrap;}
+  .card-val{font-size:17px;font-weight:600;white-space:nowrap;}
   .card-val.green{color:var(--green);}
   .toggle-row{display:flex;gap:8px;margin-bottom:8px;}
   .btn{padding:7px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;}
@@ -46,15 +46,16 @@
 <body>
 
 <div class="cards">
-  <div class="card"><div class="card-label">techo (9/6)</div><div class="card-val">$1.774,75</div></div>
-  <div class="card"><div class="card-label">último SIOPEL (9/6)</div><div class="card-val">$1.441,00</div></div>
-  <div class="card"><div class="card-label">brecha al techo</div><div class="card-val green">+23.2%</div></div>
+  <div class="card"><div class="card-label">SIOPEL (9/6)</div><div class="card-val">$1.441,00</div></div>
+  <div class="card"><div class="card-label">TECHO BCRA</div><div class="card-val">$1.774,75</div></div>
+  <div class="card"><div class="card-label">Brecha SIOPEL/TECHO</div><div class="card-val green">+23.2%</div></div>
   <div class="card"><div class="card-label">prom. brecha 6M (dic–may)</div><div class="card-val">+15.7%</div></div>
 </div>
 
 <div class="toggle-row">
   <button id="bH" class="btn btn-on"  onclick="sw('hist')">📊 Histórico completo</button>
   <button id="bP" class="btn btn-off" onclick="sw('proj')">🔮 Proyección (may →)</button>
+  <button id="bB" class="btn btn-off" onclick="sw('brecha')">📉 Brecha</button>
 </div>
 <div id="mD" class="mode-desc"></div>
 
@@ -67,6 +68,11 @@
     <span class="leg-item"><span class="leg-line leg-d4"></span>mantiene brecha ~23%</span>
     <span class="leg-item"><span class="leg-line leg-d5"></span>brecha 15%</span>
     <span class="leg-item"><span class="leg-line leg-d6"></span>brecha 5%</span>
+  </span>
+  <span id="legB" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
+    <span class="leg-item"><span class="leg-line leg-solid"></span>brecha diaria %</span>
+    <span class="leg-item"><span class="leg-line leg-d2"></span>prom. 6M (15.7%)</span>
+    <span class="leg-item"><span class="leg-line leg-d1"></span>nivel actual</span>
   </span>
 </div>
 
@@ -164,13 +170,21 @@
   var pPt=N(31); pPt[4]=3; pPt[5]=3; pPt[6]=3; pPt[7]=3; pPt[8]=3; pPt[9]=3; pPt[10]=7;
   var pPtSc=N(31); for(var k=24;k<31;k++) pPtSc[k]=3;
 
+  /* ── BRECHA MODE DATA ── */
+  var brechaVals=hS.map(function(s,i){return s!=null?Math.round((hT[i]-s)/s*1000)/10:null;});
+  var avgRef=hS.map(function(s){return s!=null?15.7:null;});
+  var lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+  var curBr=lri>=0?Math.round((hT[lri]-hS[lri])/hS[lri]*1000)/10:23.2;
+  var curRef=new Array(46).fill(curBr);
+  var bPt=N(46); if(lri>=0)bPt[lri]=7;
+
   var mode='hist';
 
   /* ── ZONES PLUGIN ── */
   var zPlug={id:'z', beforeDraw:function(c){
     var ctx=c.ctx, ca=c.chartArea, xs=c.scales.x;
     try{
-      var ia=mode==='hist'?31:10, ib=mode==='hist'?32:11;
+      var ia=mode==='proj'?10:31, ib=mode==='proj'?11:32;
       var xA=(xs.getPixelForValue(ia)+xs.getPixelForValue(ib))/2;
       ctx.save();
       ctx.fillStyle='rgba(255,255,255,.04)';
@@ -218,7 +232,7 @@
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
+      interaction:{mode:'nearest',intersect:false},
       plugins:{
         legend:{display:false},
         tooltip:{
@@ -261,7 +275,7 @@
           min:1200, max:1900,
           grid:{color:gc},
           ticks:{color:tc,font:{size:11},
-            callback:function(v){ return '$'+v.toLocaleString('es-AR'); }
+            callback:function(v){ return mode==='brecha'?v+'%':'$'+v.toLocaleString('es-AR'); }
           }
         }
       }
@@ -270,28 +284,78 @@
 
   /* ── SWITCH ── */
   window.sw=function(m){
-    mode=m; var isH=(m==='hist');
-    chart.data.labels=isH?hDispLbl:pDispLbl;
-    var nd=[
-      isH?hT:pT, isH?hS:pS, isH?hA:pA,
-      isH?N(46):pREM, isH?N(46):pSCA, isH?N(46):pSCB, isH?N(46):pSCC
-    ];
-    chart.data.datasets.forEach(function(ds,i){
-      ds.data=nd[i];
-      if(i===1) ds.pointRadius=isH?hPt:pPt;
-      if(i>2)   ds.pointRadius=isH?0:pPtSc;
-    });
-    chart.options.scales.y.min=isH?1200:1300;
-    chart.options.scales.y.max=isH?1900:2100;
+    mode=m;
+    var isH=(m==='hist'),isP=(m==='proj'),isB=(m==='brecha');
+
+    if(isB){
+      chart.data.labels=hDispLbl;
+      chart.data.datasets=[
+        {label:'Brecha %',data:brechaVals,borderColor:DOLAR,borderWidth:2,
+         pointRadius:bPt,pointBackgroundColor:DOLAR,
+         fill:true,backgroundColor:'rgba(55,138,221,.1)',tension:.3,spanGaps:false},
+        {label:'Prom. 6M (15.7%)',data:avgRef,borderColor:AVGC,borderWidth:1.5,
+         borderDash:[3,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
+        {label:'Nivel actual ('+curBr+'%)',data:curRef,borderColor:TECH,borderWidth:1.5,
+         borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
+      ];
+      chart.options.scales.y.min=0;
+      chart.options.scales.y.max=30;
+    }else{
+      chart.data.labels=isH?hDispLbl:pDispLbl;
+      chart.data.datasets=[
+        {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:2,borderDash:[6,3],
+         pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:.15,spanGaps:true},
+        {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
+         pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
+         fill:{target:0,below:FILL},tension:.15,spanGaps:false},
+        {label:'Prom. brecha 6M',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
+         borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
+        {label:'REM',data:isH?N(46):pREM,borderColor:REMC,borderWidth:1.5,
+         borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
+        {label:'Mantiene brecha ~23%',data:isH?N(46):pSCA,borderColor:SCA,borderWidth:1.5,
+         borderDash:[7,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
+        {label:'Brecha 15%',data:isH?N(46):pSCB,borderColor:SCB,borderWidth:1.5,
+         borderDash:[5,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
+        {label:'Brecha 5%',data:isH?N(46):pSCC,borderColor:SCC,borderWidth:1.5,
+         borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false}
+      ];
+      chart.options.scales.y.min=isH?1200:1300;
+      chart.options.scales.y.max=isH?1900:2100;
+    }
+
     chart.update('none');
-    var bH=document.getElementById('bH'), bP=document.getElementById('bP');
+
+    var bH=document.getElementById('bH'),bP=document.getElementById('bP'),bB=document.getElementById('bB');
     bH.className='btn '+(isH?'btn-on':'btn-off');
-    bP.className='btn '+(isH?'btn-off':'btn-on');
-    document.getElementById('mD').textContent=isH
-      ?'Datos reales SIOPEL dic 2025 – 04-JUN. Hover para ver nivel y brecha de cada rueda.'
-      :'Mayo real + techo jun oficial + escenarios TC desde jul 2026.';
-    document.getElementById('legP').style.display=isH?'none':'flex';
+    bP.className='btn '+(isP?'btn-on':'btn-off');
+    bB.className='btn '+(isB?'btn-on':'btn-off');
+
+    var descs={hist:'Datos reales SIOPEL dic 2025 – 09-JUN. Hover sobre una línea: solo ese dato. Hover sobre la fecha (abajo): todos los datos.',
+               proj:'Mayo real + techo jun oficial + escenarios TC desde jul 2026.',
+               brecha:'Evolución diaria de la brecha % (techo − SIOPEL) / SIOPEL.'};
+    document.getElementById('mD').textContent=descs[m]||'';
+    document.getElementById('legP').style.display=isP?'flex':'none';
+    document.getElementById('legB').style.display=isB?'flex':'none';
   };
+
+  (function(){
+    var cvs=document.getElementById('mc3');
+    cvs.addEventListener('mousemove',function(e){
+      var rect=cvs.getBoundingClientRect();
+      var cssY=e.clientY-rect.top;
+      var ca=chart.chartArea;
+      if(!ca)return;
+      /* ca.bottom is in canvas device pixels; convert to CSS pixels */
+      var caBottomCSS=ca.bottom*(rect.height/cvs.height);
+      var newMode=cssY>caBottomCSS?'index':'nearest';
+      chart.options.interaction.mode=newMode;
+      chart.options.interaction.intersect=false;
+    });
+    cvs.addEventListener('mouseleave',function(){
+      chart.options.interaction.mode='nearest';
+      chart.options.interaction.intersect=false;
+    });
+  })();
 
   sw('hist');
 })();
