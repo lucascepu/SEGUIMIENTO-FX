@@ -191,8 +191,9 @@
     applyPeriod();
   });
 
+  var sJunActual=[1426,1427,1438.5,1436.5,1440.5,1446.5,1441,1432.5,1432.5];
   var pT=[1718,1731,1744,1757].concat(tJun, tProj);
-  var pS=[1398,1394.5,1403,1408].concat(sJunActual, N(19));
+  var pS=[1398,1394.5,1403,1408].concat(sJunActual, N(18));
   var pA=pT.map(function(t){ return Math.round(t/1.157); });
   var pREM=N(24).concat([1422,1447,1476,1516,1553,1597,1658]);
   var pSCA=N(24).concat(pTall.map(function(t){ return Math.round(t/1.231); }));
