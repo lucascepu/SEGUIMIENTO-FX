@@ -21,6 +21,10 @@
   .card-val{font-size:19px;font-weight:600;}
   .card-val.green{color:var(--green);}
   .toggle-row{display:flex;gap:8px;margin-bottom:8px;}
+  .period-row{display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap;}
+  .pbtn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--brd);cursor:pointer;background:var(--bg2);color:var(--txt2);transition:all .15s;}
+  .pbtn.pon{background:var(--dolar);color:#fff;border-color:var(--dolar);}
+  .period-row input[type=date]{font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid var(--brd);background:var(--bg2);color:var(--txt);cursor:pointer;outline:none;}
   .btn{padding:7px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;}
   .btn-on{background:var(--btn-on);color:#fff;}
   .btn-off{background:var(--bg2);color:var(--txt2);border:1px solid var(--brd);}
@@ -74,6 +78,13 @@
     <span class="leg-item"><span class="leg-line leg-d2"></span>prom. 6M (15.7%)</span>
     <span class="leg-item"><span class="leg-line leg-d1"></span>nivel actual</span>
   </span>
+</div>
+
+<div id="periodRow" class="period-row">
+  <button class="pbtn pon"  onclick="setPeriod('all')">Serie completa</button>
+  <button class="pbtn"      onclick="setPeriod('6m')">Últ. 6 meses</button>
+  <button class="pbtn"      onclick="setPeriod('60d')">Últ. 60 días</button>
+  <input type="date" id="desdeFecha" title="Desde fecha" min="2025-04-01" max="2026-06-10">
 </div>
 
 <div class="chart-wrap">
@@ -137,6 +148,52 @@
   var hPt=N(NH); hPt[197]=3; hPt[198]=3; hPt[199]=3; hPt[200]=3; hPt[201]=3; hPt[202]=3; hPt[203]=3; hPt[204]=7;
 
   var sJunActual=[1426,1427,1438.5,1435.5,1440.5,1446.5,1441,1432.5];
+  /* ── PERIOD SELECTOR ── */
+  var hDates=['2025-04-01','2025-04-03','2025-04-04','2025-04-07','2025-04-08','2025-04-09','2025-04-10','2025-04-11','2025-04-14','2025-04-15','2025-04-16','2025-04-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25','2025-04-28','2025-04-29','2025-04-30','2025-05-05','2025-05-06','2025-05-07','2025-05-08','2025-05-09','2025-05-12','2025-05-13','2025-05-14','2025-05-15','2025-05-16','2025-05-19','2025-05-20','2025-05-21','2025-05-22','2025-05-23','2025-05-27','2025-05-28','2025-05-29','2025-05-30','2025-06-02','2025-06-03','2025-06-04','2025-06-05','2025-06-06','2025-06-09','2025-06-10','2025-06-11','2025-06-12','2025-06-13','2025-06-17','2025-06-18','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-07','2025-07-08','2025-07-10','2025-07-11','2025-07-14','2025-07-15','2025-07-16','2025-07-17','2025-07-18','2025-07-21','2025-07-22','2025-07-23','2025-07-24','2025-07-25','2025-07-28','2025-07-29','2025-07-30','2025-07-31','2025-08-01','2025-08-04','2025-08-05','2025-08-06','2025-08-07','2025-08-08','2025-08-11','2025-08-12','2025-08-13','2025-08-14','2025-08-18','2025-08-19','2025-08-20','2025-08-21','2025-08-22','2025-08-25','2025-08-26','2025-08-27','2025-08-28','2025-08-29','2025-09-02','2025-09-03','2025-09-04','2025-09-05','2025-09-08','2025-09-09','2025-09-10','2025-09-11','2025-09-12','2025-09-15','2025-09-16','2025-09-17','2025-09-18','2025-09-19','2025-09-22','2025-09-23','2025-09-24','2025-09-25','2025-09-26','2025-09-29','2025-09-30','2025-10-01','2025-10-02','2025-10-03','2025-10-06','2025-10-07','2025-10-08','2025-10-09','2025-10-14','2025-10-15','2025-10-16','2025-10-17','2025-10-20','2025-10-21','2025-10-22','2025-10-23','2025-10-24','2025-10-27','2025-10-28','2025-10-29','2025-10-30','2025-10-31','2025-11-03','2025-11-04','2025-11-05','2025-11-07','2025-11-10','2025-11-12','2025-11-13','2025-11-14','2025-11-17','2025-11-18','2025-11-19','2025-11-20','2025-11-25','2025-11-26','2025-11-28','2025-12-01','2025-12-02','2025-12-03','2025-12-04','2025-12-05','2025-12-09','2025-12-10','2025-12-11','2025-12-12','2025-12-15','2025-12-16','2025-12-17','2025-12-18','2025-12-19','2025-12-22','2025-12-23','2025-12-26','2025-12-29','2025-12-30','2026-01-31','2026-02-28','2026-03-31','2026-04-30','2026-05-01','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-29','2026-06-30'];
+  var IDX_DEC1=154, IDX_MAY1=177, IDX_END=217;
+  var curPeriod='all';
+
+  function findDateIdx(isoStr){
+    var target=new Date(isoStr).getTime();
+    var best=0, bestDiff=Infinity;
+    for(var i=0;i<hDates.length;i++){
+      var diff=Math.abs(new Date(hDates[i]).getTime()-target);
+      if(diff<bestDiff){bestDiff=diff;best=i;}
+    }
+    return best;
+  }
+
+  function applyPeriod(){
+    var startIdx=0;
+    if(curPeriod==='6m') startIdx=IDX_DEC1;
+    else if(curPeriod==='60d') startIdx=IDX_MAY1;
+    else if(curPeriod==='custom'){
+      var v=document.getElementById('desdeFecha').value;
+      startIdx=v?findDateIdx(v):0;
+    }
+    chart.options.scales.x.min=startIdx;
+    chart.options.scales.x.max=IDX_END;
+    chart.update('none');
+  }
+
+  window.setPeriod=function(p){
+    curPeriod=p;
+    document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('pon');});
+    var el=document.querySelector('.pbtn[onclick="setPeriod(''+p+'')"]');
+    if(el) el.classList.add('pon');
+    if(p!=='custom') document.getElementById('desdeFecha').value='';
+    applyPeriod();
+  };
+
+  (function(){
+    document.getElementById('desdeFecha').addEventListener('change',function(){
+      if(!this.value) return;
+      curPeriod='custom';
+      document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('pon');});
+      applyPeriod();
+    });
+  })();
+
   var pT=[1718,1731,1744,1757].concat(tJun, tProj);
   var pS=[1398,1394.5,1403,1408].concat(sJunActual, N(19));
   var pA=pT.map(function(t){ return Math.round(t/1.157); });
@@ -310,6 +367,9 @@
     }
 
     chart.update('none');
+    /* period row */
+    document.getElementById('periodRow').style.display=isP?'none':'flex';
+    if(!isP) applyPeriod();
 
     var bH=document.getElementById('bH'),bP=document.getElementById('bP'),bB=document.getElementById('bB');
     bH.className='btn '+(isH?'btn-on':'btn-off');
