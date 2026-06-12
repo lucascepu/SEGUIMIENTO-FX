@@ -227,7 +227,7 @@
   var pDispLbl=pLbl.map(function(l){ return pShow.has(l)?(LM[l]||l):''; });
 
   var pPt=N(31); pPt[4]=3; pPt[5]=3; pPt[6]=3; pPt[7]=3; pPt[8]=3; pPt[9]=3; pPt[10]=3; pPt[11]=3; pPt[12]=3; pPt[13]=7;
-  var pPtSc=N(51); for(var k=45;k<51;k++) pPtSc[k]=3;
+  var pPtSc=N(51); for(var k=46;k<51;k++) pPtSc[k]=3;k<51;k++) pPtSc[k]=3;
 
   /* ── BRECHA MODE DATA ── */
   var brechaVals=hS.map(function(s,i){return s!=null?Math.round((hT[i]-s)/s*1000)/10:null;});
@@ -384,7 +384,7 @@
         {label:'Brecha 5%',data:isH?N(NH):pSCC,borderColor:SCC,borderWidth:1.5,
          borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
         {label:'Simulación',_sim:true,
-         data:isH?hSimData:N(31),
+         data:isH?hSimData:N(51),
          borderColor:'rgba(55,138,221,0.45)',borderWidth:1.5,
          borderDash:[3,4],pointRadius:0,fill:false,tension:.2,spanGaps:false}
       ];
@@ -405,11 +405,12 @@
     bB.className='btn '+(isB?'btn-on':'btn-off');
 
     var descs={hist:'Histórico completo: SIOPEL diario abr 2025 – 10-JUN 2026 vs techo banda BCRA.',
-               proj:'Mayo real + techo jun oficial + escenarios TC desde jul 2026.',
+               proj:'Mayo real + techo jun-jul oficial + escenarios TC desde ago 2026.',
                brecha:'Evolución diaria de la brecha % (techo − SIOPEL) / SIOPEL.'};
     document.getElementById('mD').textContent=descs[m]||'';
     document.getElementById('legP').style.display=isP?'flex':'none';
     document.getElementById('legB').style.display=isB?'flex':'none';
+    if(document.getElementById('legH')) document.getElementById('legH').style.display=isH?'flex':'none';
   };
 
   
