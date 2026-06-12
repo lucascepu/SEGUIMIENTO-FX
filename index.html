@@ -21,9 +21,10 @@
   .card-val{font-size:19px;font-weight:600;}
   .card-val.green{color:var(--green);}
   .toggle-row{display:flex;gap:8px;margin-bottom:8px;}
-  .delta-bar{font-size:10px;color:var(--txt2);text-align:center;margin:-4px 0 10px;letter-spacing:.02em;}
+  .delta-bar{font-size:12px;color:var(--txt2);text-align:center;margin:-4px 0 10px;letter-spacing:.02em;}
   .delta-bar .dUp{color:#c8965a;}
   .delta-bar .dDn{color:#6aabcc;}
+  .win-label{font-size:10px;color:var(--txt2);opacity:.7;align-self:center;}
   .period-row{display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap;}
   .pbtn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--brd);cursor:pointer;background:var(--bg2);color:var(--txt2);transition:all .15s;}
   .pbtn.pon{background:var(--dolar);color:#fff;border-color:var(--dolar);}
@@ -56,7 +57,7 @@
   <div class="card"><div class="card-label">SIOPEL (12/6)</div><div class="card-val">$1.428,00</div></div>
   <div class="card"><div class="card-label">TECHO BCRA</div><div class="card-val">$1.779,31</div></div>
   <div class="card"><div class="card-label">Brecha SIOPEL/TECHO</div><div class="card-val green">+24.6%</div></div>
-  <div class="card"><div class="card-label">prom. brecha 6M (rolling)</div><div class="card-val">+15.2%</div></div>
+  <div class="card"><div class="card-label">prom. brecha <span id="winLabel">6M</span></div><div class="card-val" id="cardProm">+15.2%</div></div>
 </div>
 
 <div id="deltaBar" class="delta-bar">—</div>
@@ -91,6 +92,12 @@
   <input type="date" id="desdeFecha" title="Desde fecha" min="2025-04-01" max="2026-06-10">
 </div>
 
+<div id="winRow" class="period-row">
+  <span class="win-label">Promedio:</span>
+  <button class="pbtn" data-w="30"  onclick="setAvgWindow(30,this)">30d</button>
+  <button class="pbtn" data-w="63"  onclick="setAvgWindow(63,this)">90d</button>
+  <button class="pbtn pon" data-w="126" onclick="setAvgWindow(126,this)">6M</button>
+</div>
 <div class="chart-wrap">
   <canvas id="mc3"></canvas>
 </div>
@@ -380,6 +387,7 @@
     if(isP){ chart.options.scales.x.min=null; chart.options.scales.x.max=null; }
     chart.update('none');
     document.getElementById('periodRow').style.display=isP?'none':'flex';
+    document.getElementById('winRow').style.display=isP?'none':'flex';
     if(!isP) applyPeriod();
 
     var bH=document.getElementById('bH'),bP=document.getElementById('bP'),bB=document.getElementById('bB');
@@ -397,6 +405,55 @@
 
   
 
+
+
+  /* ── ROLLING AVERAGE WINDOW ── */
+  var curWindow=126;
+
+  function computeRolling(win){
+    var result=new Array(NH).fill(null), buf=[];
+    for(var i=0;i<NH;i++){
+      if(brechaVals[i]!=null){
+        buf.push(brechaVals[i]);
+        if(buf.length>win) buf.shift();
+        result[i]=Math.round(buf.reduce(function(a,b){return a+b;},0)/buf.length*10)/10;
+      }
+    }
+    return result;
+  }
+
+  window.setAvgWindow=function(win,btn){
+    curWindow=win;
+    var roll=computeRolling(win);
+    /* update avgRef (brecha chart %) and hA (hist chart $) */
+    for(var i=0;i<NH;i++){
+      avgRef[i]=roll[i];
+      hA[i]=(hT[i]&&roll[i])?Math.round(hT[i]/(1+roll[i]/100)):null;
+    }
+    /* current value for card */
+    var lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+    var curR=roll[lri];
+    var wl=win===126?'6M':win===63?'90d':'30d';
+    var el=document.getElementById('cardProm');
+    if(el) el.textContent='+'+(curR||'—')+'%';
+    var wlEl=document.getElementById('winLabel');
+    if(wlEl) wlEl.textContent=wl;
+    /* update buttons */
+    document.querySelectorAll('#winRow .pbtn').forEach(function(b){b.classList.remove('pon');});
+    if(btn) btn.classList.add('pon');
+    /* re-render chart with updated datasets */
+    if(typeof chart!=='undefined'){
+      chart.data.datasets.forEach(function(ds){
+        if(!ds.label) return;
+        if(ds.label.indexOf('Prom')!==-1||ds.label.indexOf('rolling')!==-1){
+          if(mode==='brecha') ds.data=avgRef;
+          else ds.data=hA;
+          ds.label='Prom. '+wl+' ('+curR+'%)';
+        }
+      });
+      chart.update('none');
+    }
+  };
 
   /* ── DAILY DELTA ── */
   (function(){
