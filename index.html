@@ -271,15 +271,9 @@
     beforeEvent:function(c,args){
       var e=args.event, ca=c.chartArea;
       if(!ca||e.type!=='mousemove')return;
-      if(e.y>ca.bottom){
-        /* In axis area: move cursor up into chart area + show all */
-        args.event.y=ca.bottom-2; /* mutate Y directly so Chart.js reads it */
-        c.options.interaction.mode='index';
-        c.options.interaction.intersect=false;
-      } else {
-        c.options.interaction.mode='nearest';
-        c.options.interaction.intersect=false;
-      }
+      /* Bottom 40px = zona cerca de fechas → mostrar todo */
+      c.options.interaction.mode=e.y>(ca.bottom-40)?'index':'nearest';
+      c.options.interaction.intersect=false;
     }
   };
 
