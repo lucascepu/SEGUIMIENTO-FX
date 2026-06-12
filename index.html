@@ -21,6 +21,9 @@
   .card-val{font-size:19px;font-weight:600;}
   .card-val.green{color:var(--green);}
   .toggle-row{display:flex;gap:8px;margin-bottom:8px;}
+  .delta-bar{font-size:10px;color:var(--txt2);text-align:center;margin:-4px 0 10px;letter-spacing:.02em;}
+  .delta-bar .dUp{color:#c8965a;}
+  .delta-bar .dDn{color:#6aabcc;}
   .period-row{display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap;}
   .pbtn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--brd);cursor:pointer;background:var(--bg2);color:var(--txt2);transition:all .15s;}
   .pbtn.pon{background:var(--dolar);color:#fff;border-color:var(--dolar);}
@@ -56,6 +59,7 @@
   <div class="card"><div class="card-label">prom. brecha 6M (rolling)</div><div class="card-val">+15.2%</div></div>
 </div>
 
+<div id="deltaBar" class="delta-bar">—</div>
 <div class="toggle-row">
   <button id="bH" class="btn btn-on"  onclick="sw('hist')">HISTÓRICO COMPLETO</button>
   <button id="bP" class="btn btn-off" onclick="sw('proj')">PROYECCIÓN (desde Mayo)</button>
@@ -392,6 +396,30 @@
   };
 
   
+
+
+  /* ── DAILY DELTA ── */
+  (function(){
+    var actuals=[];
+    for(var i=hS.length-1;i>=0&&actuals.length<2;i--){
+      if(hS[i]!=null) actuals.push({i:i,s:hS[i],t:hT[i]});
+    }
+    if(actuals.length<2) return;
+    var l=actuals[0], p=actuals[1];
+    var ds=+(l.s-p.s).toFixed(2);
+    var pct=+(ds/p.s*100).toFixed(2);
+    var bl=(l.t-l.s)/l.s*100, bp=(p.t-p.s)/p.s*100;
+    var db=+(bl-bp).toFixed(1);
+    var sg=function(v){return v>0?'+':''};
+    var ar=function(v){return v>0?'▲':'▼'};
+    var cls=function(v){return v>0?'dUp':'dDn'};
+    var prevLbl=hLbl[p.i]||'—';
+    document.getElementById('deltaBar').innerHTML=
+      'SIOPEL: <span class="'+cls(ds)+'">'+ar(ds)+' $'+
+      Math.abs(ds).toLocaleString('es-AR')+' ('+sg(ds)+pct+'%)</span>'+
+      ' &nbsp;·&nbsp; Brecha: <span class="'+cls(db)+'">'+ar(db)+' '+sg(db)+db+'pp</span>'+
+      ' &nbsp;<span style="opacity:.5">vs '+prevLbl+'</span>';
+  })();
 
   sw('hist');
 })();
