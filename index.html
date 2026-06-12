@@ -261,9 +261,31 @@
   }
   };
 
+  /* ── TOOLTIP AXIS PLUGIN ──
+     beforeEvent fires before Chart.js processes the mouse event.
+     When cursor is in x-axis label area (below chartArea), we:
+     1. Move e.y just inside chartArea so Chart.js finds data points
+     2. Switch to 'index' mode to show all datasets                    */
+  var tPlug={
+    id:'tPlug',
+    beforeEvent:function(c,args){
+      var e=args.event, ca=c.chartArea;
+      if(!ca||e.type!=='mousemove')return;
+      if(e.y>ca.bottom){
+        /* In axis area: move cursor up into chart area + show all */
+        args.event={type:e.type,native:e.native,x:e.x,y:ca.bottom-2};
+        c.options.interaction.mode='index';
+        c.options.interaction.intersect=false;
+      } else {
+        c.options.interaction.mode='nearest';
+        c.options.interaction.intersect=false;
+      }
+    }
+  };
+
   /* ── CHART ── */
   var chart=new Chart(document.getElementById('mc3'),{
-    type:'line', plugins:[zPlug],
+    type:'line', plugins:[zPlug,tPlug],
     data:{labels:hDispLbl, datasets:[
       {label:'Techo',data:hT,borderColor:TECH,borderWidth:2,borderDash:[6,3],
        pointRadius:0,fill:false,tension:.15,spanGaps:true},
@@ -392,22 +414,7 @@
     document.getElementById('legB').style.display=isB?'flex':'none';
   };
 
-  (function(){
-    var cvs=document.getElementById('mc3');
-    cvs.addEventListener('mousemove',function(e){
-      var rect=cvs.getBoundingClientRect();
-      var cssY=e.clientY-rect.top;
-      /* Use _caBottom set by zPlug.afterDraw — guaranteed correct CSS pixels */
-      var threshold=_caBottom||rect.height*0.85;
-      var newMode=cssY>threshold?'index':'nearest';
-      chart.options.interaction.mode=newMode;
-      chart.options.interaction.intersect=false;
-    });
-    cvs.addEventListener('mouseleave',function(){
-      chart.options.interaction.mode='nearest';
-      chart.options.interaction.intersect=false;
-    });
-  })();
+  
 
   sw('hist');
 })();
