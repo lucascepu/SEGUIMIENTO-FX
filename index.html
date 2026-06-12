@@ -58,7 +58,7 @@
 
 <div class="toggle-row">
   <button id="bH" class="btn btn-on"  onclick="sw('hist')">HISTÓRICO COMPLETO</button>
-  <button id="bP" class="btn btn-off" onclick="sw('proj')">PROYECCIÓN (may →)</button>
+  <button id="bP" class="btn btn-off" onclick="sw('proj')">PROYECCIÓN (desde Mayo)</button>
   <button id="bB" class="btn btn-off" onclick="sw('brecha')">BRECHA</button>
 </div>
 <div id="mD" class="mode-desc"></div>
@@ -364,10 +364,11 @@
       chart.options.scales.y.max=isB?35:isH?1900:2100;
     }
 
+    /* reset x range before render */
+    if(isP){ chart.options.scales.x.min=null; chart.options.scales.x.max=null; }
     chart.update('none');
-    /* period row */
     document.getElementById('periodRow').style.display=isP?'none':'flex';
-    if(isP){ chart.options.scales.x.min=undefined; chart.options.scales.x.max=undefined; } else { applyPeriod(); }
+    if(!isP) applyPeriod();
 
     var bH=document.getElementById('bH'),bP=document.getElementById('bP'),bB=document.getElementById('bB');
     bH.className='btn '+(isH?'btn-on':'btn-off');
