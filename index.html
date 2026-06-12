@@ -227,7 +227,7 @@
   var zPlug={id:'z', beforeDraw:function(c){
     var ctx=c.ctx, ca=c.chartArea, xs=c.scales.x;
     try{
-      var ia=mode==='proj'?13:280, ib=mode==='proj'?14:281;
+      var ia=mode==='proj'?13:280, ib=ia;
       var xA=(xs.getPixelForValue(ia)+xs.getPixelForValue(ib))/2;
       ctx.save();
       ctx.fillStyle='rgba(255,255,255,.04)';
