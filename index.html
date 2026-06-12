@@ -260,26 +260,9 @@
     _caBottom=(ca.bottom<cssH)?ca.bottom:(ca.bottom*cssH/cv.height);
   }
   };
-
-  /* ── TOOLTIP AXIS PLUGIN ──
-     beforeEvent fires before Chart.js processes the mouse event.
-     When cursor is in x-axis label area (below chartArea), we:
-     1. Move e.y just inside chartArea so Chart.js finds data points
-     2. Switch to 'index' mode to show all datasets                    */
-  var tPlug={
-    id:'tPlug',
-    beforeEvent:function(c,args){
-      var e=args.event, ca=c.chartArea;
-      if(!ca||e.type!=='mousemove')return;
-      /* Bottom 40px = zona cerca de fechas → mostrar todo */
-      c.options.interaction.mode=e.y>(ca.bottom-40)?'index':'nearest';
-      c.options.interaction.intersect=false;
-    }
-  };
-
   /* ── CHART ── */
   var chart=new Chart(document.getElementById('mc3'),{
-    type:'line', plugins:[zPlug,tPlug],
+    type:'line', plugins:[zPlug],
     data:{labels:hDispLbl, datasets:[
       {label:'Techo',data:hT,borderColor:TECH,borderWidth:2,borderDash:[6,3],
        pointRadius:0,fill:false,tension:.15,spanGaps:true},
