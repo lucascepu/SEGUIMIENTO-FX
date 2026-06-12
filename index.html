@@ -251,7 +251,15 @@
       }
       ctx.restore();
     }catch(e){}
-  }};
+  },
+  afterDraw:function(c){
+    if(!c.chartArea||!c.canvas)return;
+    var ca=c.chartArea, cv=c.canvas;
+    var cssH=cv.getBoundingClientRect().height||cv.offsetHeight||400;
+    /* if ca.bottom < cssH → already CSS pixels; else canvas pixels → convert */
+    _caBottom=(ca.bottom<cssH)?ca.bottom:(ca.bottom*cssH/cv.height);
+  }
+  };
 
   /* ── CHART ── */
   var chart=new Chart(document.getElementById('mc3'),{
@@ -389,11 +397,9 @@
     cvs.addEventListener('mousemove',function(e){
       var rect=cvs.getBoundingClientRect();
       var cssY=e.clientY-rect.top;
-      var ca=chart.chartArea;
-      if(!ca)return;
-      /* ca.bottom is in canvas device pixels; convert to CSS pixels */
-      var caBottomCSS=ca.bottom*(rect.height/cvs.height);
-      var newMode=cssY>caBottomCSS?'index':'nearest';
+      /* Use _caBottom set by zPlug.afterDraw — guaranteed correct CSS pixels */
+      var threshold=_caBottom||rect.height*0.85;
+      var newMode=cssY>threshold?'index':'nearest';
       chart.options.interaction.mode=newMode;
       chart.options.interaction.intersect=false;
     });
