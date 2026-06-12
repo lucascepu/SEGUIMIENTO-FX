@@ -66,7 +66,7 @@
 <div class="legend">
   <span class="leg-item"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
-  <span class="leg-item"><span class="leg-line leg-d2"></span>prom. brecha 6M (15.7%)</span>
+  <span class="leg-item"><span class="leg-line leg-d2"></span>prom. 6M (rolling)</span>
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
     <span class="leg-item"><span class="leg-line leg-d4"></span>mantiene brecha ~23%</span>
@@ -356,8 +356,7 @@
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
         {label:'Mantiene brecha ~23%',data:isH?N(NH):pSCA,borderColor:SCA,borderWidth:1.5,
          borderDash:[7,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
-        {label:'Brecha 15%',data:isH?N(NH):pSCB,borderColor:SCB,borderWidth:1.5,
-         borderDash:[5,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
+        
         {label:'Brecha 5%',data:isH?N(NH):pSCC,borderColor:SCC,borderWidth:1.5,
          borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false}
       ];
@@ -368,7 +367,7 @@
     chart.update('none');
     /* period row */
     document.getElementById('periodRow').style.display=isP?'none':'flex';
-    if(!isP) applyPeriod();
+    if(isP){ chart.options.scales.x.min=undefined; chart.options.scales.x.max=undefined; } else { applyPeriod(); }
 
     var bH=document.getElementById('bH'),bP=document.getElementById('bP'),bB=document.getElementById('bB');
     bH.className='btn '+(isH?'btn-on':'btn-off');
