@@ -273,7 +273,7 @@
       if(!ca||e.type!=='mousemove')return;
       if(e.y>ca.bottom){
         /* In axis area: move cursor up into chart area + show all */
-        args.event={type:e.type,native:e.native,x:e.x,y:ca.bottom-2};
+        args.event.y=ca.bottom-2; /* mutate Y directly so Chart.js reads it */
         c.options.interaction.mode='index';
         c.options.interaction.intersect=false;
       } else {
