@@ -187,10 +187,11 @@
       var v=document.getElementById('desdeFecha').value;
       s=v?findDateIdx(v):0;
     }
-    /* For 'all' view use monthly-only labels to avoid density */
+    /* For 'all' view: show only monthly + key milestone labels */
+    var KEY_ALL=new Set(['1/5','1/6','1/7','31/7']);
     if(curPeriod==='all'){
       chart.data.labels=hDispLbl.map(function(l){
-        return /^[A-Z]/.test(l)?l:'';
+        return (/^[A-Z]/.test(l)||KEY_ALL.has(l))?l:'';
       });
     } else {
       chart.data.labels=(mode==='proj')?pDispLbl:hDispLbl;
@@ -393,11 +394,7 @@
          borderDash:[7,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
         
         {label:'Brecha 5%',data:isH?N(NH):pSCC,borderColor:SCC,borderWidth:1.5,
-         borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
-        {label:'Simulación',_sim:true,
-         data:isH?hSimData:N(51),
-         borderColor:'rgba(55,138,221,0.45)',borderWidth:1.5,
-         borderDash:[3,4],pointRadius:0,fill:false,tension:.2,spanGaps:false}
+         borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false}
       ];
       chart.options.scales.y.min=isB?-5:isH?1000:1300;
       chart.options.scales.y.max=isB?35:isH?1900:2100;
@@ -500,6 +497,7 @@
       ' &nbsp;<span style="opacity:.5">vs '+prevLbl+'</span>';
   })();
 
+  lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
   sw('hist');
   applyPeriod();
 })();
