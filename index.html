@@ -122,7 +122,7 @@
 (function(){
   var gc='rgba(255,255,255,.07)', tc='rgba(255,255,255,.80)';
   var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)';
-  var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#E74C3C', SCB='#5DCAA5', SCC='#F0997B';
+  var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#7EC8E3', SCB='#5DCAA5', SCC='#F0997B';
   function N(n){ return new Array(n).fill(null); }
 
   /* ── Pretty label map: internal key → display string ── */
@@ -223,13 +223,13 @@
 
   var sJunActual=[1426,1427,1438.5,1436.5,1440.5,1446.5,1441,1432.5,1432.5,1428];
   var tJulArr=[1808.13,1809.35,1810.56,1814.21,1815.42,1816.64,1822.74,1823.96,1825.19,1826.41,1827.63,1831.31,1832.54,1833.77,1835.0,1836.23,1839.93,1841.16,1842.4,1843.63,1844.87];
-  var pT=[1718,1731,1744,1757].concat(tJun, tJulArr, [1887,1925,1962,1999,2035]);
+  var pT=[1718,1731,1744,1757,1762.64,1764.15,1765.66,1767.17,1768.68,1773.23,1774.75,1776.27,1777.79,1779.31,1785.41,1786.94,1788.47,1790.0,1794.6,1796.13,1797.67,1799.21,1800.75,1805.38,1806.92,1808.13,1809.35,1810.56,1814.21,1815.42,1816.64,1822.74,1823.96,1825.19,1826.41,1827.63,1831.31,1832.54,1833.77,1835.0,1836.23,1839.93,1841.16,1842.4,1843.63,1844.87,1900.22,1953.43,2004.22,2052.32,2097.47];
   var pS=[1398,1394.5,1403,1408].concat(sJunActual, N(37));
   var pA=pT.map(function(t){ return Math.round(t/1.157); });
   var pREM=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1422,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1447,1476,1516,1553,1597,1658];
-  var pSCA=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1468,1469,1470,1471,1474,1475,1476,1481,1482,1483,1484,1485,1488,1489,1490,1491,1492,1495,1496,1497,1498,1499,1533,1564,1594,1624,1653];
-  var pSCB=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1562,1563,1564,1565,1568,1569,1570,1575,1576,1578,1579,1580,1583,1584,1585,1586,1587,1590,1591,1592,1593,1595,1631,1664,1696,1728,1759];
-  var pSCC=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1721,1722,1723,1724,1728,1729,1730,1736,1737,1738,1739,1741,1744,1745,1746,1748,1749,1752,1753,1755,1756,1757,1797,1833,1869,1904,1938]; 
+  var pSCA=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1468,1469,1470,1471,1474,1475,1476,1481,1482,1483,1484,1485,1488,1489,1490,1491,1492,1495,1496,1497,1498,1499,1544,1587,1628,1667,1704];
+  var pSCB=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1562,1563,1564,1565,1568,1569,1570,1575,1576,1578,1579,1580,1583,1584,1585,1586,1587,1590,1591,1592,1593,1595,1642,1688,1732,1774,1813];
+  var pSCC=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1721,1722,1723,1724,1728,1729,1730,1736,1737,1738,1739,1741,1744,1745,1746,1748,1749,1752,1753,1755,1756,1757,1810,1860,1909,1955,1998]; 
   var pLbl=['8/5','15/5','22/5','29/5',
     '1/6','2/6','3/6','4/6','5/6','8/6','9/6','10/6','11/6','12/6',
     '16/6','17/6','18/6','19/6','22/6','23/6','24/6','25/6','26/6','29/6','30/6',
