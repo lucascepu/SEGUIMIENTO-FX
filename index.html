@@ -88,7 +88,7 @@
 </div>
 
 <div id="periodRow" class="period-row">
-  <button class="pbtn pon" data-p="60d" onclick="setPeriod(this)">May-Jul</button>
+  <button class="pbtn pon" data-p="3m" onclick="setPeriod(this)">May-Jul</button>
   <button class="pbtn" data-p="6m"  onclick="setPeriod(this)">Últ. 6 meses</button>
   <button class="pbtn" data-p="all" onclick="setPeriod(this)">Serie completa</button>
   <input type="date" id="desdeFecha" title="Desde fecha" min="2025-04-01" max="2026-06-10">
@@ -179,19 +179,14 @@
   function applyPeriod(){
     if(!chart) return;
     var s=0;
-    if(curPeriod==='6m')     s=IDX_DEC1;
+    if(curPeriod==='6m')      s=IDX_DEC1;
     else if(curPeriod==='3m') s=IDX_MAY1;
     else if(curPeriod==='custom'){
       var v=document.getElementById('desdeFecha').value;
       s=v?findDateIdx(v):0;
     }
     chart.options.scales.x.min=s;
-    var xEnd=IDX_END;
-    if(curPeriod==='3m' && lri>0){
-      var look=Math.round((lri-s)*0.35);
-      xEnd=Math.min(IDX_END, lri+look);
-    }
-    chart.options.scales.x.max=xEnd;
+    chart.options.scales.x.max=IDX_END;
     chart.update('none');
   }
 
