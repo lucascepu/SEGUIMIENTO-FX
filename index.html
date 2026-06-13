@@ -72,8 +72,7 @@
   <span class="leg-item"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
   <span class="leg-item"><span class="leg-line leg-d2"></span>prom. 6M (rolling)</span>
-  <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-    <span class="leg-item"><span class="leg-line" style="border-top:1.5px dashed rgba(55,138,221,0.6);background:transparent;width:18px;display:inline-block;vertical-align:middle;margin-right:4px"></span>simulación</span>
+  simulación</span>
   </span>
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
@@ -187,7 +186,12 @@
       s=v?findDateIdx(v):0;
     }
     chart.options.scales.x.min=s;
-    chart.options.scales.x.max=IDX_END;
+    var xEnd=IDX_END;
+    if(curPeriod==='60d' && lri>0){
+      var look=Math.round((lri-s)*0.35);
+      xEnd=Math.min(IDX_END, lri+look);
+    }
+    chart.options.scales.x.max=xEnd;
     chart.update('none');
   }
 
@@ -232,7 +236,7 @@
   /* ── BRECHA MODE DATA ── */
   var brechaVals=hS.map(function(s,i){return s!=null?Math.round((hT[i]-s)/s*1000)/10:null;});
   var avgRef=[null,null,null,null,null,null,null,29.6,23.1,20.8,21.6,22.8,23.4,23.0,22.5,22.2,21.8,21.7,21.5,21.2,20.9,21.2,21.5,21.6,21.7,21.9,22.0,22.1,22.2,22.2,22.3,22.3,22.4,22.5,22.4,22.4,22.3,22.2,22.2,22.1,22.0,21.9,21.8,21.8,21.7,21.7,21.6,21.6,21.6,21.7,21.7,21.7,21.7,21.6,21.6,21.5,21.4,21.3,21.2,21.1,21.0,20.8,20.7,20.6,20.4,20.3,20.2,20.1,20.0,19.9,19.8,19.7,19.6,19.5,19.3,19.2,19.0,18.8,18.6,18.5,18.4,18.2,18.1,18.0,17.9,17.8,17.7,17.7,17.6,17.5,17.5,17.4,17.2,17.1,17.0,16.9,16.8,16.7,16.6,16.5,16.4,16.3,16.2,16.0,15.9,15.7,15.6,15.4,15.3,15.1,15.0,14.9,14.8,14.8,14.7,14.7,14.6,14.5,14.5,14.4,14.3,14.2,14.1,14.0,13.9,13.9,13.8,13.7,13.6,13.5,13.4,13.3,13.2,13.0,12.9,12.7,12.6,12.4,12.2,12.0,11.9,11.8,11.7,11.6,11.4,11.4,11.3,11.1,11.0,10.9,10.7,10.5,10.4,10.2,10.0,9.9,9.7,9.6,9.4,9.3,9.1,9.0,8.9,8.8,8.6,8.5,8.4,8.3,8.2,8.0,7.9,7.8,7.7,7.5,7.4,7.2,7.1,7.0,6.8,6.7,6.6,6.5,6.4,6.4,6.3,6.2,6.2,6.2,6.1,6.1,6.0,6.0,5.9,5.9,5.9,5.8,5.8,5.8,5.8,5.8,5.8,5.8,5.9,5.9,6.0,6.1,6.1,6.2,6.2,6.3,6.3,6.3,6.4,6.4,6.4,6.4,6.4,6.5,6.6,6.6,6.7,6.8,6.8,6.9,7.0,7.1,7.2,7.3,7.4,7.5,7.7,7.8,8.0,8.1,8.3,8.5,8.6,8.8,8.9,9.0,9.1,9.2,9.3,9.5,9.6,9.8,9.9,10.0,10.2,10.3,10.5,10.6,10.7,10.8,11.0,11.2,11.4,11.5,11.7,11.9,12.1,12.3,12.4,12.6,12.8,13.0,13.1,13.3,13.5,13.6,13.8,13.9,14.0,14.2,14.3,14.4,14.6,14.7,14.9,15.0,15.2,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]; /* rolling 6M brecha % */
-  var lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+  lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
   var curBr=lri>=0?Math.round((hT[lri]-hS[lri])/hS[lri]*1000)/10:23.2;
   var curRef=new Array(NH).fill(curBr);
   var bPt=N(NH); if(lri>=0)bPt[lri]=7;
@@ -410,7 +414,6 @@
     document.getElementById('mD').textContent=descs[m]||'';
     document.getElementById('legP').style.display=isP?'flex':'none';
     document.getElementById('legB').style.display=isB?'flex':'none';
-    if(document.getElementById('legH')) document.getElementById('legH').style.display=isH?'flex':'none';
   };
 
   
@@ -441,7 +444,7 @@
       hA[i]=(hT[i]&&roll[i])?Math.round(hT[i]/(1+roll[i]/100)):null;
     }
     /* current value for card */
-    var lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+    lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
     var curR=roll[lri];
     var wl=win===126?'6M':win===63?'90d':'30d';
     var el=document.getElementById('cardProm');
@@ -469,17 +472,7 @@
 
 
   /* ── SIMULATED SIOPEL (zona sin datos) ── */
-  var hSimData=[];
-  function updateSim(){
-    var lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
-    var roll=computeRolling(curWindow);
-    var r=roll[lri]||15.2;
-    hSimData=hT.map(function(t,i){
-      return (hS[i]==null&&t!=null)?Math.round(t/(1+r/100)):null;
-    });
-  }
-  updateSim();
-
+  var lri=-1;
   /* ── DAILY DELTA ── */
   (function(){
     var actuals=[];
