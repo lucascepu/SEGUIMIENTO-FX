@@ -77,7 +77,6 @@
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
     <span class="leg-item"><span class="leg-line leg-d4"></span>mantiene brecha ~23%</span>
-    <span class="leg-item"><span class="leg-line leg-d5"></span>brecha 15%</span>
     <span class="leg-item"><span class="leg-line leg-d6"></span>brecha 5%</span>
   </span>
   <span id="legB" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
@@ -123,7 +122,7 @@
 (function(){
   var gc='rgba(255,255,255,.07)', tc='rgba(255,255,255,.80)';
   var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)';
-  var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#85B7EB', SCB='#5DCAA5', SCC='#F0997B';
+  var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#E09B47', SCB='#5DCAA5', SCC='#F0997B';
   function N(n){ return new Array(n).fill(null); }
 
   /* ── Pretty label map: internal key → display string ── */
@@ -395,7 +394,7 @@
       chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
         {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:2,borderDash:[6,3],
-         pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:.15,spanGaps:true},
+         pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
@@ -417,7 +416,7 @@
     if(isP){ chart.options.scales.x.min=null; chart.options.scales.x.max=null; }
     chart.update('none');
     document.getElementById('periodRow').style.display=isP?'none':'flex';
-    document.getElementById('winRow').style.display=isP?'none':'flex';
+    document.getElementById('winRow').style.display='flex';
     if(!isP) applyPeriod();
 
     var bH=document.getElementById('bH'),bP=document.getElementById('bP'),bB=document.getElementById('bB');
@@ -471,11 +470,18 @@
     /* update buttons */
     document.querySelectorAll('#winRow .pbtn').forEach(function(b){b.classList.remove('pon');});
     if(btn) btn.classList.add('pon');
+    /* Update pA for proj mode based on current rolling avg */
+    if(curR){
+      for(var j=0;j<pT.length;j++){
+        pA[j]=pT[j]?Math.round(pT[j]/(1+curR/100)):null;
+      }
+    }
     if(typeof chart!=='undefined'){
       chart.data.datasets.forEach(function(ds){
         if(!ds.label) return;
         if(ds.label.indexOf('Prom')!==-1||ds.label.indexOf('rolling')!==-1){
           if(mode==='brecha') ds.data=avgRef;
+          else if(mode==='proj') ds.data=pA;
           else ds.data=hA;
           ds.label='Prom. '+wl+' ('+curR+'%)';
         }
