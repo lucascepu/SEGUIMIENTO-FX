@@ -122,7 +122,7 @@
 (function(){
   var gc='rgba(255,255,255,.07)', tc='rgba(255,255,255,.80)';
   var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)';
-  var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#E09B47', SCB='#5DCAA5', SCC='#F0997B';
+  var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#E74C3C', SCB='#5DCAA5', SCC='#F0997B';
   function N(n){ return new Array(n).fill(null); }
 
   /* ── Pretty label map: internal key → display string ── */
@@ -242,6 +242,7 @@
 
   var pPt=N(31); pPt[4]=3; pPt[5]=3; pPt[6]=3; pPt[7]=3; pPt[8]=3; pPt[9]=3; pPt[10]=3; pPt[11]=3; pPt[12]=3; pPt[13]=7;
   var pPtSc=N(51); for(var k=46;k<51;k++) pPtSc[k]=3;
+  var tPtSc=N(51); for(var k=46;k<51;k++) tPtSc[k]=4;
 
   /* ── BRECHA MODE DATA ── */
   var brechaVals=hS.map(function(s,i){return s!=null?Math.round((hT[i]-s)/s*1000)/10:null;});
@@ -277,7 +278,7 @@
         ctx.setLineDash([]);
         ctx.fillStyle='rgba(255,255,255,.45)';
         ctx.textAlign='right'; ctx.fillText('JUN ←',xB-3,ca.top+13);
-        ctx.textAlign='left';  ctx.fillText('→ PROY.',xB+3,ca.top+13);
+        ctx.textAlign='left';  ctx.fillText('→ proy. ago-dic',xB+3,ca.top+13);
       }
       ctx.restore();
     }catch(e){}
@@ -393,8 +394,8 @@
     }else{
       chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
-        {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:2,borderDash:[6,3],
-         pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
+        {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
+         pointRadius:isP?tPtSc:0,pointBackgroundColor:TECH,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
