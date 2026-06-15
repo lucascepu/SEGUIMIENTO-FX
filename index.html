@@ -598,15 +598,25 @@
       if(range<=0) return;
       var xMax=(mode==='proj')?50:IDX_END;
       var delta=Math.round(-dx*range/xs.width);
-      var nmin=Math.max(0,_ad.x0min+delta);
-      var nmax=Math.min(xMax,_ad.x0max+delta);
       var updated=false;
-      if(nmax-nmin>=5){
-        chart.options.scales.x.min=nmin;
-        chart.options.scales.x.max=nmax;
+      if(_ad.mode==='xpan'){
+        /* x-axis drag: pan only, keep range width exact */
+        var nmin=_ad.x0min+delta, nmax=_ad.x0max+delta;
+        if(nmin<0){ nmin=0; nmax=range; }
+        if(nmax>xMax){ nmax=xMax; nmin=xMax-range; }
+        chart.options.scales.x.min=Math.round(nmin);
+        chart.options.scales.x.max=Math.round(nmax);
+        updated=true;
+      } else if(_ad.mode==='chartpan'){
+        /* chart-area drag: pan only — keep range width FIXED, just slide */
+        var nmin=_ad.x0min+delta, nmax=_ad.x0max+delta;
+        if(nmin<0){ nmin=0; nmax=range; }
+        if(nmax>xMax){ nmax=xMax; nmin=xMax-range; }
+        chart.options.scales.x.min=Math.round(nmin);
+        chart.options.scales.x.max=Math.round(nmax);
         updated=true;
       }
-      /* chartpan: also pan Y axis with vertical drag */
+      /* pan Y axis with vertical drag (chartpan only) */
       if(_ad.mode==='chartpan'){
         var dy=e.clientY-_ad.sy;
         var ys=chart.scales.y;
