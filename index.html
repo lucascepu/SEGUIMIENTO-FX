@@ -581,8 +581,9 @@
       e.preventDefault(); _cvs.style.cursor='ns-resize';
     } else if(mx>=ca.left&&mx<=ca.right&&my>=ca.top&&my<=ca.bottom){
       /* chart area → pan (useful after zoom) */
-      _ad.mode='chartpan'; _ad.on=true; _ad.sx=e.clientX;
+      _ad.mode='chartpan'; _ad.on=true; _ad.sx=e.clientX; _ad.sy=e.clientY;
       _ad.x0min=chart.scales.x.min||0; _ad.x0max=chart.scales.x.max||IDX_END;
+      _ad.y0min=chart.scales.y.min; _ad.y0max=chart.scales.y.max;
       _cvs.style.cursor='grabbing';
       /* don't preventDefault here so tooltips still work */
     }
@@ -599,12 +600,27 @@
       var delta=Math.round(-dx*range/xs.width);
       var nmin=Math.max(0,_ad.x0min+delta);
       var nmax=Math.min(xMax,_ad.x0max+delta);
+      var updated=false;
       if(nmax-nmin>=5){
         chart.options.scales.x.min=nmin;
         chart.options.scales.x.max=nmax;
-        chart.update('none');
-        window._showRZ();
+        updated=true;
       }
+      /* chartpan: also pan Y axis with vertical drag */
+      if(_ad.mode==='chartpan'){
+        var dy=e.clientY-_ad.sy;
+        var ys=chart.scales.y;
+        var yrange=_ad.y0max-_ad.y0min;
+        var ydelta=Math.round(dy*yrange/ys.height);
+        var nymin=Math.max(500,_ad.y0min+ydelta);
+        var nymax=Math.min(3000,_ad.y0max+ydelta);
+        if(nymax-nymin>80){
+          chart.options.scales.y.min=nymin;
+          chart.options.scales.y.max=nymax;
+          updated=true;
+        }
+      }
+      if(updated){ chart.update('none'); window._showRZ(); }
     } else if(_ad.mode==='yzoom'){
       var dy=e.clientY-_ad.sy;
       var f=Math.pow(1.004,-dy);
