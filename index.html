@@ -328,8 +328,7 @@
       plugins:{
         zoom:{
           limits:{ x:{min:0,max:IDX_END,minRange:5}, y:{min:500,max:3000,minRange:80} },
-          pan:{ enabled:true, mode:'x', threshold:5,
-            onPanComplete:function(){ window._showRZ(); } },
+          pan:{ enabled:false },
           zoom:{
             wheel:{ enabled:true, speed:0.08 },
             pinch:{ enabled:true },
@@ -538,76 +537,73 @@
   window._showRZ=function(){ document.getElementById('resetZoomBtn').style.display='inline-block'; };
   window._hideRZ=function(){ document.getElementById('resetZoomBtn').style.display='none'; };
 
+  /* resetZoom: manually restore y-defaults + re-apply period (no chart.resetZoom()) */
   window.resetZoom=function(){
     if(!chart) return;
-    chart.resetZoom();
-    var isP=(mode==='proj');
-    chart.options.scales.y.min=isP?1300:1000;
-    chart.options.scales.y.max=isP?2200:1950;
-    /* update zoom limits for current mode */
-    if(chart.options.plugins && chart.options.plugins.zoom)
-      chart.options.plugins.zoom.limits.x.max=isP?50:IDX_END;
-    applyPeriod();
+    var isP=(mode==='proj'), isB=(mode==='brecha');
+    chart.options.scales.y.min=isB?-5:isP?1300:1000;
+    chart.options.scales.y.max=isB?55:isP?2200:1950;
+    applyPeriod();   /* restores correct x.min/x.max for current period */
     window._hideRZ();
   };
 
-  /* Update zoom x-limit when switching modes */
-  var _origSw=window.sw;
-  window.sw=function(m){
-    _origSw(m);
-    if(chart && chart.options.plugins && chart.options.plugins.zoom){
-      chart.options.plugins.zoom.limits.x.max=(m==='proj')?50:IDX_END;
-      chart.resetZoom();
-    }
-    window._hideRZ();
-  };
-
-  /* Modify applyPeriod to hide reset button */
-  var _origAP=window.applyPeriod||function(){};
-  // applyPeriod is defined inline, just hide RZ on period change
-  var _origSetPeriod=window.setPeriod;
+  /* Wrap setPeriod to reset y-zoom before switching period */
+  var _origSP=window.setPeriod;
   window.setPeriod=function(btn){
-    if(chart) chart.resetZoom();
-    _origSetPeriod(btn);
+    if(chart){
+      var isP=(mode==='proj'),isB=(mode==='brecha');
+      chart.options.scales.y.min=isB?-5:isP?1300:1000;
+      chart.options.scales.y.max=isB?55:isP?2200:1950;
+    }
+    _origSP(btn);
     window._hideRZ();
   };
 
-  /* ── AXIS DRAG INTERACTIONS ── */
+  /* ── CANVAS DRAG INTERACTIONS ── */
   var _cvs=document.getElementById('mc3');
-  var _ad={ on:false, mode:null, sx:0, sy:0, x0min:0, x0max:0, y0min:0, y0max:0 };
+  var _ad={on:false,mode:null,sx:0,sy:0,x0min:0,x0max:0,y0min:0,y0max:0};
 
   _cvs.addEventListener('mousedown',function(e){
     if(!chart) return;
     var r=_cvs.getBoundingClientRect();
-    var scaleX=_cvs.width/r.width, scaleY=_cvs.height/r.height;
-    var mx=(e.clientX-r.left)*scaleX, my=(e.clientY-r.top)*scaleY;
+    var rx=_cvs.width/r.width, ry=_cvs.height/r.height;
+    var mx=(e.clientX-r.left)*rx, my=(e.clientY-r.top)*ry;
     var ca=chart.chartArea;
-    if(my > ca.bottom+2){
-      /* x-axis label area → pan dates */
+    if(my>ca.bottom+2){
+      /* x-axis area → pan dates */
       _ad.mode='xpan'; _ad.on=true; _ad.sx=e.clientX;
-      _ad.x0min=chart.scales.x.min; _ad.x0max=chart.scales.x.max;
+      _ad.x0min=chart.scales.x.min||0; _ad.x0max=chart.scales.x.max||IDX_END;
       e.preventDefault(); _cvs.style.cursor='ew-resize';
-    } else if(mx < ca.left-2){
-      /* y-axis label area → scale prices */
+    } else if(mx<ca.left-2){
+      /* y-axis area → zoom prices */
       _ad.mode='yzoom'; _ad.on=true; _ad.sy=e.clientY;
       _ad.y0min=chart.scales.y.min; _ad.y0max=chart.scales.y.max;
       e.preventDefault(); _cvs.style.cursor='ns-resize';
+    } else if(mx>=ca.left&&mx<=ca.right&&my>=ca.top&&my<=ca.bottom){
+      /* chart area → pan (useful after zoom) */
+      _ad.mode='chartpan'; _ad.on=true; _ad.sx=e.clientX;
+      _ad.x0min=chart.scales.x.min||0; _ad.x0max=chart.scales.x.max||IDX_END;
+      _cvs.style.cursor='grabbing';
+      /* don't preventDefault here so tooltips still work */
     }
   });
 
   window.addEventListener('mousemove',function(e){
     if(!_ad.on) return;
-    if(_ad.mode==='xpan'){
+    if(_ad.mode==='xpan'||_ad.mode==='chartpan'){
       var dx=e.clientX-_ad.sx;
       var xs=chart.scales.x;
       var range=_ad.x0max-_ad.x0min;
+      if(range<=0) return;
+      var xMax=(mode==='proj')?50:IDX_END;
       var delta=Math.round(-dx*range/xs.width);
-      var isP=(mode==='proj'), xMax=isP?50:IDX_END;
       var nmin=Math.max(0,_ad.x0min+delta);
       var nmax=Math.min(xMax,_ad.x0max+delta);
       if(nmax-nmin>=5){
-        chart.options.scales.x.min=nmin; chart.options.scales.x.max=nmax;
-        chart.update('none'); window._showRZ();
+        chart.options.scales.x.min=nmin;
+        chart.options.scales.x.max=nmax;
+        chart.update('none');
+        window._showRZ();
       }
     } else if(_ad.mode==='yzoom'){
       var dy=e.clientY-_ad.sy;
@@ -617,14 +613,49 @@
       var nmin2=Math.max(500,Math.round(ctr-half));
       var nmax2=Math.min(3000,Math.round(ctr+half));
       if(nmax2-nmin2>80){
-        chart.options.scales.y.min=nmin2; chart.options.scales.y.max=nmax2;
-        chart.update('none'); window._showRZ();
+        chart.options.scales.y.min=nmin2;
+        chart.options.scales.y.max=nmax2;
+        chart.update('none');
+        window._showRZ();
       }
     }
   });
 
   window.addEventListener('mouseup',function(){
-    if(_ad.on){ _ad.on=false; _ad.mode=null; _cvs.style.cursor='crosshair'; }
+    if(_ad.on){ _ad.on=false; var m=_ad.mode; _ad.mode=null;
+      _cvs.style.cursor=(m==='chartpan')?'grab':'crosshair'; }
+  });
+
+  /* Cursor hints */
+  _cvs.addEventListener('mousemove',function(e){
+    if(_ad.on||!chart) return;
+    var r=_cvs.getBoundingClientRect();
+    var rx=_cvs.width/r.width, ry=_cvs.height/r.height;
+    var mx=(e.clientX-r.left)*rx, my=(e.clientY-r.top)*ry;
+    var ca=chart.chartArea;
+    if(my>ca.bottom+2) _cvs.style.cursor='ew-resize';
+    else if(mx<ca.left-2) _cvs.style.cursor='ns-resize';
+    else if(mx>=ca.left&&mx<=ca.right&&my>=ca.top&&my<=ca.bottom) _cvs.style.cursor='grab';
+    else _cvs.style.cursor='default';
+  });
+
+  /* Double-click → reset zoom */
+  _cvs.addEventListener('dblclick',function(){ window.resetZoom(); });
+
+  /* Ctrl+Wheel → Y-axis zoom */
+  _cvs.addEventListener('wheel',function(e){
+    if(e.ctrlKey||e.metaKey){
+      e.preventDefault();
+      var ys=chart.scales.y;
+      var f=e.deltaY>0?1.12:0.88;
+      var ctr=(ys.max+ys.min)/2, half=(ys.max-ys.min)/2*f;
+      chart.options.scales.y.min=Math.max(500,Math.round(ctr-half));
+      chart.options.scales.y.max=Math.min(3000,Math.round(ctr+half));
+      chart.update('none'); window._showRZ();
+    }
+  },{passive:false});
+
+  _cvs.style.cursor='crosshair'; }
   });
 
   /* Cursor hints on hover */
