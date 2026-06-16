@@ -75,27 +75,29 @@
          background:var(--bg-card);border-radius:8px;display:inline-block;border:1px solid var(--brd);}
   .stamp span{color:var(--txt);font-weight:500;}
 
+
   /* ── Scenario Table ── */
-  #scenPanel{display:none;margin-top:12px;}
-  #scenToggle{font-size:11px;padding:4px 12px;border-radius:20px;
+  #scenWrap{display:none;margin-top:10px;max-width:680px;}
+  #scenToggle{font-size:11px;padding:4px 14px;border-radius:20px;
     border:1px solid var(--brd);background:var(--bg-card);color:var(--txt2);
-    cursor:pointer;transition:all .15s;font-family:var(--font);margin-bottom:8px;}
+    cursor:pointer;transition:all .15s;font-family:var(--font);margin-bottom:10px;}
   #scenToggle:hover{border-color:var(--brd-hov);color:var(--txt);}
-  .scen-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font);}
-  .scen-table th{text-align:right;padding:6px 10px;color:var(--txt3);
-    font-weight:500;border-bottom:1px solid var(--brd);font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
-  .scen-table th:first-child{text-align:left;}
-  .scen-table td{text-align:right;padding:6px 10px;color:var(--txt);border-bottom:1px solid rgba(255,255,255,.04);}
-  .scen-table td:first-child{text-align:left;color:var(--txt2);font-size:11px;}
+  #scenPanel{overflow-x:auto;}
+  .scen-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font);white-space:nowrap;}
+  .scen-table th{text-align:right;padding:7px 14px;color:var(--txt3);font-weight:500;
+    border-bottom:1px solid var(--brd);font-size:10px;text-transform:uppercase;letter-spacing:.07em;}
+  .scen-table th:first-child{text-align:left;min-width:170px;}
+  .scen-table td{text-align:right;padding:7px 14px;color:var(--txt);border-bottom:1px solid rgba(255,255,255,.04);}
+  .scen-table td:first-child{text-align:left;color:var(--txt2);}
   .scen-table tr:last-child td{border-bottom:none;}
-  .scen-table tr.scen-techo td{color:var(--amber);font-weight:500;}
-  .scen-table tr.scen-techo td:first-child{color:var(--amber);}
-  .scen-table tr.scen-custom td{color:var(--teal);}
-  .scen-table tr.scen-custom td:first-child{color:var(--teal);}
-  .scen-brecha-input{width:42px;background:var(--bg-hover);border:1px solid var(--brd);
+  .scen-table .row-techo td{color:var(--amber);}
+  .scen-table .row-techo td:first-child{color:var(--amber);font-weight:500;}
+  .scen-table .row-custom td{color:var(--teal);}
+  .scen-table .row-custom td:first-child{color:var(--teal);}
+  .brecha-inp{width:38px;background:var(--bg-hover);border:1px solid var(--brd);
     border-radius:4px;color:var(--teal);font-size:12px;font-family:var(--font);
-    text-align:center;padding:1px 4px;outline:none;font-weight:500;}
-  .scen-brecha-input:focus{border-color:var(--teal);}
+    text-align:center;padding:1px 3px;outline:none;}
+  .brecha-inp:focus{border-color:var(--teal);}
   .footnote{font-size:10.5px;color:var(--txt2);margin-top:8px;line-height:1.6;}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -154,16 +156,16 @@
 </div>
 
 
-<div id="scenWrap" style="display:none;margin-top:4px;">
+</div>
+
+<div id="scenWrap">
   <button id="scenToggle" onclick="window.toggleScen()">▼ Ver tabla de escenarios</button>
-  <div id="scenPanel">
+  <div id="scenPanel" style="display:none;">
     <table class="scen-table">
-      <thead>
-        <tr>
-          <th>Escenario</th>
-          <th>Ago 26</th><th>Sep 26</th><th>Oct 26</th><th>Nov 26</th><th>Dic 26</th>
-        </tr>
-      </thead>
+      <thead><tr>
+        <th>Escenario</th>
+        <th>Ago 26</th><th>Sep 26</th><th>Oct 26</th><th>Nov 26</th><th>Dic 26</th>
+      </tr></thead>
       <tbody id="scenBody"></tbody>
     </table>
   </div>
@@ -509,6 +511,8 @@
     document.getElementById('mD').textContent=descs[m]||'';
     document.getElementById('legP').style.display=isP?'flex':'none';
     document.getElementById('legB').style.display=isB?'flex':'none';
+    var _sw=document.getElementById('scenWrap'); if(_sw) _sw.style.display=isP?'block':'none';
+    if(!isP&&_scenOpen){_scenOpen=false;var _sp=document.getElementById('scenPanel');if(_sp)_sp.style.display='none';var _st=document.getElementById('scenToggle');if(_st)_st.textContent='▼ Ver tabla de escenarios';}
   };
 
   
@@ -780,51 +784,6 @@
   _cvs.style.cursor='crosshair';
 
 
-  /* ── SCENARIO TABLE ── */
-  var _scenOpen=false;
-  window.toggleScen=function(){
-    _scenOpen=!_scenOpen;
-    document.getElementById('scenPanel').style.display=_scenOpen?'block':'none';
-    document.getElementById('scenToggle').textContent=
-      (_scenOpen?'▲':'▼')+' Ver tabla de escenarios';
-    if(_scenOpen) window.renderScen();
-  };
-
-  window.renderScen=function(){
-    var months=['Ago 26','Sep 26','Oct 26','Nov 26','Dic 26'];
-    /* pT monthly values at indices 46-50 */
-    var techos=pT.slice(46,51);
-    var brechaVal=parseFloat(document.getElementById('customBrecha').value)||15;
-    var rows=[
-      {label:'Techo proyectado', cls:'scen-techo',
-       vals:techos.map(function(t){return t;})},
-      {label:'Mantiene brecha ~23%', cls:'',
-       vals:techos.map(function(t){return Math.round(t/1.231);})},
-      {label:'Brecha 5%', cls:'',
-       vals:techos.map(function(t){return Math.round(t/1.05);})},
-      {label:'REM consenso', cls:'',
-       vals:[1476,1516,1553,1597,1658]},
-      {label:'custom', cls:'scen-custom', custom:true,
-       vals:techos.map(function(t){return Math.round(t/(1+brechaVal/100));})}
-    ];
-    var body=document.getElementById('scenBody');
-    body.innerHTML=rows.map(function(row){
-      var label=row.custom
-        ? '<span style="color:var(--txt3)">Brecha</span> '+
-          '<input id="customBrecha" class="scen-brecha-input" type="number" '+
-          'min="0" max="100" value="'+brechaVal+'" '+
-          'oninput="window.renderScen()">'+
-          '<span style="color:var(--txt3)">%</span>'
-        : row.label;
-      return '<tr class="'+row.cls+'"><td>'+label+'</td>'+
-        row.vals.map(function(v){
-          return '<td>$'+Math.round(v).toLocaleString('es-AR')+'</td>';
-        }).join('')+'</tr>';
-    }).join('');
-  };
-
-  /* Show/hide table panel with proj mode */
-  var _origSwScen=window.sw;
   window.sw=function(m){
     _origSwScen(m);
     var wrap=document.getElementById('scenWrap');
@@ -835,6 +794,50 @@
       document.getElementById('scenToggle').textContent='▼ Ver tabla de escenarios';
     }
   };
+
+  /* ── SCENARIO TABLE ── */
+  var _scenOpen=false;
+  var _tM=[1900.22, 1953.43, 2004.22, 2052.32, 2097.47];   /* monthly techo Aug-Dec */
+  var _rM=[1476, 1516, 1553, 1597, 1658];     /* REM consenso Aug-Dec */
+
+  function _fmt(v){ return '$'+Math.round(v).toLocaleString('es-AR'); }
+
+  window.toggleScen=function(){
+    _scenOpen=!_scenOpen;
+    document.getElementById('scenPanel').style.display=_scenOpen?'':'none';
+    document.getElementById('scenToggle').textContent=
+      (_scenOpen?'▲':'▼')+' Ver tabla de escenarios';
+    if(_scenOpen) window.renderScen();
+  };
+
+  window.renderScen=function(){
+    var inp=document.getElementById('brechaInp');
+    var br=inp?parseFloat(inp.value)||15:15;
+    var rows=[
+      {cls:'row-techo', label:'Techo proyectado',
+        vals:_tM.map(function(t){return t;})},
+      {cls:'', label:'Mantiene brecha ~23%',
+        vals:_tM.map(function(t){return t/1.231;})},
+      {cls:'', label:'Brecha 5%',
+        vals:_tM.map(function(t){return t/1.05;})},
+      {cls:'', label:'REM consenso',
+        vals:_rM},
+      {cls:'row-custom', isCustom:true,
+        vals:_tM.map(function(t){return t/(1+br/100);})}
+    ];
+    document.getElementById('scenBody').innerHTML=rows.map(function(r){
+      var lbl=r.isCustom
+        ? '<span style="color:var(--txt3)">Brecha&nbsp;</span>'+
+          '<input id="brechaInp" class="brecha-inp" type="number" min="0" max="99" '+
+          'value="'+br+'" oninput="window.renderScen()">'+
+          '<span style="color:var(--txt3)">&nbsp;%</span>'
+        : r.label;
+      return '<tr class="'+r.cls+'"><td>'+lbl+'</td>'+
+        r.vals.map(function(v){return '<td>'+_fmt(v)+'</td>';}).join('')+
+        '</tr>';
+    }).join('');
+  };
+
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
   sw('hist');
   applyPeriod();
