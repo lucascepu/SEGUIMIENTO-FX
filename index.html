@@ -567,8 +567,7 @@
   _cvs.addEventListener('mousedown',function(e){
     if(!chart) return;
     var r=_cvs.getBoundingClientRect();
-    var rx=_cvs.width/r.width, ry=_cvs.height/r.height;
-    var mx=(e.clientX-r.left)*rx, my=(e.clientY-r.top)*ry;
+    var mx=e.clientX-r.left, my=e.clientY-r.top;
     var ca=chart.chartArea;
     if(my>ca.bottom+2){
       /* x-axis area → pan dates */
@@ -661,8 +660,7 @@
   _cvs.addEventListener('mousemove',function(e){
     if(_ad.on||!chart) return;
     var r=_cvs.getBoundingClientRect();
-    var rx=_cvs.width/r.width, ry=_cvs.height/r.height;
-    var mx=(e.clientX-r.left)*rx, my=(e.clientY-r.top)*ry;
+    var mx=e.clientX-r.left, my=e.clientY-r.top;
     var ca=chart.chartArea;
     if(my>ca.bottom+2) _cvs.style.cursor='ew-resize';
     else if(mx<ca.left-2) _cvs.style.cursor='ns-resize';
