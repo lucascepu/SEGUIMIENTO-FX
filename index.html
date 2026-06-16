@@ -74,6 +74,28 @@
   .stamp{font-size:11px;color:var(--txt2);margin-top:10px;padding:6px 12px;
          background:var(--bg-card);border-radius:8px;display:inline-block;border:1px solid var(--brd);}
   .stamp span{color:var(--txt);font-weight:500;}
+
+  /* ── Scenario Table ── */
+  #scenPanel{display:none;margin-top:12px;}
+  #scenToggle{font-size:11px;padding:4px 12px;border-radius:20px;
+    border:1px solid var(--brd);background:var(--bg-card);color:var(--txt2);
+    cursor:pointer;transition:all .15s;font-family:var(--font);margin-bottom:8px;}
+  #scenToggle:hover{border-color:var(--brd-hov);color:var(--txt);}
+  .scen-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font);}
+  .scen-table th{text-align:right;padding:6px 10px;color:var(--txt3);
+    font-weight:500;border-bottom:1px solid var(--brd);font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+  .scen-table th:first-child{text-align:left;}
+  .scen-table td{text-align:right;padding:6px 10px;color:var(--txt);border-bottom:1px solid rgba(255,255,255,.04);}
+  .scen-table td:first-child{text-align:left;color:var(--txt2);font-size:11px;}
+  .scen-table tr:last-child td{border-bottom:none;}
+  .scen-table tr.scen-techo td{color:var(--amber);font-weight:500;}
+  .scen-table tr.scen-techo td:first-child{color:var(--amber);}
+  .scen-table tr.scen-custom td{color:var(--teal);}
+  .scen-table tr.scen-custom td:first-child{color:var(--teal);}
+  .scen-brecha-input{width:42px;background:var(--bg-hover);border:1px solid var(--brd);
+    border-radius:4px;color:var(--teal);font-size:12px;font-family:var(--font);
+    text-align:center;padding:1px 4px;outline:none;font-weight:500;}
+  .scen-brecha-input:focus{border-color:var(--teal);}
   .footnote{font-size:10.5px;color:var(--txt2);margin-top:8px;line-height:1.6;}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -131,6 +153,21 @@
   <canvas id="mc3"></canvas>
 </div>
 
+
+<div id="scenWrap" style="display:none;margin-top:4px;">
+  <button id="scenToggle" onclick="window.toggleScen()">▼ Ver tabla de escenarios</button>
+  <div id="scenPanel">
+    <table class="scen-table">
+      <thead>
+        <tr>
+          <th>Escenario</th>
+          <th>Ago 26</th><th>Sep 26</th><th>Oct 26</th><th>Nov 26</th><th>Dic 26</th>
+        </tr>
+      </thead>
+      <tbody id="scenBody"></tbody>
+    </table>
+  </div>
+</div>
 <div class="stamp">
   Última actualización: <span>12 jun 2026</span> &nbsp;·&nbsp;
   SIOPEL: <span>$1.428,00</span> &nbsp;·&nbsp;
@@ -742,6 +779,62 @@
   /* Canvas base cursor */
   _cvs.style.cursor='crosshair';
 
+
+  /* ── SCENARIO TABLE ── */
+  var _scenOpen=false;
+  window.toggleScen=function(){
+    _scenOpen=!_scenOpen;
+    document.getElementById('scenPanel').style.display=_scenOpen?'block':'none';
+    document.getElementById('scenToggle').textContent=
+      (_scenOpen?'▲':'▼')+' Ver tabla de escenarios';
+    if(_scenOpen) window.renderScen();
+  };
+
+  window.renderScen=function(){
+    var months=['Ago 26','Sep 26','Oct 26','Nov 26','Dic 26'];
+    /* pT monthly values at indices 46-50 */
+    var techos=pT.slice(46,51);
+    var brechaVal=parseFloat(document.getElementById('customBrecha').value)||15;
+    var rows=[
+      {label:'Techo proyectado', cls:'scen-techo',
+       vals:techos.map(function(t){return t;})},
+      {label:'Mantiene brecha ~23%', cls:'',
+       vals:techos.map(function(t){return Math.round(t/1.231);})},
+      {label:'Brecha 5%', cls:'',
+       vals:techos.map(function(t){return Math.round(t/1.05);})},
+      {label:'REM consenso', cls:'',
+       vals:[1476,1516,1553,1597,1658]},
+      {label:'custom', cls:'scen-custom', custom:true,
+       vals:techos.map(function(t){return Math.round(t/(1+brechaVal/100));})}
+    ];
+    var body=document.getElementById('scenBody');
+    body.innerHTML=rows.map(function(row){
+      var label=row.custom
+        ? '<span style="color:var(--txt3)">Brecha</span> '+
+          '<input id="customBrecha" class="scen-brecha-input" type="number" '+
+          'min="0" max="100" value="'+brechaVal+'" '+
+          'oninput="window.renderScen()">'+
+          '<span style="color:var(--txt3)">%</span>'
+        : row.label;
+      return '<tr class="'+row.cls+'"><td>'+label+'</td>'+
+        row.vals.map(function(v){
+          return '<td>$'+Math.round(v).toLocaleString('es-AR')+'</td>';
+        }).join('')+'</tr>';
+    }).join('');
+  };
+
+  /* Show/hide table panel with proj mode */
+  var _origSwScen=window.sw;
+  window.sw=function(m){
+    _origSwScen(m);
+    var wrap=document.getElementById('scenWrap');
+    if(wrap) wrap.style.display=(m==='proj')?'block':'none';
+    if(m!=='proj'&&_scenOpen){
+      _scenOpen=false;
+      document.getElementById('scenPanel').style.display='none';
+      document.getElementById('scenToggle').textContent='▼ Ver tabla de escenarios';
+    }
+  };
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
   sw('hist');
   applyPeriod();
