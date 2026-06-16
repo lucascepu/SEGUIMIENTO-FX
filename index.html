@@ -307,7 +307,7 @@
     'Ago','Sep','Oct','Nov','Dic 26']);
   var pDispLbl=pLbl.map(function(l){ return pShow.has(l)?(LM[l]||l):''; });
 
-  var pPt=N(31); pPt[4]=3; pPt[5]=3; pPt[6]=3; pPt[7]=3; pPt[8]=3; pPt[9]=3; pPt[10]=3; pPt[11]=3; pPt[12]=3; pPt[13]=3; pPt[14]=7;
+  var pPt=N(51); pPt[4]=3; pPt[5]=3; pPt[6]=3; pPt[7]=3; pPt[8]=3; pPt[9]=3; pPt[10]=3; pPt[11]=3; pPt[12]=3; pPt[13]=3; pPt[14]=7;
   var pPtSc=N(51); for(var k=46;k<51;k++) pPtSc[k]=3;
   var tPtSc=N(51); for(var k=46;k<51;k++) tPtSc[k]=4;
 
@@ -505,7 +505,7 @@
     bP.className='btn '+(isP?'btn-on':'btn-off');
     bB.className='btn '+(isB?'btn-on':'btn-off');
 
-    var descs={hist:'Histórico completo: SIOPEL diario abr 2025 – 10-JUN 2026 vs techo banda BCRA.',
+    var descs={hist:'Histórico completo: SIOPEL diario abr 2025 – 16-JUN 2026 vs techo banda BCRA.',
                proj:'Mayo real + techo jun-jul oficial + escenarios TC desde ago 2026.',
                brecha:'Evolución diaria de la brecha % (techo − SIOPEL) / SIOPEL.'};
     document.getElementById('mD').textContent=descs[m]||'';
