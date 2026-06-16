@@ -46,7 +46,7 @@
   .leg-d5{border-top:1.5px dashed var(--teal);}
   .leg-d6{border-top:1.5px dashed var(--coral);}
   /* chart container includes space for x-axis labels */
-  .chart-wrap{position:relative;width:100%;height:500px;padding-bottom:12px;}
+  .chart-wrap{position:relative;width:100%;height:500px;}
   .stamp{font-size:11px;color:var(--txt2);margin-top:10px;padding:6px 10px;
          background:var(--bg2);border-radius:6px;display:inline-block;border:1px solid var(--brd);}
   .stamp span{color:var(--txt);font-weight:500;}
@@ -324,7 +324,7 @@
     ]},
     options:{
       responsive:true,
-      layout:{padding:{bottom:8}}, maintainAspectRatio:false,
+      maintainAspectRatio:false,
       plugins:{
         zoom:{
           limits:{ x:{min:0,max:IDX_END,minRange:5}, y:{min:500,max:3000,minRange:80} },
@@ -366,8 +366,9 @@
         x:{
           min:216, max:312,
           /* Force enough height so rotated labels are never clipped */
-          afterFit: function(scale){ if(scale.height<60) scale.height=60; },
-          grid:{color:gc},
+          afterFit: function(scale){ if(scale.height<48) scale.height=48; },
+          border:{ display:true, color:'rgba(255,255,255,.18)', width:1 },
+          grid:{color:gc, drawTicks:true},
           ticks:{
             color:tc,
             font:{size:10, weight:'600'},
