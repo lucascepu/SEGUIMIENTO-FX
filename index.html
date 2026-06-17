@@ -784,17 +784,7 @@
   _cvs.style.cursor='crosshair';
 
 
-  window.sw=function(m){
-    _origSwScen(m);
-    var wrap=document.getElementById('scenWrap');
-    if(wrap) wrap.style.display=(m==='proj')?'block':'none';
-    if(m!=='proj'&&_scenOpen){
-      _scenOpen=false;
-      document.getElementById('scenPanel').style.display='none';
-      document.getElementById('scenToggle').textContent='▼ Ver tabla de escenarios';
-    }
-  };
-
+  
   /* ── SCENARIO TABLE ── */
   var _scenOpen=false;
   var _tM=[1900.22, 1953.43, 2004.22, 2052.32, 2097.47];   /* monthly techo Aug-Dec */
