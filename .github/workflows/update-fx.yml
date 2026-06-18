@@ -1,0 +1,77 @@
+name: Actualizar SIOPEL diario
+
+on:
+  schedule:
+    - cron: '0 22 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      fecha:
+        description: 'Fecha (YYYY-MM-DD). Vacío = hoy'
+        required: false
+        default: ''
+      valor_manual:
+        description: 'Valor FX manual (solo si la API falla)'
+        required: false
+        default: ''
+
+jobs:
+  update-fx:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Determinar fecha
+        id: fecha
+        run: |
+          if [ -n "${{ github.event.inputs.fecha }}" ]; then
+            echo "fecha=${{ github.event.inputs.fecha }}" >> $GITHUB_OUTPUT
+          else
+            echo "fecha=$(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verificar si es día hábil
+        id: habil
+        run: |
+          DIA=$(date -d "${{ steps.fecha.outputs.fecha }}" +%u)
+          if [ "$DIA" -ge 6 ]; then
+            echo "habil=false" >> $GITHUB_OUTPUT
+          else
+            echo "habil=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Ejecutar update_fx.py
+        if: steps.habil.outputs.habil == 'true'
+        run: |
+          ARGS="${{ steps.fecha.outputs.fecha }}"
+          if [ -n "${{ github.event.inputs.valor_manual }}" ]; then
+            ARGS="$ARGS ${{ github.event.inputs.valor_manual }}"
+          fi
+          python3 scripts/update_fx.py $ARGS
+
+      - name: Commit y push si hubo cambios
+        if: steps.habil.outputs.habil == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet index.html; then
+            echo "Sin cambios — posiblemente ya actualizado o no hubo rueda."
+          else
+            FECHA="${{ steps.fecha.outputs.fecha }}"
+            git add index.html
+            git commit -m "data: SIOPEL $FECHA (auto-update BCRA API)"
+            git push
+          fi
