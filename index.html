@@ -121,6 +121,7 @@
 <div id="mD" class="mode-desc"></div>
 
 <div class="legend">
+  <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
   <span class="leg-item"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
   <span class="leg-item"><span class="leg-line leg-d2"></span>prom. 6M (rolling)</span>
@@ -509,6 +510,7 @@
                proj:'Mayo real + techo jun-jul oficial + escenarios TC desde ago 2026.',
                brecha:'Evolución diaria de la brecha % (techo − SIOPEL) / SIOPEL.'};
     document.getElementById('mD').textContent=descs[m]||'';
+    document.getElementById('legH').style.display=isH?'flex':'none';
     document.getElementById('legP').style.display=isP?'flex':'none';
     document.getElementById('legB').style.display=isB?'flex':'none';
     var _sw=document.getElementById('scenWrap'); if(_sw) _sw.style.display=isP?'block':'none';
