@@ -290,6 +290,21 @@ html = re.sub(r"<span>\d+ \w+ 2026</span>",
               html, count=1)
 print(f"  ✓ Stamp: {fecha.day} {fecha.strftime('%b').lower()} 2026")
 
+
+# 8k. Bottom bar (Última actualización)
+html = re.sub(r'(SIOPEL: <span>)\$[^<]+(</span>)',
+              rf'\g<1>${{fmt_ars(siopel_new)}}\2', html, count=1)
+html = re.sub(r'(Techo: <span>)\$[^<]+(</span>)',
+              rf'\g<1>${{fmt_ars(techo_new)}}\2', html, count=1)
+html = re.sub(r'(Brecha: <span>)\+[^<]+(</span>)',
+              rf'\g<1>+{{brecha_new}}%\2', html, count=1)
+print(f"  ✓ Bottom bar: SIOPEL/Techo/Brecha actualizados")
+
+# 8l. Hist mode description date
+html = re.sub(r'\d+-[A-Z]+ 2026 vs techo banda BCRA',
+              f"{fecha.day}-{mes_upper} 2026 vs techo banda BCRA", html)
+print(f"  ✓ Hist desc: {fecha.day}-{mes_upper} 2026")
+
 # ── 9. Guardar ──────────────────────────────────────────────────────────────
 with open(HTML_PATH, "w", encoding="utf-8") as f:
     f.write(html)
