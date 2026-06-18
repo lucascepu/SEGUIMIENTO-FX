@@ -115,7 +115,7 @@ def bcra_cotizacion(fecha_api):
     for d in detalle:
         print(f"    tipoPase={d.get('tipoPase')}  tipoCotizacion={d.get('tipoCotizacion')}  desc={d.get('descripcion')}")
 
-    # Buscar DIVISA VENTA
+    # Buscar DIVISA VENTA (formato ideal)
     for d in detalle:
         desc = (d.get("descripcion") or "").upper()
         if "DIVISA" in desc and "VENTA" in desc:
@@ -123,31 +123,48 @@ def bcra_cotizacion(fecha_api):
             print(f"  ✓ DIVISA VENTA: {val}")
             return val
 
-    # Fallback: mayor valor entre DIVISA (venta > compra)
-    divs = [float(d.get("tipoCotizacion", 0))
-            for d in detalle if "DIVISA" in (d.get("descripcion") or "").upper()]
+    # Buscar cualquier DIVISA (venta > compra por valor mayor)
+    divs = [(float(d.get("tipoCotizacion", 0)), d.get("descripcion",""))
+            for d in detalle if "DIVISA" in (d.get("descripcion") or "").upper()
+            and float(d.get("tipoCotizacion", 0)) > 100]
     if divs:
-        val = max(divs)
+        val = max(v for v,_ in divs)
         print(f"  ~ Fallback max DIVISA: {val}")
+        return val
+
+    # BCRA a veces devuelve desc="DOLAR E.E.U.U." — tomar el mayor valor plausible
+    plausibles = [float(d.get("tipoCotizacion", 0))
+                  for d in detalle if float(d.get("tipoCotizacion", 0)) > 500]
+    if plausibles:
+        val = max(plausibles)
+        print(f"  ~ Fallback max cotizacion plausible: {val}")
         return val
     return None
 
 def bcra_variable4(fecha_api):
-    """API Principales Variables BCRA — Variable 4: Tipo cambio mayorista A3500"""
-    url = (f"https://api.bcra.gob.ar/estadisticas/v2.0/DatosVariable/4"
-           f"/{fecha_api}/{fecha_api}")
-    req = urllib.request.Request(url, headers={
-        "Accept":     "application/json",
-        "User-Agent": "SIOPEL-Dashboard/1.0"
-    })
-    with urllib.request.urlopen(req, timeout=15) as r:
-        data = json.load(r)
-    results = data.get("results", [])
-    if results:
-        val = float(results[-1].get("valor", 0))
-        print(f"  ✓ Variable 4 (mayorista A3500): {val}")
-        return val
-    return None
+    """API Principales Variables BCRA — Variable 4: Tipo cambio mayorista A3500
+    NOTA: endpoint puede retornar 410 Gone en algunos entornos."""
+    try:
+        url = (f"https://api.bcra.gob.ar/estadisticas/v2.0/DatosVariable/4"
+               f"/{fecha_api}/{fecha_api}")
+        req = urllib.request.Request(url, headers={
+            "Accept":     "application/json",
+            "User-Agent": "SIOPEL-Dashboard/1.0"
+        })
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = json.load(r)
+        results = data.get("results", [])
+        if results:
+            val = float(results[-1].get("valor", 0))
+            print(f"  ✓ Variable 4 (mayorista A3500): {val}")
+            return val
+        return None
+    except urllib.error.HTTPError as e:
+        if e.code in (410, 404):
+            print(f"  INFO: Variable 4 no disponible (HTTP {e.code}) — endpoint deprecado")
+        else:
+            raise
+        return None
 
 if not siopel_new:
     print("Consultando API Estadísticas Cambiarias BCRA...")
