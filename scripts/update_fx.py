@@ -271,14 +271,16 @@ def fmt_ars(v):
     s = f"{v:,.2f}"          # "1,436.50"
     return s.replace(",","X").replace(".",",").replace("X",".")  # "1.436,50"
 
+# Use plain string replace for cards to avoid quote-escaping issues
+# Find and replace SIOPEL card value
 html = re.sub(
-    r"(SIOPEL \()\d+/\d+(\))</div><div class=\"card-val\">\$[^<]+</div>",
-    rf"\g<1>{fecha.day}/{fecha.month}\2</div><div class=\"card-val\">${fmt_ars(siopel_new)}</div>",
+    r'(SIOPEL \()\d+/\d+(\)</div><div class="card-val">)\$[^<]+(</div>)',
+    rf'\g<1>{fecha.day}/{fecha.month}\2${fmt_ars(siopel_new)}\3',
     html, count=1
 )
 html = re.sub(
-    r"(TECHO BCRA</div><div class=\"card-val\">)\$[^<]+</div>",
-    rf"\g<1>${fmt_ars(techo_new)}</div>",
+    r'(TECHO BCRA</div><div class="card-val">)\$[^<]+(</div>)',
+    rf'\g<1>${fmt_ars(techo_new)}\2',
     html, count=1
 )
 html = re.sub(r">\+[\d.]+%<", f">+{brecha_new}%<", html, count=1)
