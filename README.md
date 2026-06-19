@@ -168,3 +168,54 @@ node test/smoke-test.js
 - [ ] Manejar el caso de agosto–diciembre 2026 cuando los arrays actuales se agoten
 - [ ] Considerar persistencia de datos via GitHub API directa desde el browser (eliminar el script Python)
 - [ ] Agregar alertas si la brecha supera cierto umbral
+
+---
+
+## Lógica de ventana temporal y mantenimiento mensual
+
+> Documentado: 19 de junio de 2026
+
+### Principio de diseño
+
+El modo **Histórico Completo** solo contiene techos BCRA **reales y oficiales**. Nunca proyectados.
+
+El BCRA calcula el techo del mes M+2 usando la inflación real del mes M-1:
+
+```
+Techo julio 2026    ← inflación real de mayo 2026   → ya informado ✓
+Techo agosto 2026   ← inflación real de junio 2026  → se informa ~mediados de julio
+Techo septiembre    ← inflación real de julio 2026  → se informa ~mediados de agosto
+```
+
+### Ventana de período por defecto ("May-Jul")
+
+La vista por defecto muestra siempre: **mes anterior + mes actual + mes siguiente**.
+
+Esta ventana se desplaza automáticamente — el cálculo es dinámico basado en `lri`
+(índice del último dato real) e `IDX_END`. No se borra ningún dato histórico;
+los meses más viejos simplemente quedan fuera de la vista por defecto
+y siguen accesibles desde "Serie completa" o el date picker.
+
+### Qué pasa automáticamente cada mes
+
+- Las ruedas diarias se agregan solas (GitHub Actions, 17:30 hs Argentina)
+- La ventana se desplaza sola a medida que `lri` avanza
+- `brechaVals`, `hA`, `avgRef` se recalculan en el cliente al cargar
+
+### Intervención manual única por mes (cuando BCRA publica inflación real)
+
+1. **Calcular los valores diarios del nuevo techo** usando la fórmula del crawling peg
+   con la inflación real recién publicada
+2. **Extender `hT`** con los nuevos valores diarios del mes siguiente
+3. **Extender `hLbl` / `hDispLbl`** con las fechas del nuevo mes
+4. **Actualizar `IDX_END`** al último día del nuevo mes
+5. **Actualizar el label del botón** (ej: "May-Jul" → "Jun-Ago")
+
+Todo esto se hace en una sola pasada al momento del anuncio del BCRA,
+típicamente a mediados del mes siguiente al que se está cerrando.
+
+### Meses proyectados
+
+Los valores para meses futuros sin techo oficial viven exclusivamente en la
+solapa **Proyección** (`pT`, `pS`, `pSCA`, `pSCB`, `pSCC`, `pREM`).
+Nunca se mezclan con el array `hT` del modo Histórico.
