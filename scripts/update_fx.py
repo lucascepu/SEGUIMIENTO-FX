@@ -218,21 +218,10 @@ html = re.sub(rf"hPt\[{cur_hist_idx}\]=7;",
               f"hPt[{cur_hist_idx}]=3; hPt[{new_hist_idx}]=7;", html)
 print(f"  ✓ hPt: [{cur_hist_idx}]=3 → [{new_hist_idx}]=7")
 
-# 8c. brechaVals
-html = re.sub(
-    rf"(brechaVals\[{cur_hist_idx}\]={re.escape(str(prev_brecha))};)",
-    rf"\1\n  brechaVals[{new_hist_idx}]={brecha_new};",
-    html
-)
-print(f"  ✓ brechaVals[{new_hist_idx}] = {brecha_new}")
-
-# 8d. hA + avgRef: append after cur line
-html = re.sub(
-    rf"(hA\[{cur_hist_idx}\]=\d+;)",
-    rf"\1\n  hA[{new_hist_idx}]={hA_new};\n  avgRef[{new_hist_idx}]=15.2;",
-    html
-)
-print(f"  ✓ hA[{new_hist_idx}]={hA_new}  avgRef[{new_hist_idx}]=15.2")
+# 8c/8d. brechaVals/hA/avgRef — NOT needed here:
+#   brechaVals is computed dynamically (hS.map) on every page load.
+#   hA and avgRef are recomputed by setAvgWindow(curWindow) called on init.
+#   Updating hS (step 8a) is sufficient for the gray rolling avg line to work.
 
 # 8e. Zone ia
 html = html.replace(
@@ -294,13 +283,16 @@ print(f"  ✓ Stamp: {fecha.day} {fecha.strftime('%b').lower()} 2026")
 
 
 # 8k. Bottom bar (Última actualización)
+# Pre-compute formatted strings to avoid rf-string {{}} escaping issues
+_sF = fmt_ars(siopel_new)
+_tF = fmt_ars(techo_new)
 html = re.sub(r'(SIOPEL: <span>)\$[^<]+(</span>)',
-              rf'\g<1>${{fmt_ars(siopel_new)}}\2', html, count=1)
+              rf'\g<1>${_sF}\2', html, count=1)
 html = re.sub(r'(Techo: <span>)\$[^<]+(</span>)',
-              rf'\g<1>${{fmt_ars(techo_new)}}\2', html, count=1)
+              rf'\g<1>${_tF}\2', html, count=1)
 html = re.sub(r'(Brecha: <span>)\+[^<]+(</span>)',
-              rf'\g<1>+{{brecha_new}}%\2', html, count=1)
-print(f"  ✓ Bottom bar: SIOPEL/Techo/Brecha actualizados")
+              rf'\g<1>+{brecha_new}%\2', html, count=1)
+print(f"  ✓ Bottom bar: SIOPEL={_sF}  Techo={_tF}  Brecha={brecha_new}%")
 
 # 8l. Hist mode description date
 html = re.sub(r'\d+-[A-Z]+ 2026 vs techo banda BCRA',
