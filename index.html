@@ -105,6 +105,16 @@
 .pct-chip { font-size:10px; color:inherit; }
 .pct-val  { font-weight:700; color:inherit; }
 
+
+  /* ── Glosario ── */
+  .glosario { margin-top: 14px; padding: 12px 16px; background: var(--bg-card);
+              border: 1px solid var(--border); border-radius: 10px; }
+  .glosario-title { font-size: 10px; font-weight: 600; color: var(--txt3);
+                    letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .glosario-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px 24px; }
+  .glosario-item { font-size: 11px; color: var(--txt3); line-height: 1.5; }
+  .glosario-item strong { color: var(--txt2); font-weight: 600; }
+  @media(max-width:600px){ .glosario-grid{ grid-template-columns:1fr; } }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -198,6 +208,17 @@
   Brecha = (techo − SIOPEL) / SIOPEL. Prom. 6M: cierres mensuales dic 2025–may 2026.
   Proyecciones: REM BCRA (7-may-2026).
 </p>
+<div class="glosario">
+  <div class="glosario-title">Glosario</div>
+  <div class="glosario-grid">
+    <div class="glosario-item"><strong>SIOPEL (Divisa Venta)</strong> — Tipo de cambio mayorista de referencia publicado diariamente por el BCRA. Es el precio al que las entidades financieras venden divisas en el mercado interbancario.</div>
+    <div class="glosario-item"><strong>Techo BCRA</strong> — Límite superior de la banda cambiaria vigente. Si el SIOPEL lo alcanza, el BCRA interviene vendiendo reservas. Se ajusta mensualmente según el crawling peg oficial.</div>
+    <div class="glosario-item"><strong>Brecha %</strong> — Distancia porcentual del SIOPEL al techo: (Techo − SIOPEL) / SIOPEL. Indica cuánto margen queda antes de que el dólar toque el techo de la banda.</div>
+    <div class="glosario-item"><strong>Prom. 6M (rolling)</strong> — Promedio móvil de la brecha % calculado sobre los últimos 126 días hábiles (≈ 6 meses). Referencia de tendencia de mediano plazo.</div>
+    <div class="glosario-item"><strong>Percentil histórico</strong> — Indica qué porcentaje de los días desde abr-2025 tuvo una brecha inferior a la actual. Ejemplo: "85% días hist" = el 85% de los días la brecha fue menor que hoy → brecha actualmente alta.</div>
+    <div class="glosario-item"><strong>REM</strong> — Relevamiento de Expectativas de Mercado. Encuesta mensual del BCRA a ~46 analistas sobre sus proyecciones de inflación, tipo de cambio y tasas.</div>
+  </div>
+</div>
 
 <script>
 (function(){
