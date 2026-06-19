@@ -101,9 +101,9 @@
   .footnote{font-size:10.5px;color:var(--txt2);margin-top:8px;line-height:1.6;}
 
 /* ── Percentil brecha ── */
-.pct-row { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
-.pct-chip { font-size:10px; color:var(--txt3); display:flex; align-items:center; gap:4px; }
-.pct-val  { font-size:12px; font-weight:600; color:var(--txt); }
+.pct-row { display:flex; gap:8px; margin-top:4px; align-items:center; }
+.pct-chip { font-size:10px; color:inherit; }
+.pct-val  { font-weight:700; color:inherit; }
 
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,8 +118,8 @@
     <div class="card-label">Brecha SIOPEL/TECHO</div>
     <div class="card-val green" id="cardBrecha">+23.26%</div>
     <div class="pct-row" id="pctRow">
-      <span class="pct-chip">serie completa: <span class="pct-val" id="pctHist">—</span></span>
-      <span class="pct-chip">últ. 6M: <span class="pct-val" id="pct6m">—</span></span>
+      <span class="pct-chip">hist: <span class="pct-val" id="pctHist">—</span></span>
+      <span class="pct-chip">· 6M: <span class="pct-val" id="pct6m">—</span></span>
     </div>
   </div>
   <div class="card"><div class="card-label">prom. brecha <span id="winLabel">6M</span></div><div class="card-val" id="cardProm">+15.2%</div></div>
@@ -860,10 +860,11 @@
     );
     var elH = document.getElementById('pctHist');
     var el6 = document.getElementById('pct6m');
-    if(elH) elH.textContent = 'p' + pHist;
-    if(el6) el6.textContent = 'p' + p6M;
-    // Color: >75 = amber (brecha alta), <25 = teal (brecha baja), medio = gris
-    var col = pHist > 75 ? 'var(--amber)' : pHist < 25 ? 'var(--teal)' : 'var(--txt3)';
+    // Mostrar como "mayor al X% de los días"
+    var label = pHist > 75 ? 'ALTA' : pHist < 25 ? 'BAJA' : 'MEDIA';
+    var col   = pHist > 75 ? 'var(--amber)' : pHist < 25 ? 'var(--teal)' : 'var(--txt3)';
+    if(elH) elH.textContent = label + ' · ' + pHist + '% días hist';
+    if(el6) el6.textContent = p6M + '% días 6M';
     var row = document.getElementById('pctRow');
     if(row) row.style.color = col;
   }
