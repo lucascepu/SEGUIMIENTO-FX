@@ -2,7 +2,7 @@ name: Actualizar SIOPEL diario
 
 on:
   schedule:
-    - cron: '0 22 * * 1-5'
+    - cron: '30 20 * * 1-5'
   workflow_dispatch:
     inputs:
       fecha:
