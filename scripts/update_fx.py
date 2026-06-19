@@ -181,11 +181,14 @@ if not siopel_new:
         print(f"  Error: {e}")
 
 if not siopel_new:
-    print(f"\nERROR: No se pudo obtener el valor SIOPEL para {fecha_api}.")
-    print("El dato puede no estar disponible aún (BCRA publica después de las 18 hs).")
-    print("Si necesitás actualizar manualmente:")
+    # Si no hay valor manual y la API no devolvió datos → feriado o mercado cerrado
+    # Salimos limpio (exit 0) para que el workflow quede verde sin hacer commit
+    print(f"\nINFO: Sin datos BCRA para {fecha_api}.")
+    print("Causas posibles: feriado, mercado cerrado, o dato aún no publicado.")
+    print("El workflow termina sin cambios (exit 0 → verde en GitHub Actions).")
+    print("Para actualizar manualmente cuando tengas el dato:")
     print(f"  python3 scripts/update_fx.py {fecha_api} 1440.0")
-    sys.exit(1)
+    sys.exit(0)
 
 print(f"\nSIOPEL {fecha_api}: ${siopel_new:,.2f}")
 
