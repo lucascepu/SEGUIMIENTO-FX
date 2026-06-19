@@ -115,6 +115,26 @@
   .glosario-item { font-size: 11px; color: var(--txt3); line-height: 1.5; }
   .glosario-item strong { color: var(--txt2); font-weight: 600; }
   @media(max-width:600px){ .glosario-grid{ grid-template-columns:1fr; } }
+
+  /* ── Futuros panel ── */
+  #futPanel { display:none; }
+  .fut-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
+  .fut-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
+  .fut-table th { font-size:11px; font-weight:600; color:var(--txt3); padding:6px 10px;
+                  border-bottom:1px solid var(--border); text-align:right; text-transform:uppercase; }
+  .fut-table th:first-child { text-align:left; }
+  .fut-table td { padding:7px 10px; border-bottom:1px solid rgba(255,255,255,.05);
+                  text-align:right; color:var(--txt2); }
+  .fut-table td:first-child { text-align:left; font-weight:600; color:var(--txt); }
+  .fut-table tr:hover td { background:var(--bg-hover); }
+  .fut-input-row { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-top:14px; }
+  .fut-field { display:flex; flex-direction:column; gap:3px; }
+  .fut-field label { font-size:10px; font-weight:600; color:var(--txt3); letter-spacing:.05em; }
+  .fut-field select, .fut-field input { background:var(--bg-card); border:1px solid var(--border);
+    border-radius:8px; color:var(--txt); font-size:13px; padding:6px 10px; outline:none; min-width:110px; }
+  .fut-field select:focus, .fut-field input:focus { border-color:var(--blue); }
+  .fut-note { font-size:10px; color:var(--txt3); margin-top:6px; }
+  .chart-wrap-fut { height:220px; margin-bottom:14px; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -137,7 +157,7 @@
 
 <div id="deltaBar" class="delta-bar">—</div>
 <div class="toggle-row">
-  <button id="bH" class="btn btn-on"  onclick="sw('hist')">HISTÓRICO COMPLETO</button>
+  <button id="bH" class="btn btn-on"  onclick="sw('hist')">SIOPEL</button>
   <button id="bP" class="btn btn-off" onclick="sw('proj')">PROYECCIÓN (desde Mayo)</button>
   <button id="bB" class="btn btn-off" onclick="sw('brecha')">BRECHA</button>
 </div>
@@ -200,6 +220,71 @@
   Techo: <span>$1.788,47</span> &nbsp;·&nbsp;
   Brecha: <span>+23.26%</span> &nbsp;·&nbsp;
   Prom. 6M: <span>15.2%</span>
+</div>
+
+<!-- ── FUTUROS PANEL ── -->
+<div id="futPanel">
+  <!-- Cards -->
+  <div class="fut-cards">
+    <div class="card">
+      <div class="card-label">TEM implícita prom.</div>
+      <div class="card-val amber" id="futTEM">—</div>
+      <div class="card-sub">tasa efectiva mensual</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Futuro DIC 26</div>
+      <div class="card-val" id="futDic">—</div>
+      <div class="card-sub" id="futDicSub">ingresá precios</div>
+    </div>
+    <div class="card">
+      <div class="card-label">REM DIC 26</div>
+      <div class="card-val amber">$1.658</div>
+      <div class="card-sub">proyección may-26</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Diferencial Fut vs REM</div>
+      <div class="card-val" id="futVsRem">—</div>
+      <div class="card-sub">dic-26</div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-wrap-fut">
+    <canvas id="futCanvas"></canvas>
+  </div>
+
+  <!-- Table -->
+  <table class="fut-table" id="futTableEl">
+    <thead>
+      <tr>
+        <th>Contrato</th>
+        <th>Futuro ROFEX</th>
+        <th>REM may-26</th>
+        <th>Dif. %</th>
+        <th>TEM impl.</th>
+        <th>Techo BCRA</th>
+      </tr>
+    </thead>
+    <tbody id="futTbody"></tbody>
+  </table>
+
+  <!-- Update form -->
+  <div class="fut-input-row" style="margin-top:16px">
+    <div class="fut-field">
+      <label>CONTRATO</label>
+      <select id="futSelMes">
+        <option>JUL 26</option><option>AGO 26</option><option>SEP 26</option>
+        <option>OCT 26</option><option>NOV 26</option><option>DIC 26</option>
+      </select>
+    </div>
+    <div class="fut-field">
+      <label>PRECIO FUTURO</label>
+      <input type="number" id="futPrecio" placeholder="ej: 1470" step="0.5">
+    </div>
+    <button class="btn-submit" onclick="cargarFuturo()">Cargar</button>
+    <span class="msg-ok" id="futMsgOk" style="display:none;font-size:11px;color:var(--teal);align-self:center">✓ guardado</span>
+  </div>
+  <div class="fut-note">Fuente: Matba-Rofex (mercado.rava.com o ppi.com.ar). Los precios se guardan en el browser.</div>
 </div>
 
 <p class="footnote">
@@ -349,6 +434,123 @@
   /* ── BRECHA MODE DATA ── */
   var brechaVals=hS.map(function(s,i){return s!=null?Math.round((hT[i]-s)/s*1000)/10:null;});
   var avgRef=[null,null,null,null,null,null,null,29.6,23.1,20.8,21.6,22.8,23.4,23.0,22.5,22.2,21.8,21.7,21.5,21.2,20.9,21.2,21.5,21.6,21.7,21.9,22.0,22.1,22.2,22.2,22.3,22.3,22.4,22.5,22.4,22.4,22.3,22.2,22.2,22.1,22.0,21.9,21.8,21.8,21.7,21.7,21.6,21.6,21.6,21.7,21.7,21.7,21.7,21.6,21.6,21.5,21.4,21.3,21.2,21.1,21.0,20.8,20.7,20.6,20.4,20.3,20.2,20.1,20.0,19.9,19.8,19.7,19.6,19.5,19.3,19.2,19.0,18.8,18.6,18.5,18.4,18.2,18.1,18.0,17.9,17.8,17.7,17.7,17.6,17.5,17.5,17.4,17.2,17.1,17.0,16.9,16.8,16.7,16.6,16.5,16.4,16.3,16.2,16.0,15.9,15.7,15.6,15.4,15.3,15.1,15.0,14.9,14.8,14.8,14.7,14.7,14.6,14.5,14.5,14.4,14.3,14.2,14.1,14.0,13.9,13.9,13.8,13.7,13.6,13.5,13.4,13.3,13.2,13.0,12.9,12.7,12.6,12.4,12.2,12.0,11.9,11.8,11.7,11.6,11.4,11.4,11.3,11.1,11.0,10.9,10.7,10.5,10.4,10.2,10.0,9.9,9.7,9.6,9.4,9.3,9.1,9.0,8.9,8.8,8.6,8.5,8.4,8.3,8.2,8.0,7.9,7.8,7.7,7.5,7.4,7.2,7.1,7.0,6.8,6.7,6.6,6.5,6.4,6.4,6.3,6.2,6.2,6.2,6.1,6.1,6.0,6.0,5.9,5.9,5.9,5.8,5.8,5.8,5.8,5.8,5.8,5.8,5.9,5.9,6.0,6.1,6.1,6.2,6.2,6.3,6.3,6.3,6.4,6.4,6.4,6.4,6.4,6.5,6.6,6.6,6.7,6.8,6.8,6.9,7.0,7.1,7.2,7.3,7.4,7.5,7.7,7.8,8.0,8.1,8.3,8.5,8.6,8.8,8.9,9.0,9.1,9.2,9.3,9.5,9.6,9.8,9.9,10.0,10.2,10.3,10.5,10.6,10.7,10.8,11.0,11.2,11.4,11.5,11.7,11.9,12.1,12.3,12.4,12.6,12.8,13.0,13.1,13.3,13.5,13.6,13.8,13.9,14.0,14.2,14.3,14.4,14.6,14.7,14.9,15.0,15.2,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]; /* rolling 6M brecha % */
+
+  /* ── FUTUROS ─────────────────────────────────────────────────────────── */
+  var FUT_REM   = {
+    'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
+    'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
+  };
+  var FUT_TECHO = {
+    'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
+    'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
+  };
+  var FUT_KEYS  = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
+  var futPrices = {}; // populated from localStorage
+  var futChartInst = null;
+
+  // Load from localStorage
+  try {
+    var saved = localStorage.getItem('futPrices');
+    if(saved) futPrices = JSON.parse(saved);
+  } catch(e){}
+
+  function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
+  function pct(a,b){ return b&&a? ((a/b-1)*100).toFixed(1)+'%' : '—'; }
+
+  function renderFut(){
+    var siopelHoy = hS[lri];
+    var prevPrice = siopelHoy; // base for first TEM
+    var tems = [];
+    var tbody = document.getElementById('futTbody');
+    tbody.innerHTML='';
+    FUT_KEYS.forEach(function(k){
+      var fut   = futPrices[k]||null;
+      var rem   = FUT_REM[k];
+      var techo = FUT_TECHO[k];
+      var dif   = fut!=null ? ((fut/rem-1)*100).toFixed(1)+'%' : '—';
+      var difCol= fut!=null ? (fut>rem?'var(--coral)':fut<rem?'var(--teal)':'var(--txt2)') : 'var(--txt3)';
+      var tem   = fut!=null && prevPrice!=null ? ((fut/prevPrice-1)*100).toFixed(2)+'%' : '—';
+      if(fut!=null && prevPrice!=null) tems.push((fut/prevPrice-1)*100);
+      prevPrice = fut||prevPrice;
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+k+'</td>'+
+        '<td><b>'+(fut!=null?fmt$(fut):'<span style="color:var(--txt3)">pendiente</span>')+'</b></td>'+
+        '<td>'+fmt$(rem)+'</td>'+
+        '<td style="color:'+difCol+'">'+dif+'</td>'+
+        '<td style="color:var(--txt2)">'+tem+'</td>'+
+        '<td style="color:var(--amber)">'+fmt$(techo)+'</td>';
+      tbody.appendChild(tr);
+    });
+    // Cards
+    var futDicVal = futPrices['DIC 26']||null;
+    document.getElementById('futDic').textContent = fmt$(futDicVal);
+    if(futDicVal!=null){
+      var difDic = ((futDicVal/1658-1)*100).toFixed(1);
+      var col    = futDicVal>1658?'var(--coral)':futDicVal<1658?'var(--teal)':'var(--txt2)';
+      document.getElementById('futVsRem').textContent = (futDicVal>1658?'+':'')+difDic+'%';
+      document.getElementById('futVsRem').style.color = col;
+      document.getElementById('futDicSub').textContent = 'SIOPEL: '+fmt$(siopelHoy);
+    }
+    if(tems.length>0){
+      var avgTem = (tems.reduce(function(a,b){return a+b;},0)/tems.length).toFixed(2);
+      document.getElementById('futTEM').textContent = '+'+avgTem+'% m/m';
+    }
+    // Chart
+    var futLabels  = FUT_KEYS;
+    var futFutData = FUT_KEYS.map(function(k){ return futPrices[k]||null; });
+    var futRemData = FUT_KEYS.map(function(k){ return FUT_REM[k]; });
+    var futTchoData= FUT_KEYS.map(function(k){ return FUT_TECHO[k]; });
+    var futCtx     = document.getElementById('futCanvas');
+    if(!futCtx) return;
+    if(futChartInst){ futChartInst.destroy(); }
+    futChartInst = new Chart(futCtx, {
+      type:'line',
+      data:{
+        labels: futLabels,
+        datasets:[
+          {label:'Futuro ROFEX', data:futFutData, borderColor:'#78AEDE',
+           backgroundColor:'rgba(120,174,222,.10)', fill:true,
+           pointRadius:6, pointBackgroundColor:'#78AEDE',
+           borderWidth:2, spanGaps:false, tension:.3},
+          {label:'REM may-26',   data:futRemData,  borderColor:'#F5C36B',
+           borderDash:[5,4], borderWidth:2, pointRadius:3,
+           backgroundColor:'transparent', fill:false, tension:.3},
+          {label:'Techo BCRA',   data:futTchoData, borderColor:'rgba(245,195,107,.35)',
+           borderDash:[2,4], borderWidth:1.5, pointRadius:0,
+           backgroundColor:'transparent', fill:false, tension:.3}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        animation:{duration:300},
+        plugins:{
+          legend:{labels:{color:'#adbac7',font:{size:11},boxWidth:20}},
+          tooltip:{callbacks:{label:function(ctx){
+            return ctx.dataset.label+': '+(ctx.raw!=null?fmt$(ctx.raw):'—');
+          }}}
+        },
+        scales:{
+          x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
+          y:{ticks:{color:'#adbac7',font:{size:11},
+               callback:function(v){return '$'+v.toLocaleString('es-AR');}},
+             grid:{color:'rgba(255,255,255,.06)'}}
+        }
+      }
+    });
+  }
+
+  window.cargarFuturo = function(){
+    var mes  = document.getElementById('futSelMes').value;
+    var val  = parseFloat(document.getElementById('futPrecio').value);
+    if(isNaN(val)||val<1000) return;
+    futPrices[mes] = val;
+    try{ localStorage.setItem('futPrices', JSON.stringify(futPrices)); } catch(e){}
+    renderFut();
+    document.getElementById('futPrecio').value='';
+    var msg=document.getElementById('futMsgOk');
+    msg.style.display='inline'; setTimeout(function(){msg.style.display='none';},2000);
+  };
+
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
   var curBr=lri>=0?Math.round((hT[lri]-hS[lri])/hS[lri]*1000)/10:23.2;
   var curRef=new Array(NH).fill(curBr);
@@ -579,7 +781,124 @@
       hA[i]=(hT[i]&&roll[i])?Math.round(hT[i]/(1+roll[i]/100)):null;
     }
     /* current value for card */
-    lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+  
+  /* ── FUTUROS ─────────────────────────────────────────────────────────── */
+  var FUT_REM   = {
+    'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
+    'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
+  };
+  var FUT_TECHO = {
+    'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
+    'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
+  };
+  var FUT_KEYS  = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
+  var futPrices = {}; // populated from localStorage
+  var futChartInst = null;
+
+  // Load from localStorage
+  try {
+    var saved = localStorage.getItem('futPrices');
+    if(saved) futPrices = JSON.parse(saved);
+  } catch(e){}
+
+  function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
+  function pct(a,b){ return b&&a? ((a/b-1)*100).toFixed(1)+'%' : '—'; }
+
+  function renderFut(){
+    var siopelHoy = hS[lri];
+    var prevPrice = siopelHoy; // base for first TEM
+    var tems = [];
+    var tbody = document.getElementById('futTbody');
+    tbody.innerHTML='';
+    FUT_KEYS.forEach(function(k){
+      var fut   = futPrices[k]||null;
+      var rem   = FUT_REM[k];
+      var techo = FUT_TECHO[k];
+      var dif   = fut!=null ? ((fut/rem-1)*100).toFixed(1)+'%' : '—';
+      var difCol= fut!=null ? (fut>rem?'var(--coral)':fut<rem?'var(--teal)':'var(--txt2)') : 'var(--txt3)';
+      var tem   = fut!=null && prevPrice!=null ? ((fut/prevPrice-1)*100).toFixed(2)+'%' : '—';
+      if(fut!=null && prevPrice!=null) tems.push((fut/prevPrice-1)*100);
+      prevPrice = fut||prevPrice;
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+k+'</td>'+
+        '<td><b>'+(fut!=null?fmt$(fut):'<span style="color:var(--txt3)">pendiente</span>')+'</b></td>'+
+        '<td>'+fmt$(rem)+'</td>'+
+        '<td style="color:'+difCol+'">'+dif+'</td>'+
+        '<td style="color:var(--txt2)">'+tem+'</td>'+
+        '<td style="color:var(--amber)">'+fmt$(techo)+'</td>';
+      tbody.appendChild(tr);
+    });
+    // Cards
+    var futDicVal = futPrices['DIC 26']||null;
+    document.getElementById('futDic').textContent = fmt$(futDicVal);
+    if(futDicVal!=null){
+      var difDic = ((futDicVal/1658-1)*100).toFixed(1);
+      var col    = futDicVal>1658?'var(--coral)':futDicVal<1658?'var(--teal)':'var(--txt2)';
+      document.getElementById('futVsRem').textContent = (futDicVal>1658?'+':'')+difDic+'%';
+      document.getElementById('futVsRem').style.color = col;
+      document.getElementById('futDicSub').textContent = 'SIOPEL: '+fmt$(siopelHoy);
+    }
+    if(tems.length>0){
+      var avgTem = (tems.reduce(function(a,b){return a+b;},0)/tems.length).toFixed(2);
+      document.getElementById('futTEM').textContent = '+'+avgTem+'% m/m';
+    }
+    // Chart
+    var futLabels  = FUT_KEYS;
+    var futFutData = FUT_KEYS.map(function(k){ return futPrices[k]||null; });
+    var futRemData = FUT_KEYS.map(function(k){ return FUT_REM[k]; });
+    var futTchoData= FUT_KEYS.map(function(k){ return FUT_TECHO[k]; });
+    var futCtx     = document.getElementById('futCanvas');
+    if(!futCtx) return;
+    if(futChartInst){ futChartInst.destroy(); }
+    futChartInst = new Chart(futCtx, {
+      type:'line',
+      data:{
+        labels: futLabels,
+        datasets:[
+          {label:'Futuro ROFEX', data:futFutData, borderColor:'#78AEDE',
+           backgroundColor:'rgba(120,174,222,.10)', fill:true,
+           pointRadius:6, pointBackgroundColor:'#78AEDE',
+           borderWidth:2, spanGaps:false, tension:.3},
+          {label:'REM may-26',   data:futRemData,  borderColor:'#F5C36B',
+           borderDash:[5,4], borderWidth:2, pointRadius:3,
+           backgroundColor:'transparent', fill:false, tension:.3},
+          {label:'Techo BCRA',   data:futTchoData, borderColor:'rgba(245,195,107,.35)',
+           borderDash:[2,4], borderWidth:1.5, pointRadius:0,
+           backgroundColor:'transparent', fill:false, tension:.3}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        animation:{duration:300},
+        plugins:{
+          legend:{labels:{color:'#adbac7',font:{size:11},boxWidth:20}},
+          tooltip:{callbacks:{label:function(ctx){
+            return ctx.dataset.label+': '+(ctx.raw!=null?fmt$(ctx.raw):'—');
+          }}}
+        },
+        scales:{
+          x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
+          y:{ticks:{color:'#adbac7',font:{size:11},
+               callback:function(v){return '$'+v.toLocaleString('es-AR');}},
+             grid:{color:'rgba(255,255,255,.06)'}}
+        }
+      }
+    });
+  }
+
+  window.cargarFuturo = function(){
+    var mes  = document.getElementById('futSelMes').value;
+    var val  = parseFloat(document.getElementById('futPrecio').value);
+    if(isNaN(val)||val<1000) return;
+    futPrices[mes] = val;
+    try{ localStorage.setItem('futPrices', JSON.stringify(futPrices)); } catch(e){}
+    renderFut();
+    document.getElementById('futPrecio').value='';
+    var msg=document.getElementById('futMsgOk');
+    msg.style.display='inline'; setTimeout(function(){msg.style.display='none';},2000);
+  };
+
+  lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
     var curR=roll[lri];
     var wl=win===126?'6M':win===63?'90d':'30d';
     var el=document.getElementById('cardProm');
@@ -646,6 +965,7 @@
     var isP=(mode==='proj'), isB=(mode==='brecha');
     chart.options.scales.y.min=isB?-5:isP?1300:1000;
     chart.options.scales.y.max=isB?55:isP?2200:1950;
+    document.querySelector('.chart-wrap').style.display=isF?'none':'block';
     applyPeriod();   /* restores correct x.min/x.max for current period */
     window._hideRZ();
   };
@@ -657,6 +977,7 @@
       var isP=(mode==='proj'),isB=(mode==='brecha');
       chart.options.scales.y.min=isB?-5:isP?1300:1000;
       chart.options.scales.y.max=isB?55:isP?2200:1950;
+    document.querySelector('.chart-wrap').style.display=isF?'none':'block';
     }
     _origSP(btn);
     window._hideRZ();
@@ -889,6 +1210,123 @@
     var row = document.getElementById('pctRow');
     if(row) row.style.color = col;
   }
+
+
+  /* ── FUTUROS ─────────────────────────────────────────────────────────── */
+  var FUT_REM   = {
+    'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
+    'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
+  };
+  var FUT_TECHO = {
+    'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
+    'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
+  };
+  var FUT_KEYS  = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
+  var futPrices = {}; // populated from localStorage
+  var futChartInst = null;
+
+  // Load from localStorage
+  try {
+    var saved = localStorage.getItem('futPrices');
+    if(saved) futPrices = JSON.parse(saved);
+  } catch(e){}
+
+  function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
+  function pct(a,b){ return b&&a? ((a/b-1)*100).toFixed(1)+'%' : '—'; }
+
+  function renderFut(){
+    var siopelHoy = hS[lri];
+    var prevPrice = siopelHoy; // base for first TEM
+    var tems = [];
+    var tbody = document.getElementById('futTbody');
+    tbody.innerHTML='';
+    FUT_KEYS.forEach(function(k){
+      var fut   = futPrices[k]||null;
+      var rem   = FUT_REM[k];
+      var techo = FUT_TECHO[k];
+      var dif   = fut!=null ? ((fut/rem-1)*100).toFixed(1)+'%' : '—';
+      var difCol= fut!=null ? (fut>rem?'var(--coral)':fut<rem?'var(--teal)':'var(--txt2)') : 'var(--txt3)';
+      var tem   = fut!=null && prevPrice!=null ? ((fut/prevPrice-1)*100).toFixed(2)+'%' : '—';
+      if(fut!=null && prevPrice!=null) tems.push((fut/prevPrice-1)*100);
+      prevPrice = fut||prevPrice;
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+k+'</td>'+
+        '<td><b>'+(fut!=null?fmt$(fut):'<span style="color:var(--txt3)">pendiente</span>')+'</b></td>'+
+        '<td>'+fmt$(rem)+'</td>'+
+        '<td style="color:'+difCol+'">'+dif+'</td>'+
+        '<td style="color:var(--txt2)">'+tem+'</td>'+
+        '<td style="color:var(--amber)">'+fmt$(techo)+'</td>';
+      tbody.appendChild(tr);
+    });
+    // Cards
+    var futDicVal = futPrices['DIC 26']||null;
+    document.getElementById('futDic').textContent = fmt$(futDicVal);
+    if(futDicVal!=null){
+      var difDic = ((futDicVal/1658-1)*100).toFixed(1);
+      var col    = futDicVal>1658?'var(--coral)':futDicVal<1658?'var(--teal)':'var(--txt2)';
+      document.getElementById('futVsRem').textContent = (futDicVal>1658?'+':'')+difDic+'%';
+      document.getElementById('futVsRem').style.color = col;
+      document.getElementById('futDicSub').textContent = 'SIOPEL: '+fmt$(siopelHoy);
+    }
+    if(tems.length>0){
+      var avgTem = (tems.reduce(function(a,b){return a+b;},0)/tems.length).toFixed(2);
+      document.getElementById('futTEM').textContent = '+'+avgTem+'% m/m';
+    }
+    // Chart
+    var futLabels  = FUT_KEYS;
+    var futFutData = FUT_KEYS.map(function(k){ return futPrices[k]||null; });
+    var futRemData = FUT_KEYS.map(function(k){ return FUT_REM[k]; });
+    var futTchoData= FUT_KEYS.map(function(k){ return FUT_TECHO[k]; });
+    var futCtx     = document.getElementById('futCanvas');
+    if(!futCtx) return;
+    if(futChartInst){ futChartInst.destroy(); }
+    futChartInst = new Chart(futCtx, {
+      type:'line',
+      data:{
+        labels: futLabels,
+        datasets:[
+          {label:'Futuro ROFEX', data:futFutData, borderColor:'#78AEDE',
+           backgroundColor:'rgba(120,174,222,.10)', fill:true,
+           pointRadius:6, pointBackgroundColor:'#78AEDE',
+           borderWidth:2, spanGaps:false, tension:.3},
+          {label:'REM may-26',   data:futRemData,  borderColor:'#F5C36B',
+           borderDash:[5,4], borderWidth:2, pointRadius:3,
+           backgroundColor:'transparent', fill:false, tension:.3},
+          {label:'Techo BCRA',   data:futTchoData, borderColor:'rgba(245,195,107,.35)',
+           borderDash:[2,4], borderWidth:1.5, pointRadius:0,
+           backgroundColor:'transparent', fill:false, tension:.3}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        animation:{duration:300},
+        plugins:{
+          legend:{labels:{color:'#adbac7',font:{size:11},boxWidth:20}},
+          tooltip:{callbacks:{label:function(ctx){
+            return ctx.dataset.label+': '+(ctx.raw!=null?fmt$(ctx.raw):'—');
+          }}}
+        },
+        scales:{
+          x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
+          y:{ticks:{color:'#adbac7',font:{size:11},
+               callback:function(v){return '$'+v.toLocaleString('es-AR');}},
+             grid:{color:'rgba(255,255,255,.06)'}}
+        }
+      }
+    });
+  }
+
+  window.cargarFuturo = function(){
+    var mes  = document.getElementById('futSelMes').value;
+    var val  = parseFloat(document.getElementById('futPrecio').value);
+    if(isNaN(val)||val<1000) return;
+    futPrices[mes] = val;
+    try{ localStorage.setItem('futPrices', JSON.stringify(futPrices)); } catch(e){}
+    renderFut();
+    document.getElementById('futPrecio').value='';
+    var msg=document.getElementById('futMsgOk');
+    msg.style.display='inline'; setTimeout(function(){msg.style.display='none';},2000);
+  };
 
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
   sw('hist');
