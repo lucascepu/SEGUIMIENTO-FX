@@ -284,7 +284,7 @@
     <button class="btn-submit" onclick="cargarFuturo()">Cargar</button>
     <span class="msg-ok" id="futMsgOk" style="display:none;font-size:11px;color:var(--teal);align-self:center">✓ guardado</span>
   </div>
-  <div class="fut-note">Fuente: Matba-Rofex (mercado.rava.com o ppi.com.ar). Los precios se guardan en el browser.</div>
+  <div class="fut-note">Datos por defecto: cierre ROFEX 18/6/2026. Fuente: Matba-Rofex. Los precios del formulario se guardan en el browser.</div>
 </div>
 
 <p class="footnote">
@@ -445,13 +445,18 @@
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
   };
   var FUT_KEYS  = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
-  var futPrices = {}; // populated from localStorage
+  // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
+  var FUT_DEFAULT = {
+    'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
+    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0
+  };
+  var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
-  // Load from localStorage
+  // localStorage sobreescribe defaults si el usuario cargó algo
   try {
     var saved = localStorage.getItem('futPrices');
-    if(saved) futPrices = JSON.parse(saved);
+    if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
@@ -792,13 +797,18 @@
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
   };
   var FUT_KEYS  = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
-  var futPrices = {}; // populated from localStorage
+  // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
+  var FUT_DEFAULT = {
+    'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
+    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0
+  };
+  var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
-  // Load from localStorage
+  // localStorage sobreescribe defaults si el usuario cargó algo
   try {
     var saved = localStorage.getItem('futPrices');
-    if(saved) futPrices = JSON.parse(saved);
+    if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
@@ -1222,13 +1232,18 @@
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
   };
   var FUT_KEYS  = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
-  var futPrices = {}; // populated from localStorage
+  // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
+  var FUT_DEFAULT = {
+    'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
+    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0
+  };
+  var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
-  // Load from localStorage
+  // localStorage sobreescribe defaults si el usuario cargó algo
   try {
     var saved = localStorage.getItem('futPrices');
-    if(saved) futPrices = JSON.parse(saved);
+    if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
