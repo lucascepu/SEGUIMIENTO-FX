@@ -224,68 +224,78 @@
 </div>
 
 <!-- ── FUTUROS PANEL ── -->
-<div id="futPanel">
-  <!-- Cards -->
-  <div class="fut-cards">
+<div id="futPanel" style="display:none">
+
+  <!-- Insight auto-generado -->
+  <div id="futInsight" style="border-left:2px solid var(--blue);padding:10px 14px;
+    background:var(--bg-card);border-radius:0 8px 8px 0;margin-bottom:14px;font-size:12px;
+    color:var(--txt2);line-height:1.6"></div>
+
+  <!-- Cards KPI -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
     <div class="card">
-      <div class="card-label">TEM implícita prom.</div>
-      <div class="card-val amber" id="futTEM">—</div>
-      <div class="card-sub">tasa efectiva mensual</div>
+      <div class="card-label">Spread Fut vs REM · DIC</div>
+      <div class="card-val" id="futSpreadPct" style="color:var(--txt)">—</div>
+      <div class="card-sub" id="futSpreadARS">en pesos: —</div>
     </div>
     <div class="card">
-      <div class="card-label">Futuro DIC 26</div>
-      <div class="card-val" id="futDic">—</div>
-      <div class="card-sub" id="futDicSub">ingresá precios</div>
+      <div class="card-label">Dist. al techo · Futuro DIC</div>
+      <div class="card-val amber" id="futDistFut">—</div>
+      <div class="card-sub">margen futuro vs techo</div>
     </div>
     <div class="card">
-      <div class="card-label">REM DIC 26</div>
-      <div class="card-val amber">$1.658</div>
-      <div class="card-sub">proyección may-26</div>
+      <div class="card-label">Dist. al techo · REM DIC</div>
+      <div class="card-val amber" id="futDistRem">—</div>
+      <div class="card-sub">margen REM vs techo</div>
     </div>
     <div class="card">
-      <div class="card-label">Diferencial Fut vs REM</div>
-      <div class="card-val" id="futVsRem">—</div>
-      <div class="card-sub">dic-26</div>
+      <div class="card-label">TEM impl. prom. AGO→DIC</div>
+      <div class="card-val" id="futTEM" style="color:var(--txt2)">—</div>
+      <div class="card-sub" id="futStamp">cierre ROFEX 18/6</div>
     </div>
   </div>
 
-  <!-- Chart -->
-  <div class="chart-wrap-fut">
+  <!-- Gráfico -->
+  <div id="futChartWrap" style="position:relative;height:260px;margin-bottom:14px">
     <canvas id="futCanvas"></canvas>
   </div>
 
-  <!-- Table -->
-  <table class="fut-table" id="futTableEl">
+  <!-- Tabla spread -->
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px">
     <thead>
       <tr>
-        <th>Contrato</th>
-        <th>Futuro ROFEX</th>
-        <th>REM may-26</th>
-        <th>Dif. %</th>
-        <th>TEM impl.</th>
-        <th>Techo BCRA</th>
+        <th style="text-align:left;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600;letter-spacing:.04em">MES</th>
+        <th style="text-align:right;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600">FUTURO ROFEX</th>
+        <th style="text-align:right;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600">REM may-26</th>
+        <th style="text-align:right;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600">SPREAD %</th>
+        <th style="text-align:right;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600">DIST. AL TECHO</th>
       </tr>
     </thead>
     <tbody id="futTbody"></tbody>
   </table>
 
-  <!-- Update form -->
-  <div class="fut-input-row" style="margin-top:16px">
-    <div class="fut-field">
-      <label>CONTRATO</label>
-      <select id="futSelMes">
-        <option>JUL 26</option><option>AGO 26</option><option>SEP 26</option>
-        <option>OCT 26</option><option>NOV 26</option><option>DIC 26</option>
-      </select>
+  <!-- Actualizar -->
+  <div style="border-top:1px solid var(--border);padding-top:12px">
+    <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.06em;margin-bottom:8px">ACTUALIZAR PRECIOS ROFEX</div>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <label style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.05em">CONTRATO</label>
+        <select id="futSelMes" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:13px;padding:6px 10px;outline:none">
+          <option>JUL 26</option><option>AGO 26</option><option>SEP 26</option>
+          <option>OCT 26</option><option>NOV 26</option><option>DIC 26</option>
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <label style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.05em">PRECIO CIERRE</label>
+        <input type="number" id="futPrecio" placeholder="ej: 1495" step="0.5"
+          style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;
+                 color:var(--txt);font-size:13px;padding:6px 10px;outline:none;width:120px">
+      </div>
+      <button class="btn-submit" onclick="cargarFuturo()">Cargar</button>
+      <span id="futMsgOk" style="display:none;font-size:11px;color:var(--teal);align-self:center">✓ guardado</span>
     </div>
-    <div class="fut-field">
-      <label>PRECIO FUTURO</label>
-      <input type="number" id="futPrecio" placeholder="ej: 1470" step="0.5">
-    </div>
-    <button class="btn-submit" onclick="cargarFuturo()">Cargar</button>
-    <span class="msg-ok" id="futMsgOk" style="display:none;font-size:11px;color:var(--teal);align-self:center">✓ guardado</span>
+    <div style="font-size:10px;color:var(--txt3);margin-top:6px">Fuente: Matba-Rofex · rava.com · ppi.com.ar — precios guardados en el browser</div>
   </div>
-  <div class="fut-note">Datos por defecto: cierre ROFEX 18/6/2026. Fuente: Matba-Rofex. Los precios del formulario se guardan en el browser.</div>
 </div>
 
 <p class="footnote">
@@ -464,87 +474,127 @@
   function pct(a,b){ return b&&a? ((a/b-1)*100).toFixed(1)+'%' : '—'; }
 
   function renderFut(){
-    var siopelHoy = hS[lri];
-    var prevPrice = siopelHoy; // base for first TEM
-    var tems = [];
-    var tbody = document.getElementById('futTbody');
-    tbody.innerHTML='';
-    FUT_KEYS.forEach(function(k){
-      var fut   = futPrices[k]||null;
-      var rem   = FUT_REM[k];
-      var techo = FUT_TECHO[k];
-      var dif   = fut!=null ? ((fut/rem-1)*100).toFixed(1)+'%' : '—';
-      var difCol= fut!=null ? (fut>rem?'var(--coral)':fut<rem?'var(--teal)':'var(--txt2)') : 'var(--txt3)';
-      var tem   = fut!=null && prevPrice!=null ? ((fut/prevPrice-1)*100).toFixed(2)+'%' : '—';
-      if(fut!=null && prevPrice!=null) tems.push((fut/prevPrice-1)*100);
-      prevPrice = fut||prevPrice;
-      var tr=document.createElement('tr');
-      tr.innerHTML='<td>'+k+'</td>'+
-        '<td><b>'+(fut!=null?fmt$(fut):'<span style="color:var(--txt3)">pendiente</span>')+'</b></td>'+
-        '<td>'+fmt$(rem)+'</td>'+
-        '<td style="color:'+difCol+'">'+dif+'</td>'+
-        '<td style="color:var(--txt2)">'+tem+'</td>'+
-        '<td style="color:var(--amber)">'+fmt$(techo)+'</td>';
-      tbody.appendChild(tr);
-    });
-    // Cards
-    var futDicVal = futPrices['DIC 26']||null;
-    document.getElementById('futDic').textContent = fmt$(futDicVal);
-    if(futDicVal!=null){
-      var difDic = ((futDicVal/1658-1)*100).toFixed(1);
-      var col    = futDicVal>1658?'var(--coral)':futDicVal<1658?'var(--teal)':'var(--txt2)';
-      document.getElementById('futVsRem').textContent = (futDicVal>1658?'+':'')+difDic+'%';
-      document.getElementById('futVsRem').style.color = col;
-      document.getElementById('futDicSub').textContent = 'SIOPEL: '+fmt$(siopelHoy);
-    }
-    if(tems.length>0){
-      var avgTem = (tems.reduce(function(a,b){return a+b;},0)/tems.length).toFixed(2);
-      document.getElementById('futTEM').textContent = '+'+avgTem+'% m/m';
-    }
-    // Chart
-    var futLabels  = FUT_KEYS;
-    var futFutData = FUT_KEYS.map(function(k){ return futPrices[k]||null; });
-    var futRemData = FUT_KEYS.map(function(k){ return FUT_REM[k]; });
-    var futTchoData= FUT_KEYS.map(function(k){ return FUT_TECHO[k]; });
-    var futCtx     = document.getElementById('futCanvas');
-    if(!futCtx) return;
-    if(futChartInst){ futChartInst.destroy(); }
-    futChartInst = new Chart(futCtx, {
-      type:'line',
-      data:{
-        labels: futLabels,
-        datasets:[
-          {label:'Futuro ROFEX', data:futFutData, borderColor:'#78AEDE',
-           backgroundColor:'rgba(120,174,222,.10)', fill:true,
-           pointRadius:6, pointBackgroundColor:'#78AEDE',
-           borderWidth:2, spanGaps:false, tension:.3},
-          {label:'REM may-26',   data:futRemData,  borderColor:'#F5C36B',
-           borderDash:[5,4], borderWidth:2, pointRadius:3,
-           backgroundColor:'transparent', fill:false, tension:.3},
-          {label:'Techo BCRA',   data:futTchoData, borderColor:'rgba(245,195,107,.35)',
-           borderDash:[2,4], borderWidth:1.5, pointRadius:0,
-           backgroundColor:'transparent', fill:false, tension:.3}
-        ]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        animation:{duration:300},
-        plugins:{
-          legend:{labels:{color:'#adbac7',font:{size:11},boxWidth:20}},
-          tooltip:{callbacks:{label:function(ctx){
-            return ctx.dataset.label+': '+(ctx.raw!=null?fmt$(ctx.raw):'—');
-          }}}
-        },
-        scales:{
-          x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
-          y:{ticks:{color:'#adbac7',font:{size:11},
-               callback:function(v){return '$'+v.toLocaleString('es-AR');}},
-             grid:{color:'rgba(255,255,255,.06)'}}
-        }
-      }
-    });
-  }
+    var siopel = hS[lri];
+    var KEYS   = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
+    var futs   = KEYS.map(function(k){ return futPrices[k]||null; });
+    var rems   = KEYS.map(function(k){ return FUT_REM[k]; });
+    var techos = KEYS.map(function(k){ return FUT_TECHO[k]; });
+    function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
+    function pct(a,b){ return b&&a!=null?((a/b-1)*100).toFixed(1):null; }
 
+    /* ── Gráfico ── */
+    var ctx = document.getElementById('futCanvas');
+    if(ctx){
+      if(futChartInst){ futChartInst.destroy(); futChartInst=null; }
+      futChartInst = new Chart(ctx, {
+        type:'line',
+        data:{
+          labels: KEYS,
+          datasets:[
+            {label:'Futuro ROFEX', data:futs, borderColor:'#78AEDE',
+             backgroundColor:'rgba(120,174,222,.12)', fill:true,
+             pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#78AEDE',
+             borderWidth:2.5, tension:.25, spanGaps:false},
+            {label:'REM may-26', data:rems, borderColor:'#F5C36B',
+             borderDash:[6,3], borderWidth:2, pointRadius:4, pointBackgroundColor:'#F5C36B',
+             backgroundColor:'transparent', fill:false, tension:.25},
+            {label:'Techo BCRA', data:techos, borderColor:'rgba(245,195,107,.28)',
+             borderDash:[2,5], borderWidth:1.5, pointRadius:0,
+             backgroundColor:'transparent', fill:false, tension:.25}
+          ]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false, animation:{duration:350},
+          plugins:{
+            legend:{position:'top',align:'start',
+              labels:{color:'#adbac7',font:{size:11},boxWidth:18,padding:14}},
+            tooltip:{callbacks:{label:function(c){
+              return c.dataset.label+': '+(c.raw!=null?'$'+Math.round(c.raw).toLocaleString('es-AR'):'—');
+            }}}
+          },
+          scales:{
+            x:{ticks:{color:'#adbac7',font:{size:11,weight:'500'}},grid:{color:'rgba(255,255,255,.06)'}},
+            y:{grace:'5%',ticks:{color:'#adbac7',font:{size:11},
+               callback:function(v){return '$'+v.toLocaleString('es-AR');}},
+               grid:{color:'rgba(255,255,255,.06)'}}
+          }
+        }
+      });
+    }
+
+    /* ── Tabla spread ── */
+    var tbody = document.getElementById('futTbody');
+    if(tbody){
+      tbody.innerHTML='';
+      var spreads=[];
+      KEYS.forEach(function(k,i){
+        var fut=futs[i], rem=rems[i], techo=techos[i];
+        var sp   = pct(fut,rem);
+        var dist = pct(techo,fut);  // (techo/fut-1)*100
+        if(sp!=null) spreads.push(parseFloat(sp));
+        var spCol= sp==null?'var(--txt3)':parseFloat(sp)>0?'var(--coral)':'var(--teal)';
+        var tr=document.createElement('tr');
+        tr.style.borderBottom='1px solid rgba(255,255,255,.05)';
+        tr.innerHTML=
+          '<td style="padding:6px 10px;color:var(--txt);font-weight:600">'+k+'</td>'+
+          '<td style="padding:6px 10px;text-align:right;color:var(--txt)">'+fmt$(fut)+'</td>'+
+          '<td style="padding:6px 10px;text-align:right;color:var(--txt2)">'+fmt$(rem)+'</td>'+
+          '<td style="padding:6px 10px;text-align:right;font-weight:600;color:'+spCol+'">'+
+            (sp!=null?(parseFloat(sp)>0?'+':'')+sp+'%':'—')+'</td>'+
+          '<td style="padding:6px 10px;text-align:right;color:var(--amber)">'+
+            (dist!=null?'+'+dist+'%':'—')+'</td>';
+        tbody.appendChild(tr);
+      });
+
+      /* ── Cards ── */
+      var fDic=futPrices['DIC 26']||null;
+      if(fDic!=null){
+        var spDic=pct(fDic,1658), dTFut=pct(2097.47,fDic), dTRem=pct(2097.47,1658);
+        var spCol2=parseFloat(spDic)>0?'var(--coral)':'var(--teal)';
+        var el=document.getElementById('futSpreadPct');
+        if(el){ el.textContent=(parseFloat(spDic)>0?'+':'')+spDic+'%'; el.style.color=spCol2; }
+        var elA=document.getElementById('futSpreadARS');
+        if(elA) elA.textContent='en pesos: '+(fDic>1658?'+':'')+fmt$(fDic-1658);
+        var elDF=document.getElementById('futDistFut');
+        if(elDF) elDF.textContent='+'+dTFut+'%';
+        var elDR=document.getElementById('futDistRem');
+        if(elDR) elDR.textContent='+'+dTRem+'%';
+      }
+
+      /* TEM */
+      var tems=[]; var prev=futPrices['JUL 26']||siopel;
+      ['AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'].forEach(function(k){
+        var v=futPrices[k]; if(v!=null){ tems.push((v/prev-1)*100); prev=v; }
+      });
+      var elT=document.getElementById('futTEM');
+      if(elT&&tems.length>0)
+        elT.textContent='+'+(tems.reduce(function(a,b){return a+b;},0)/tems.length).toFixed(2)+'% m/m';
+
+      /* ── Insight automático ── */
+      var ins=document.getElementById('futInsight');
+      if(ins && spreads.length>=3){
+        var avg=(spreads.reduce(function(a,b){return a+b;},0)/spreads.length).toFixed(1);
+        var growing = spreads[spreads.length-1] > spreads[0]+0.5;
+        var falling = spreads[spreads.length-1] < spreads[0]-0.5;
+        var allPos  = spreads.every(function(v){return v>0;});
+        var allNeg  = spreads.every(function(v){return v<0;});
+        var msg='';
+        if(allPos && growing)
+          msg='⚠ El mercado se muestra progresivamente más alcista que el REM. '+
+              'El spread crece de '+spreads[0]+'% en JUL a '+spreads[spreads.length-1]+'% en DIC.';
+        else if(allNeg)
+          msg='⚠ El REM supera a la curva de futuros. '+
+              'Los analistas esperan una depreciación mayor a la descontada por el mercado.';
+        else if(Math.abs(parseFloat(avg))<1)
+          msg='✓ El mercado se mantiene alineado con el REM. Spread promedio: '+avg+'%.';
+        else if(falling)
+          msg='✓ El mercado converge hacia el REM. El spread se reduce hacia fin de año.';
+        else
+          msg='El spread Futuro vs REM promedia '+avg+'% en la curva JUL–DIC.';
+        ins.textContent=msg;
+      }
+    }
+  }
   window.cargarFuturo = function(){
     var mes  = document.getElementById('futSelMes').value;
     var val  = parseFloat(document.getElementById('futPrecio').value);
