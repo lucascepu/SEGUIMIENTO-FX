@@ -180,7 +180,7 @@
 </div>
 
 <p class="footnote">
-  SIOPEL: datos reales abr 2025–18/6/2026. Techo may: interpolado desde ancla 14/5 ($1.729,14).
+  SIOPEL: datos reales abr 2025–12/6/2026. Techo may: interpolado desde ancla 14/5 ($1.729,14).
   Techo mar–may 2026: IPC real ene 2.9%, feb 2.7%, mar 2.9%.
   Brecha = (techo − SIOPEL) / SIOPEL. Prom. 6M: cierres mensuales dic 2025–may 2026.
   Proyecciones: REM BCRA (7-may-2026).
@@ -832,9 +832,8 @@
 
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
   sw('hist');
+  setAvgWindow(curWindow);   /* recompute hA+avgRef on every load */
   applyPeriod();
-  /* Fix: re-apply period after first paint so gray average line renders correctly */
-  setTimeout(function(){ applyPeriod(); chart.update(); }, 0);
 })();
 </script>
 </body>
