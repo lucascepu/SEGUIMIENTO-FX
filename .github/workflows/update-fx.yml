@@ -71,7 +71,7 @@ jobs:
             echo "Sin cambios — posiblemente ya actualizado o no hubo rueda."
           else
             FECHA="${{ steps.fecha.outputs.fecha }}"
-            git add index.html
+            git add index.html data.json
             git commit -m "data: SIOPEL $FECHA (auto-update BCRA API)"
             git push
           fi
