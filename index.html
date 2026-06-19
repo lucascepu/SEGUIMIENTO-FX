@@ -843,9 +843,35 @@
     }).join('');
   };
 
+
+  /* ── PERCENTIL HISTÓRICO DE BRECHA ─────────────────────────────────── */
+  function updatePercentil(){
+    var actual = brechaVals[lri];
+    if(actual == null) return;
+    var validos = brechaVals.filter(function(v){ return v !== null; });
+    // Percentil serie completa
+    var pHist = Math.round(
+      validos.filter(function(v){ return v < actual; }).length / validos.length * 100
+    );
+    // Percentil últimos 6M (~126 ruedas)
+    var v6m = validos.slice(Math.max(0, validos.length - 126));
+    var p6M = Math.round(
+      v6m.filter(function(v){ return v < actual; }).length / v6m.length * 100
+    );
+    var elH = document.getElementById('pctHist');
+    var el6 = document.getElementById('pct6m');
+    if(elH) elH.textContent = 'p' + pHist;
+    if(el6) el6.textContent = 'p' + p6M;
+    // Color: >75 = amber (brecha alta), <25 = teal (brecha baja), medio = gris
+    var col = pHist > 75 ? 'var(--amber)' : pHist < 25 ? 'var(--teal)' : 'var(--txt3)';
+    var row = document.getElementById('pctRow');
+    if(row) row.style.color = col;
+  }
+
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
   sw('hist');
-  setAvgWindow(curWindow);   /* recompute hA+avgRef on every load */
+  setAvgWindow(curWindow);
+  updatePercentil();   /* recompute hA+avgRef on every load */
   applyPeriod();
 })();
 </script>
