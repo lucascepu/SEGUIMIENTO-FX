@@ -802,6 +802,17 @@
                proj:'Mayo real + techo jun-jul oficial + escenarios TC desde ago 2026.',
                brecha:'Evolución diaria de la brecha % (techo − SIOPEL) / SIOPEL.'};
     document.getElementById('mD').textContent=descs[m]||'';
+    /* Show/hide futPanel and main chart */
+    var _fp=document.getElementById('futPanel');
+    var _cw=document.getElementById('mainChartWrap');
+    if(_fp) _fp.style.display=isF?'block':'none';
+    if(_cw) _cw.style.display=isF?'none':'block';
+    if(isF){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ renderFut(); });
+      });
+      return;
+    }
     document.getElementById('legH').style.display=isH?'flex':'none';
     document.getElementById('legP').style.display=isP?'flex':'none';
     document.getElementById('legB').style.display=isB?'flex':'none';
