@@ -304,6 +304,27 @@ with open(HTML_PATH, "w", encoding="utf-8") as f:
     f.write(html)
 print("\nHTML guardado.")
 
+
+# ── 9b. Generar data.json ─────────────────────────────────────────────────
+import json as _json
+data_out = {
+    "updated":    fecha.strftime("%Y-%m-%d"),
+    "siopel": {
+        "date":       fecha.strftime("%Y-%m-%d"),
+        "value":      siopel_new,
+        "techo":      techo_new,
+        "brecha_pct": brecha_new
+    },
+    "rem_tc_proj": {
+        "jun_2026": 1422, "jul_2026": 1447, "ago_2026": 1476,
+        "sep_2026": 1516, "oct_2026": 1553, "nov_2026": 1597, "dic_2026": 1658
+    },
+    "_note": "Actualizado automaticamente por update_fx.py."
+}
+with open("data.json", "w", encoding="utf-8") as _f:
+    _json.dump(data_out, _f, indent=2, ensure_ascii=False)
+print("  ✓ data.json generado")
+
 # ── 10. Smoke test ──────────────────────────────────────────────────────────
 print("Ejecutando smoke test...")
 result = subprocess.run(["node", SMOKE_TEST], capture_output=True, text=True)
