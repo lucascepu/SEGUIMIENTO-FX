@@ -162,6 +162,7 @@
   <button id="bB" class="btn btn-off" onclick="sw('brecha')">BRECHA</button>
   <button id="bF" class="btn btn-off" onclick="sw('fut')">FUTUROS</button>
 </div>
+<div id="mainContent">
 <div id="mD" class="mode-desc"></div>
 
 <div class="legend">
@@ -223,52 +224,44 @@
   Prom. 6M: <span>15.2%</span>
 </div>
 
+</div><!-- /mainContent -->
 <!-- ── FUTUROS PANEL ── -->
 <div id="futPanel" style="display:none">
 
-  <!-- Insight auto-generado -->
-  <div id="futInsight" style="border-left:2px solid var(--blue);padding:10px 14px;
-    background:var(--bg-card);border-radius:0 8px 8px 0;margin-bottom:14px;font-size:12px;
-    color:var(--txt2);line-height:1.6"></div>
+  <!-- Insight -->
+  <div id="futInsight" style="font-size:12px;color:var(--txt2);padding:8px 12px;
+    background:var(--bg-card);border-left:2px solid var(--blue);border-radius:0 6px 6px 0;
+    margin-bottom:14px;line-height:1.6;min-height:18px"></div>
 
-  <!-- Cards KPI -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
-    <div class="card">
-      <div class="card-label">Spread Fut vs REM · DIC</div>
-      <div class="card-val" id="futSpreadPct" style="color:var(--txt)">—</div>
-      <div class="card-sub" id="futSpreadARS">en pesos: —</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Dist. al techo · Futuro DIC</div>
-      <div class="card-val amber" id="futDistFut">—</div>
-      <div class="card-sub">margen futuro vs techo</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Dist. al techo · REM DIC</div>
-      <div class="card-val amber" id="futDistRem">—</div>
-      <div class="card-sub">margen REM vs techo</div>
-    </div>
-    <div class="card">
-      <div class="card-label">TEM impl. prom. AGO→DIC</div>
-      <div class="card-val" id="futTEM" style="color:var(--txt2)">—</div>
-      <div class="card-sub" id="futStamp">cierre ROFEX 18/6</div>
-    </div>
+  <!-- Gráfico: 2 líneas (Futuro + REM) — mismo estilo que otras tabs -->
+  <div style="position:relative;height:260px;margin-bottom:4px">
+    <canvas id="futCanvas"></canvas>
   </div>
 
-  <!-- Gráfico -->
-  <div id="futChartWrap" style="position:relative;height:260px;margin-bottom:14px">
-    <canvas id="futCanvas"></canvas>
+  <!-- Leyenda debajo del gráfico -->
+  <div style="display:flex;gap:16px;margin-bottom:16px;padding-left:4px">
+    <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+      <span style="width:20px;height:2px;background:#78AEDE;display:inline-block;border-radius:1px"></span>Futuro ROFEX
+    </span>
+    <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+      <span style="width:20px;height:2px;background:#F5C36B;display:inline-block;border-radius:1px;
+        background:repeating-linear-gradient(90deg,#F5C36B 0,#F5C36B 5px,transparent 5px,transparent 9px)"></span>REM may-26
+    </span>
+    <span style="font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:6px">
+      <span style="width:20px;height:2px;display:inline-block;border-radius:1px;
+        background:repeating-linear-gradient(90deg,rgba(245,195,107,.4) 0,rgba(245,195,107,.4) 3px,transparent 3px,transparent 7px)"></span>Techo BCRA
+    </span>
   </div>
 
   <!-- Tabla spread -->
   <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px">
     <thead>
-      <tr>
-        <th style="text-align:left;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600;letter-spacing:.04em">MES</th>
-        <th style="text-align:right;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600">FUTURO ROFEX</th>
-        <th style="text-align:right;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600">REM may-26</th>
-        <th style="text-align:right;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600">SPREAD %</th>
-        <th style="text-align:right;padding:5px 10px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--border);font-weight:600">DIST. AL TECHO</th>
+      <tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:6px 10px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.05em;text-transform:uppercase">Mes</th>
+        <th style="text-align:right;padding:6px 10px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.05em;text-transform:uppercase">Futuro ROFEX</th>
+        <th style="text-align:right;padding:6px 10px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.05em;text-transform:uppercase">REM may-26</th>
+        <th style="text-align:right;padding:6px 10px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.05em;text-transform:uppercase">Spread %</th>
+        <th style="text-align:right;padding:6px 10px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.05em;text-transform:uppercase">Dist. al techo</th>
       </tr>
     </thead>
     <tbody id="futTbody"></tbody>
@@ -279,14 +272,15 @@
     <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.06em;margin-bottom:8px">ACTUALIZAR PRECIOS ROFEX</div>
     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
       <div style="display:flex;flex-direction:column;gap:3px">
-        <label style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.05em">CONTRATO</label>
-        <select id="futSelMes" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:13px;padding:6px 10px;outline:none">
+        <label style="font-size:10px;font-weight:600;color:var(--txt3)">CONTRATO</label>
+        <select id="futSelMes" style="background:var(--bg-card);border:1px solid var(--border);
+          border-radius:8px;color:var(--txt);font-size:13px;padding:6px 10px;outline:none">
           <option>JUL 26</option><option>AGO 26</option><option>SEP 26</option>
           <option>OCT 26</option><option>NOV 26</option><option>DIC 26</option>
         </select>
       </div>
       <div style="display:flex;flex-direction:column;gap:3px">
-        <label style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.05em">PRECIO CIERRE</label>
+        <label style="font-size:10px;font-weight:600;color:var(--txt3)">PRECIO CIERRE</label>
         <input type="number" id="futPrecio" placeholder="ej: 1495" step="0.5"
           style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;
                  color:var(--txt);font-size:13px;padding:6px 10px;outline:none;width:120px">
@@ -294,7 +288,7 @@
       <button class="btn-submit" onclick="cargarFuturo()">Cargar</button>
       <span id="futMsgOk" style="display:none;font-size:11px;color:var(--teal);align-self:center">✓ guardado</span>
     </div>
-    <div style="font-size:10px;color:var(--txt3);margin-top:6px">Fuente: Matba-Rofex · rava.com · ppi.com.ar — precios guardados en el browser</div>
+    <div style="font-size:10px;color:var(--txt3);margin-top:6px">Datos: cierre ROFEX 18/6/2026 · rava.com · ppi.com.ar — precios guardados en el browser</div>
   </div>
 </div>
 
@@ -479,10 +473,8 @@
     var futs   = KEYS.map(function(k){ return futPrices[k]||null; });
     var rems   = KEYS.map(function(k){ return FUT_REM[k]; });
     var techos = KEYS.map(function(k){ return FUT_TECHO[k]; });
-    function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
-    function pct(a,b){ return b&&a!=null?((a/b-1)*100).toFixed(1):null; }
 
-    /* ── Gráfico ── */
+    /* ── Gráfico: 2 líneas + techo ── */
     var ctx = document.getElementById('futCanvas');
     if(ctx){
       if(futChartInst){ futChartInst.destroy(); futChartInst=null; }
@@ -492,107 +484,78 @@
           labels: KEYS,
           datasets:[
             {label:'Futuro ROFEX', data:futs, borderColor:'#78AEDE',
-             backgroundColor:'rgba(120,174,222,.12)', fill:true,
+             backgroundColor:'rgba(120,174,222,.10)', fill:true,
              pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#78AEDE',
-             borderWidth:2.5, tension:.25, spanGaps:false},
+             borderWidth:2.5, tension:.3, spanGaps:false},
             {label:'REM may-26', data:rems, borderColor:'#F5C36B',
-             borderDash:[6,3], borderWidth:2, pointRadius:4, pointBackgroundColor:'#F5C36B',
-             backgroundColor:'transparent', fill:false, tension:.25},
-            {label:'Techo BCRA', data:techos, borderColor:'rgba(245,195,107,.28)',
+             borderDash:[6,4], borderWidth:2, pointRadius:4, pointBackgroundColor:'#F5C36B',
+             backgroundColor:'transparent', fill:false, tension:.3},
+            {label:'Techo BCRA', data:techos, borderColor:'rgba(245,195,107,.3)',
              borderDash:[2,5], borderWidth:1.5, pointRadius:0,
-             backgroundColor:'transparent', fill:false, tension:.25}
+             backgroundColor:'transparent', fill:false, tension:.3}
           ]
         },
         options:{
           responsive:true, maintainAspectRatio:false, animation:{duration:350},
           plugins:{
-            legend:{position:'top',align:'start',
-              labels:{color:'#adbac7',font:{size:11},boxWidth:18,padding:14}},
+            legend:{display:false},
             tooltip:{callbacks:{label:function(c){
               return c.dataset.label+': '+(c.raw!=null?'$'+Math.round(c.raw).toLocaleString('es-AR'):'—');
             }}}
           },
           scales:{
-            x:{ticks:{color:'#adbac7',font:{size:11,weight:'500'}},grid:{color:'rgba(255,255,255,.06)'}},
-            y:{grace:'5%',ticks:{color:'#adbac7',font:{size:11},
-               callback:function(v){return '$'+v.toLocaleString('es-AR');}},
+            x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
+            y:{grace:'4%',
+               ticks:{color:'#adbac7',font:{size:11},
+                      callback:function(v){return '$'+v.toLocaleString('es-AR');}},
                grid:{color:'rgba(255,255,255,.06)'}}
           }
         }
       });
     }
 
-    /* ── Tabla spread ── */
+    /* ── Tabla ── */
     var tbody = document.getElementById('futTbody');
-    if(tbody){
-      tbody.innerHTML='';
-      var spreads=[];
-      KEYS.forEach(function(k,i){
-        var fut=futs[i], rem=rems[i], techo=techos[i];
-        var sp   = pct(fut,rem);
-        var dist = pct(techo,fut);  // (techo/fut-1)*100
-        if(sp!=null) spreads.push(parseFloat(sp));
-        var spCol= sp==null?'var(--txt3)':parseFloat(sp)>0?'var(--coral)':'var(--teal)';
-        var tr=document.createElement('tr');
-        tr.style.borderBottom='1px solid rgba(255,255,255,.05)';
-        tr.innerHTML=
-          '<td style="padding:6px 10px;color:var(--txt);font-weight:600">'+k+'</td>'+
-          '<td style="padding:6px 10px;text-align:right;color:var(--txt)">'+fmt$(fut)+'</td>'+
-          '<td style="padding:6px 10px;text-align:right;color:var(--txt2)">'+fmt$(rem)+'</td>'+
-          '<td style="padding:6px 10px;text-align:right;font-weight:600;color:'+spCol+'">'+
-            (sp!=null?(parseFloat(sp)>0?'+':'')+sp+'%':'—')+'</td>'+
-          '<td style="padding:6px 10px;text-align:right;color:var(--amber)">'+
-            (dist!=null?'+'+dist+'%':'—')+'</td>';
-        tbody.appendChild(tr);
-      });
+    if(!tbody) return;
+    tbody.innerHTML='';
+    var spreads=[];
+    KEYS.forEach(function(k,i){
+      var fut=futs[i], rem=rems[i], techo=techos[i];
+      var fmt$=function(v){ return v!=null?'$'+Math.round(v).toLocaleString('es-AR'):'—'; };
+      var spPct = fut!=null ? ((fut/rem-1)*100).toFixed(1) : null;
+      var dist  = fut!=null ? ((techo/fut-1)*100).toFixed(1) : null;
+      if(spPct!=null) spreads.push(parseFloat(spPct));
+      var spCol = spPct==null?'var(--txt3)':parseFloat(spPct)>0?'var(--coral)':'var(--teal)';
+      var tr=document.createElement('tr');
+      tr.style.borderBottom='1px solid rgba(255,255,255,.05)';
+      tr.innerHTML=
+        '<td style="padding:7px 10px;color:var(--txt);font-weight:600">'+k+'</td>'+
+        '<td style="padding:7px 10px;text-align:right;color:var(--txt)">'+fmt$(fut)+'</td>'+
+        '<td style="padding:7px 10px;text-align:right;color:var(--txt2)">'+fmt$(rem)+'</td>'+
+        '<td style="padding:7px 10px;text-align:right;font-weight:600;color:'+spCol+'">'+
+          (spPct!=null?(parseFloat(spPct)>0?'+':'')+spPct+'%':'—')+'</td>'+
+        '<td style="padding:7px 10px;text-align:right;color:var(--amber)">'+
+          (dist!=null?'+'+dist+'%':'—')+'</td>';
+      tbody.appendChild(tr);
+    });
 
-      /* ── Cards ── */
-      var fDic=futPrices['DIC 26']||null;
-      if(fDic!=null){
-        var spDic=pct(fDic,1658), dTFut=pct(2097.47,fDic), dTRem=pct(2097.47,1658);
-        var spCol2=parseFloat(spDic)>0?'var(--coral)':'var(--teal)';
-        var el=document.getElementById('futSpreadPct');
-        if(el){ el.textContent=(parseFloat(spDic)>0?'+':'')+spDic+'%'; el.style.color=spCol2; }
-        var elA=document.getElementById('futSpreadARS');
-        if(elA) elA.textContent='en pesos: '+(fDic>1658?'+':'')+fmt$(fDic-1658);
-        var elDF=document.getElementById('futDistFut');
-        if(elDF) elDF.textContent='+'+dTFut+'%';
-        var elDR=document.getElementById('futDistRem');
-        if(elDR) elDR.textContent='+'+dTRem+'%';
-      }
-
-      /* TEM */
-      var tems=[]; var prev=futPrices['JUL 26']||siopel;
-      ['AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'].forEach(function(k){
-        var v=futPrices[k]; if(v!=null){ tems.push((v/prev-1)*100); prev=v; }
-      });
-      var elT=document.getElementById('futTEM');
-      if(elT&&tems.length>0)
-        elT.textContent='+'+(tems.reduce(function(a,b){return a+b;},0)/tems.length).toFixed(2)+'% m/m';
-
-      /* ── Insight automático ── */
-      var ins=document.getElementById('futInsight');
-      if(ins && spreads.length>=3){
-        var avg=(spreads.reduce(function(a,b){return a+b;},0)/spreads.length).toFixed(1);
-        var growing = spreads[spreads.length-1] > spreads[0]+0.5;
-        var falling = spreads[spreads.length-1] < spreads[0]-0.5;
-        var allPos  = spreads.every(function(v){return v>0;});
-        var allNeg  = spreads.every(function(v){return v<0;});
-        var msg='';
-        if(allPos && growing)
-          msg='⚠ El mercado se muestra progresivamente más alcista que el REM. '+
-              'El spread crece de '+spreads[0]+'% en JUL a '+spreads[spreads.length-1]+'% en DIC.';
-        else if(allNeg)
-          msg='⚠ El REM supera a la curva de futuros. '+
-              'Los analistas esperan una depreciación mayor a la descontada por el mercado.';
-        else if(Math.abs(parseFloat(avg))<1)
-          msg='✓ El mercado se mantiene alineado con el REM. Spread promedio: '+avg+'%.';
-        else if(falling)
-          msg='✓ El mercado converge hacia el REM. El spread se reduce hacia fin de año.';
-        else
-          msg='El spread Futuro vs REM promedia '+avg+'% en la curva JUL–DIC.';
-        ins.textContent=msg;
-      }
+    /* ── Insight automático ── */
+    var ins=document.getElementById('futInsight');
+    if(ins && spreads.length>=2){
+      var avg=(spreads.reduce(function(a,b){return a+b;},0)/spreads.length).toFixed(1);
+      var first=spreads[0], last=spreads[spreads.length-1];
+      var msg='';
+      if(last>0 && first>0 && last>first+0.5)
+        msg='⚠ El mercado se vuelve progresivamente más alcista que el REM. El spread crece de '+first+'% (JUL) a '+last+'% (DIC).';
+      else if(last<0 && first>0)
+        msg='✓ El mercado converge al REM hacia fin de año. El spread es positivo en el corto plazo pero revierte en DIC.';
+      else if(Math.abs(parseFloat(avg))<1)
+        msg='✓ El mercado se mantiene alineado con el REM. Spread promedio de la curva: '+avg+'%.';
+      else if(last<first-0.5)
+        msg='✓ El spread se comprime hacia fin de año: el mercado converge al consenso del REM.';
+      else
+        msg='El spread Futuro vs REM promedia '+avg+'% en la curva JUL–DIC. SIOPEL hoy: $'+Math.round(siopel).toLocaleString('es-AR')+'.';
+      ins.textContent=msg;
     }
   }
   window.cargarFuturo = function(){
@@ -804,9 +767,9 @@
     document.getElementById('mD').textContent=descs[m]||'';
     /* Show/hide futPanel and main chart */
     var _fp=document.getElementById('futPanel');
-    var _cw=document.getElementById('mainChartWrap');
+    var _mc=document.getElementById('mainContent');
     if(_fp) _fp.style.display=isF?'block':'none';
-    if(_cw) _cw.style.display=isF?'none':'block';
+    if(_mc) _mc.style.display=isF?'none':'block';
     if(isF){
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){ renderFut(); });
