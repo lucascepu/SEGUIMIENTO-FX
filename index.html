@@ -278,7 +278,12 @@
   Proyecciones: REM BCRA (7-may-2026).
 </p>
 <div class="glosario">
-  <div class="glosario-title">Glosario</div>
+  <div class="glosario-title" onclick="toggleGlosario()" 
+    style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
+    <span>Glosario</span>
+    <span id="glosarioIcon" style="font-size:10px;color:var(--txt3);transition:transform .2s">▼</span>
+  </div>
+  <div id="glosarioBody" style="display:none">
   <div class="glosario-grid">
     <div class="glosario-item"><strong>SIOPEL (Divisa Venta)</strong> — Tipo de cambio mayorista de referencia publicado diariamente por el BCRA. Es el precio al que las entidades financieras venden divisas en el mercado interbancario.</div>
     <div class="glosario-item"><strong>Techo BCRA</strong> — Límite superior de la banda cambiaria vigente. Si el SIOPEL lo alcanza, el BCRA interviene vendiendo reservas. Se ajusta mensualmente según el crawling peg oficial.</div>
@@ -287,6 +292,7 @@
     <div class="glosario-item"><strong>Percentil histórico</strong> — Indica qué porcentaje de los días desde abr-2025 tuvo una brecha inferior a la actual. Ejemplo: "85% días hist" = el 85% de los días la brecha fue menor que hoy → brecha actualmente alta.</div>
     <div class="glosario-item"><strong>REM</strong> — Relevamiento de Expectativas de Mercado. Encuesta mensual del BCRA a ~46 analistas sobre sus proyecciones de inflación, tipo de cambio y tasas.</div>
   </div>
+  </div><!-- /glosarioBody -->
 </div>
 
 <script>
@@ -428,11 +434,12 @@
     'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
   };
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
+  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {
     'JUN 26':1469.5,'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
-    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0
+    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0,
+    'ENE 27':1668.0,'FEB 27':1697.5,'MAR 27':1728.5,'ABR 27':1762.0,'MAY 27':1795.0
   };
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
@@ -448,7 +455,7 @@
 
   function renderFut(){
     var siopel = hS[lri];
-    var KEYS   = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
+    var KEYS   = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
     var futs   = KEYS.map(function(k){ return futPrices[k]||null; });
     var rems   = KEYS.map(function(k){ return FUT_REM[k]; });
     var techos = KEYS.map(function(k){ return FUT_TECHO[k]; });
@@ -480,8 +487,12 @@
           plugins:{
             legend:{display:false},
             zoom:{
-              zoom:{ wheel:{enabled:true}, pinch:{enabled:true}, mode:'xy' },
-              pan: { enabled:true, mode:'xy' }
+              zoom:{
+                wheel:{enabled:true},
+                pinch:{enabled:true},
+                mode:'x'
+              },
+              pan:{ enabled:true, mode:'xy' }
             },
             tooltip:{callbacks:{label:function(c){
               return c.dataset.label+': '+(c.raw!=null?'$'+Math.round(c.raw).toLocaleString('es-AR'):'—');
@@ -496,6 +507,17 @@
           }
         }
       });
+      /* Ctrl+scroll → zoom Y (same UX as main SIOPEL chart) */
+      var futCtx2 = document.getElementById('futCanvas');
+      if(futCtx2){
+        futCtx2.addEventListener('wheel', function(e){
+          if(e.ctrlKey){ e.preventDefault();
+            futChartInst.options.scales.y.min = (futChartInst.scales.y.min||1400) + (e.deltaY>0?-20:20);
+            futChartInst.options.scales.y.max = (futChartInst.scales.y.max||2400) + (e.deltaY>0?-20:20);
+            futChartInst.update('none');
+          }
+        },{passive:false});
+      }
     }
 
     /* ── Tabla con colores simplificados ── */
@@ -558,6 +580,8 @@
       var avg=(spreads.reduce(function(a,b){return a+b;},0)/spreads.length).toFixed(1);
       var maxSp=Math.max.apply(null,spreads).toFixed(1);
       var maxMes=KEYS[spreads.indexOf(parseFloat(maxSp))];
+      /* Identify where REM data ends */
+      var remCutoff = 'DIC 26';
       var msg='';
       if(crossoverIdx>=0){
         var crossMes=KEYS[crossoverIdx];
@@ -729,6 +753,17 @@
   });
 
   /* ── SWITCH ── */
+
+  /* ── Glosario toggle ── */
+  window.toggleGlosario = function(){
+    var body = document.getElementById('glosarioBody');
+    var icon = document.getElementById('glosarioIcon');
+    if(!body) return;
+    var isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    if(icon) icon.style.transform = isOpen ? '' : 'rotate(180deg)';
+  };
+
   window.sw=function(m){
     mode=m;
     var isH=(m==='hist'),isP=(m==='proj'),isB=(m==='brecha'),isF=(m==='fut');
@@ -852,11 +887,12 @@
     'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
   };
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
+  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {
     'JUN 26':1469.5,'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
-    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0
+    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0,
+    'ENE 27':1668.0,'FEB 27':1697.5,'MAR 27':1728.5,'ABR 27':1762.0,'MAY 27':1795.0
   };
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
@@ -1207,11 +1243,12 @@
     'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
   };
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26'];
+  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {
     'JUN 26':1469.5,'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
-    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0
+    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0,
+    'ENE 27':1668.0,'FEB 27':1697.5,'MAR 27':1728.5,'ABR 27':1762.0,'MAY 27':1795.0
   };
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
