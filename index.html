@@ -429,7 +429,7 @@
   var FUT_REM   = {
     'JUN 26':1422,'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
     'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
-  };
+  ,'ENE 27':1678,'FEB 27':1698,'MAR 27':1718,'ABR 27':1739,'MAY 27':1760};
   var FUT_TECHO = {
     'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
@@ -507,16 +507,31 @@
           }
         }
       });
-      /* Ctrl+scroll → zoom Y (same UX as main SIOPEL chart) */
+      /* Ctrl+scroll → zoom Y in/out around center of visible range */
       var futCtx2 = document.getElementById('futCanvas');
       if(futCtx2){
         futCtx2.addEventListener('wheel', function(e){
-          if(e.ctrlKey){ e.preventDefault();
-            futChartInst.options.scales.y.min = (futChartInst.scales.y.min||1400) + (e.deltaY>0?-20:20);
-            futChartInst.options.scales.y.max = (futChartInst.scales.y.max||2400) + (e.deltaY>0?-20:20);
+          if(e.ctrlKey && futChartInst){
+            e.preventDefault();
+            var sc   = futChartInst.scales.y;
+            var lo   = sc.min != null ? sc.min : sc.start;
+            var hi   = sc.max != null ? sc.max : sc.end;
+            var mid  = (lo + hi) / 2;
+            var half = (hi - lo) / 2;
+            var factor = e.deltaY > 0 ? 1.12 : 0.88; /* zoom out / zoom in */
+            futChartInst.options.scales.y.min = Math.round(mid - half*factor);
+            futChartInst.options.scales.y.max = Math.round(mid + half*factor);
             futChartInst.update('none');
           }
         },{passive:false});
+        /* Double-click resets zoom */
+        futCtx2.addEventListener('dblclick', function(){
+          if(futChartInst){
+            delete futChartInst.options.scales.y.min;
+            delete futChartInst.options.scales.y.max;
+            futChartInst.resetZoom();
+          }
+        });
       }
     }
 
@@ -882,7 +897,7 @@
   var FUT_REM   = {
     'JUN 26':1422,'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
     'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
-  };
+  ,'ENE 27':1678,'FEB 27':1698,'MAR 27':1718,'ABR 27':1739,'MAY 27':1760};
   var FUT_TECHO = {
     'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
@@ -1238,7 +1253,7 @@
   var FUT_REM   = {
     'JUN 26':1422,'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
     'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
-  };
+  ,'ENE 27':1678,'FEB 27':1698,'MAR 27':1718,'ABR 27':1739,'MAY 27':1760};
   var FUT_TECHO = {
     'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,
     'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47
