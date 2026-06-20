@@ -142,8 +142,8 @@
 <body>
 
 <div class="cards">
-  <div class="card"><div class="card-label">SIOPEL (19/6)</div><div class="card-val">$1.461,00</div></div>
-  <div class="card"><div class="card-label">TECHO BCRA</div><div class="card-val">$1.790,00</div></div>
+  <div class="card"><div class="card-label" id="siopelLbl">SIOPEL (19/6)</div><div class="card-val" id="siopelVal">$1.461,00</div><div class="card-sub" id="deltaSiopelSub" style="margin-top:4px">—</div></div>
+  <div class="card"><div class="card-label">TECHO BCRA</div><div class="card-val" id="techoVal">$1.790,00</div><div class="card-sub" id="deltaTechoSub" style="margin-top:4px">—</div></div>
   <div class="card">
     <div class="card-label">Brecha SIOPEL/TECHO</div>
     <div class="card-val green" id="cardBrecha">+22.52%</div>
@@ -152,10 +152,10 @@
       <span class="pct-chip">· 6M: <span class="pct-val" id="pct6m">—</span></span>
     </div>
   </div>
-  <div class="card"><div class="card-label">prom. brecha <span id="winLabel">6M</span></div><div class="card-val" id="cardProm">+15.2%</div></div>
+  <div class="card"><div class="card-label">prom. brecha <span id="winLabel">6M</span></div><div class="card-val" id="cardProm">+15.2%</div><div class="card-sub" id="deltaPromSub" style="margin-top:4px">—</div></div>
 </div>
 
-<div id="deltaBar" class="delta-bar">—</div>
+<div id="deltaBar" class="delta-bar" style="display:none">—</div>
 <div class="toggle-row">
   <button id="bH" class="btn btn-on"  onclick="sw('hist')">SIOPEL</button>
   <button id="bP" class="btn btn-off" onclick="sw('proj')">PROYECCIÓN (desde Mayo)</button>
@@ -229,7 +229,7 @@
 <div id="futPanel" style="display:none">
 
   <!-- Insight -->
-  <div id="futInsight" style="font-size:12px;color:var(--txt2);padding:8px 12px;
+  <div id="futInsight" style="display:none" style="font-size:12px;color:var(--txt2);padding:8px 12px;
     background:var(--bg-card);border-left:2px solid var(--blue);border-radius:0 6px 6px 0;
     margin-bottom:14px;line-height:1.6;min-height:18px"></div>
 
@@ -520,7 +520,7 @@
             futChartInst.options.scales.y.max = Math.round(mid + half*factor);
             futChartInst.update('none');
           }
-        },{passive:false});
+        },{passive:false,capture:true});
         /* Double-click resets zoom */
         futCtx2.addEventListener('dblclick', function(){
           if(futChartInst){
@@ -636,7 +636,7 @@
   var zPlug={id:'z', beforeDraw:function(c){
     var ctx=c.ctx, ca=c.chartArea, xs=c.scales.x;
     try{
-      var ia=mode==='proj'?16:283, ib=ia;
+      var ia=mode==='proj'?17:284, ib=ia;
       var xA=(xs.getPixelForValue(ia)+xs.getPixelForValue(ib))/2;
       ctx.save();
       ctx.fillStyle='rgba(255,255,255,.04)';
@@ -983,6 +983,20 @@
       Math.abs(ds).toLocaleString('es-AR')+' ('+sg(ds)+pct+'%)</span>'+
       ' &nbsp;·&nbsp; Brecha: <span class="'+cls(db)+'">'+ar(db)+' '+sg(db)+db+'pp</span>'+
       ' &nbsp;<span style="opacity:.5">vs '+prevLbl+'</span>';
+    /* Card-sub deltas */
+    var fmt$=function(v){return '$'+Math.round(Math.abs(v)).toLocaleString('es-AR');};
+    var elDS=document.getElementById('deltaSiopelSub');
+    if(elDS&&actuals.length>=2){
+      var _ds=+(actuals[0].s-actuals[1].s).toFixed(2);
+      var _pct=(Math.abs(_ds)/actuals[1].s*100).toFixed(2);
+      elDS.innerHTML='<span class="'+(_ds>=0?'dUp':'dDn')+'">'+
+        (_ds>=0?'▲ +':'▼ -')+fmt$(_ds)+' ('+_pct+'%)</span>';
+    }
+    var elDT=document.getElementById('deltaTechoSub');
+    if(elDT&&actuals.length>=2){
+      var _dt=+(actuals[0].t-actuals[1].t).toFixed(2);
+      elDT.innerHTML='<span class="dUp">▲ +'+fmt$(_dt)+'</span> crawling peg';
+    }
   })();
 
 
