@@ -45,6 +45,7 @@
   .card{background:var(--bg-card);border-radius:12px;padding:14px 16px;border:1px solid var(--brd);transition:border-color .15s,background .15s;}
   .card-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:8px;}
   .card-val{font-size:22px;font-weight:500;line-height:1.1;}
+  .card-sub{font-size:11px;color:var(--txt3);margin-top:4px;line-height:1.4;}
   .card-val.green{color:var(--green);}
   .toggle-row{display:flex;gap:8px;margin-bottom:8px;}
   .delta-bar{font-size:12px;color:var(--txt2);text-align:center;margin:-4px 0 10px;letter-spacing:.02em;}
@@ -102,8 +103,8 @@
 
 /* ── Percentil brecha ── */
 .pct-row { display:flex; gap:8px; margin-top:4px; align-items:center; }
-.pct-chip { font-size:10px; color:inherit; }
-.pct-val  { font-weight:700; color:inherit; }
+.pct-chip { font-size:11px; color:var(--txt3); }
+.pct-val  { font-weight:600; color:inherit; }
 
 
   /* ── Glosario ── */
@@ -142,8 +143,8 @@
 <body>
 
 <div class="cards">
-  <div class="card"><div class="card-label" id="siopelLbl">SIOPEL (19/6)</div><div class="card-val" id="siopelVal">$1.461,00</div><div class="card-sub" id="deltaSiopelSub" style="margin-top:4px">—</div></div>
-  <div class="card"><div class="card-label">TECHO BCRA</div><div class="card-val" id="techoVal">$1.790,00</div><div class="card-sub" id="deltaTechoSub" style="margin-top:4px">—</div></div>
+  <div class="card"><div class="card-label" id="siopelLbl">SIOPEL (19/6)</div><div class="card-val" id="siopelVal">$1.461,00</div><div class="card-sub" id="deltaSiopelSub">—</div></div>
+  <div class="card"><div class="card-label">TECHO BCRA</div><div class="card-val" id="techoVal">$1.790,00</div><div class="card-sub" id="deltaTechoSub">—</div></div>
   <div class="card">
     <div class="card-label">Brecha SIOPEL/TECHO</div>
     <div class="card-val green" id="cardBrecha">+22.52%</div>
@@ -152,7 +153,7 @@
       <span class="pct-chip">· 6M: <span class="pct-val" id="pct6m">—</span></span>
     </div>
   </div>
-  <div class="card"><div class="card-label">prom. brecha <span id="winLabel">6M</span></div><div class="card-val" id="cardProm">+15.2%</div><div class="card-sub" id="deltaPromSub" style="margin-top:4px">—</div></div>
+  <div class="card"><div class="card-label">prom. brecha <span id="winLabel">6M</span></div><div class="card-val" id="cardProm">+15.2%</div><div class="card-sub" id="deltaPromSub">—</div></div>
 </div>
 
 <div id="deltaBar" class="delta-bar" style="display:none">—</div>
@@ -236,7 +237,7 @@
 
     <!-- TABLA (columna izquierda) -->
     <div>
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;margin-bottom:8px;text-transform:uppercase">Curva de futuros ROFEX</div>
+      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;margin-bottom:8px;text-transform:uppercase;height:22px;display:flex;align-items:center">Curva de futuros ROFEX</div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden">
         <table id="futTableEl" style="border-collapse:collapse;font-size:12px;width:100%">
           <thead>
@@ -260,9 +261,9 @@
     </div>
 
     <!-- GRÁFICO (columna derecha) -->
-    <div>
+    <div style="display:flex;flex-direction:column">
       <!-- KPI DIC-26 -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;margin-top:22px">
         <div class="card" style="padding:8px 10px">
           <div class="card-label" style="font-size:9px">ROFEX DIC-26</div>
           <div class="card-val" id="kpiFutDic" style="color:var(--blue);font-size:16px">$1.636</div>
@@ -529,37 +530,42 @@
             x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
             y:{grace:'4%',
                ticks:{color:'#adbac7',font:{size:11},
-                      callback:function(v){return '$'+v.toLocaleString('es-AR');}},
+                      callback:function(v){return '$'+Math.round(v).toLocaleString('es-AR');}},
                grid:{color:'rgba(255,255,255,.06)'}}
           }
         }
       });
-      /* Ctrl+scroll → zoom Y in/out around center of visible range */
-      var futCtx2 = document.getElementById('futCanvas');
-      if(futCtx2){
+      /* Ctrl+scroll → zoom Y axis smoothly */
+      (function(){
+        var futCtx2=document.getElementById('futCanvas');
+        if(!futCtx2) return;
+        var _ticking=false;
         futCtx2.addEventListener('wheel', function(e){
-          if(e.ctrlKey && futChartInst){
-            e.preventDefault();
-            var sc   = futChartInst.scales.y;
-            var lo   = sc.min != null ? sc.min : sc.start;
-            var hi   = sc.max != null ? sc.max : sc.end;
-            var mid  = (lo + hi) / 2;
-            var half = (hi - lo) / 2;
-            var factor = e.deltaY > 0 ? 1.12 : 0.88; /* zoom out / zoom in */
-            futChartInst.options.scales.y.min = Math.round(mid - half*factor);
-            futChartInst.options.scales.y.max = Math.round(mid + half*factor);
+          if(!e.ctrlKey||!futChartInst) return;
+          e.preventDefault();
+          if(_ticking) return; /* throttle */
+          _ticking=true;
+          requestAnimationFrame(function(){
+            _ticking=false;
+            var sc=futChartInst.scales.y;
+            var lo=futChartInst.options.scales.y.min!==undefined
+                   ?futChartInst.options.scales.y.min:sc.min;
+            var hi=futChartInst.options.scales.y.max!==undefined
+                   ?futChartInst.options.scales.y.max:sc.max;
+            var mid=(lo+hi)/2, half=(hi-lo)/2;
+            var f=e.deltaY<0?0.85:1.18; /* zoom in / zoom out */
+            futChartInst.options.scales.y.min=Math.round(mid-half*f);
+            futChartInst.options.scales.y.max=Math.round(mid+half*f);
             futChartInst.update('none');
-          }
+          });
         },{passive:false,capture:true});
-        /* Double-click resets zoom */
-        futCtx2.addEventListener('dblclick', function(){
-          if(futChartInst){
-            delete futChartInst.options.scales.y.min;
-            delete futChartInst.options.scales.y.max;
-            futChartInst.resetZoom();
-          }
+        futCtx2.addEventListener('dblclick',function(){
+          if(!futChartInst) return;
+          delete futChartInst.options.scales.y.min;
+          delete futChartInst.options.scales.y.max;
+          futChartInst.resetZoom();
         });
-      }
+      })();
     }
 
     /* ── Tabla con colores simplificados ── */
