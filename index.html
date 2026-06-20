@@ -234,7 +234,7 @@
     margin-bottom:14px;line-height:1.6;min-height:18px"></div>
 
   <!-- Gráfico: 2 líneas (Futuro + REM) — mismo estilo que otras tabs -->
-  <div style="position:relative;height:260px;margin-bottom:4px">
+  <div id="futChartBox" style="position:relative;height:260px;margin-bottom:4px">
     <canvas id="futCanvas"></canvas>
   </div>
 
@@ -254,7 +254,7 @@
   </div>
 
   <!-- Tabla spread -->
-  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px">
+  <table style="border-collapse:collapse;font-size:12px;margin-bottom:16px">
     <thead>
       <tr style="border-bottom:1px solid var(--border)">
         <th style="text-align:left;padding:6px 10px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.05em;text-transform:uppercase">Mes</th>
@@ -267,30 +267,7 @@
     <tbody id="futTbody"></tbody>
   </table>
 
-  <!-- Actualizar -->
-  <div style="border-top:1px solid var(--border);padding-top:12px">
-    <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.06em;margin-bottom:8px">ACTUALIZAR PRECIOS ROFEX</div>
-    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
-      <div style="display:flex;flex-direction:column;gap:3px">
-        <label style="font-size:10px;font-weight:600;color:var(--txt3)">CONTRATO</label>
-        <select id="futSelMes" style="background:var(--bg-card);border:1px solid var(--border);
-          border-radius:8px;color:var(--txt);font-size:13px;padding:6px 10px;outline:none">
-          <option>JUL 26</option><option>AGO 26</option><option>SEP 26</option>
-          <option>OCT 26</option><option>NOV 26</option><option>DIC 26</option>
-        </select>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:3px">
-        <label style="font-size:10px;font-weight:600;color:var(--txt3)">PRECIO CIERRE</label>
-        <input type="number" id="futPrecio" placeholder="ej: 1495" step="0.5"
-          style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;
-                 color:var(--txt);font-size:13px;padding:6px 10px;outline:none;width:120px">
-      </div>
-      <button class="btn-submit" onclick="cargarFuturo()">Cargar</button>
-      <span id="futMsgOk" style="display:none;font-size:11px;color:var(--teal);align-self:center">✓ guardado</span>
-    </div>
-    <div style="font-size:10px;color:var(--txt3);margin-top:6px">Datos: cierre ROFEX 18/6/2026 · rava.com · ppi.com.ar — precios guardados en el browser</div>
-  </div>
-</div>
+</div><!-- /futPanel -->
 
 <p class="footnote">
   SIOPEL: datos reales abr 2025–18/6/2026. Techo may: interpolado desde ancla 14/5 ($1.729,14).
@@ -478,6 +455,10 @@
     var ctx = document.getElementById('futCanvas');
     if(ctx){
       if(futChartInst){ futChartInst.destroy(); futChartInst=null; }
+      /* Ensure canvas is visible and sized before Chart.js reads dimensions */
+      var box=document.getElementById('futChartBox');
+      if(box){ ctx.style.width='100%'; ctx.style.height='260px';
+               ctx.width=box.offsetWidth||700; ctx.height=260; }
       futChartInst = new Chart(ctx, {
         type:'line',
         data:{
@@ -760,6 +741,7 @@
     bH.className='btn '+(isH?'btn-on':'btn-off');
     bP.className='btn '+(isP?'btn-on':'btn-off');
     bB.className='btn '+(isB?'btn-on':'btn-off');
+    var _bF=document.getElementById('bF'); if(_bF) _bF.className='btn '+(isF?'btn-on':'btn-off');
 
     var descs={hist:'Histórico completo: SIOPEL diario abr 2025 – 18-JUN 2026 vs techo banda BCRA.',
                proj:'Mayo real + techo jun-jul oficial + escenarios TC desde ago 2026.',
