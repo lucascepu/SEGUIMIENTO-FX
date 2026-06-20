@@ -244,7 +244,7 @@
             <tr style="background:rgba(255,255,255,.03)">
               <th style="text-align:left;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">MES</th>
               <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">FUTURO</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--amber);font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);border-left:2px solid var(--amber);border-right:1px solid var(--border)">REM</th>
+              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--amber);font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">REM</th>
               <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">SPREAD</th>
               <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">TECHO</th>
             </tr>
@@ -507,8 +507,10 @@
             {label:'REM may-26', data:rems, borderColor:'#F5C36B',
              borderDash:[6,4], borderWidth:2, pointRadius:4, pointBackgroundColor:'#F5C36B',
              backgroundColor:'transparent', fill:false, tension:.3},
-            {label:'Techo BCRA', data:techos, borderColor:'rgba(245,195,107,.28)',
-             borderDash:[2,5], borderWidth:1.5, pointRadius:0,
+            {label:'Techo BCRA', data:techos, borderColor:'rgba(245,195,107,.4)',
+             borderDash:[2,5], borderWidth:1.5,
+             pointRadius:3, pointBackgroundColor:'rgba(245,195,107,.6)',
+             pointHoverRadius:5, pointBorderWidth:0,
              backgroundColor:'transparent', fill:false, tension:.3}
           ]
         },
@@ -570,7 +572,7 @@
         '<td style="padding:9px 14px;color:var(--txt);font-weight:600;white-space:nowrap">'+
           k+(i===crossoverIdx?'  <span style="font-size:9px;color:var(--blue);vertical-align:middle">↕ CRUCE</span>':'')+'</td>'+
         '<td style="padding:9px 14px;text-align:right;color:var(--txt);font-weight:500;white-space:nowrap">'+fmt$(fut)+'</td>'+
-        '<td style="padding:9px 14px;text-align:right;color:var(--txt2);white-space:nowrap;border-left:2px solid rgba(245,195,107,.2);border-right:1px solid var(--border)">'+fmt$(rem)+'</td>'+
+        '<td style="padding:9px 14px;text-align:right;color:var(--txt2);white-space:nowrap;">'+fmt$(rem)+'</td>'+
         '<td style="padding:9px 14px;text-align:right;font-weight:700;color:'+spCol+';white-space:nowrap">'+
           (spPct!=null?(spVal>0?'+':'')+spPct+'%':'—')+'</td>'+
         '<td style="padding:9px 14px;text-align:right;color:var(--txt2);white-space:nowrap">'+
