@@ -219,3 +219,46 @@ típicamente a mediados del mes siguiente al que se está cerrando.
 Los valores para meses futuros sin techo oficial viven exclusivamente en la
 solapa **Proyección** (`pT`, `pS`, `pSCA`, `pSCB`, `pSCC`, `pREM`).
 Nunca se mezclan con el array `hT` del modo Histórico.
+
+---
+
+## Feriados, fines de semana y días sin operaciones
+
+> Documentado: 22 de junio de 2026
+
+### Comportamiento del workflow por tipo de día
+
+| Tipo de día | El workflow corre? | La API del BCRA tiene dato? | Resultado |
+|---|---|---|---|
+| **Lunes a Viernes hábil** | ✅ Sí (17:30 hs ARG) | ✅ Sí | Dashboard actualizado automáticamente |
+| **Sábado / Domingo** | ❌ No (cron `1-5`) | ❌ No (mercado cerrado) | Sin acción, normal |
+| **Feriado nacional** | ✅ Sí (GitHub no sabe que es feriado) | ❌ No (BCRA cerrado) | Script detecta "sin datos" → `exit(0)` limpio → sin commit, dashboard sin cambios |
+
+### Lógica para feriados en `update_fx.py`
+
+Cuando la API del BCRA no devuelve datos, el script termina con código 0:
+```
+INFO: Sin datos BCRA para YYYY-MM-DD.
+Causas posibles: feriado, mercado cerrado, o dato aún no publicado.
+El workflow termina sin cambios (exit 0 → verde en GitHub Actions).
+```
+
+El workflow queda **verde** (no es un error). El dashboard mantiene el último dato válido.
+
+### Feriados nacionales restantes en 2026
+
+| Fecha | Feriado | Tipo |
+|---|---|---|
+| Jue 9 Jul | Día de la Independencia | Inamovible |
+| Vie 10 Jul | Día no laborable turístico | Puente oficial |
+| Lun 17 Ago | Paso a la Inmortalidad Gral. San Martín | Inamovible |
+| Lun 12 Oct | Día de la Raza | Inamovible |
+| Lun 23 Nov | Día de la Soberanía Nacional | Trasladado (era 20 Nov) |
+| Lun 7 Dic | Día no laborable turístico | Puente oficial |
+| Mar 8 Dic | Inmaculada Concepción de María | Inamovible |
+| Vie 25 Dic | Navidad | Inamovible |
+
+### Notas históricas sobre días sin dato
+
+- **Jun 15, 2026**: Feriado por Güemes (originalmente 17 Jun, trasladado al lunes 15)
+- **Jun 20, 2026**: Día de la Bandera (inamovible, cayó sábado — no afectó ruedas)
