@@ -254,7 +254,7 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 18/6/2026<br>
+        Cierre ROFEX 22/6/2026<br>
         REM ene–may 27: interpolado ($1.658→$1.760)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)
       </div>
@@ -268,7 +268,7 @@
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;margin-top:0">
         <div class="card" style="padding:8px 10px">
           <div class="card-label" style="font-size:9px">ROFEX DIC-26</div>
-          <div class="card-val" id="kpiFutDic" style="color:var(--blue);font-size:16px">$1.636</div>
+          <div class="card-val" id="kpiFutDic" style="color:var(--blue);font-size:16px">$1.635</div>
         </div>
         <div class="card" style="padding:8px 10px">
           <div class="card-label" style="font-size:9px">REM DIC-26</div>
@@ -466,11 +466,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {
-    'JUN 26':1469.5,'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
-    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0,
-    'ENE 27':1668.0,'FEB 27':1697.5,'MAR 27':1728.5,'ABR 27':1762.0,'MAY 27':1795.0
-  };
+  var FUT_DEFAULT = {'JUN 26':1467.5,'JUL 26':1493.5,'AGO 26':1519.5,'SEP 26':1546.0,'OCT 26':1576.0,'NOV 26':1605.5,'DIC 26':1635.0,'ENE 27':1667.0,'FEB 27':1696.5,'MAR 27':1725.0,'ABR 27':1758.5,'MAY 27':1793.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
@@ -907,11 +903,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {
-    'JUN 26':1469.5,'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
-    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0,
-    'ENE 27':1668.0,'FEB 27':1697.5,'MAR 27':1728.5,'ABR 27':1762.0,'MAY 27':1795.0
-  };
+  var FUT_DEFAULT = {'JUN 26':1467.5,'JUL 26':1493.5,'AGO 26':1519.5,'SEP 26':1546.0,'OCT 26':1576.0,'NOV 26':1605.5,'DIC 26':1635.0,'ENE 27':1667.0,'FEB 27':1696.5,'MAR 27':1725.0,'ABR 27':1758.5,'MAY 27':1793.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
@@ -993,7 +985,7 @@
       ' &nbsp;·&nbsp; Brecha: <span class="'+cls(db)+'">'+ar(db)+' '+sg(db)+db+'pp</span>'+
       ' &nbsp;<span style="opacity:.5">vs '+prevLbl+'</span>';
     /* Card-sub deltas */
-    var fmt$=function(v){return '$'+Math.round(Math.abs(v)).toLocaleString('es-AR');};
+    var fmt$=function(v){var n=Math.round(Math.abs(v)*10)/10;return '$'+n.toLocaleString('es-AR');};
     var elDS=document.getElementById('deltaSiopelSub');
     if(elDS&&actuals.length>=2){
       var _ds=+(actuals[0].s-actuals[1].s).toFixed(2);
@@ -1274,11 +1266,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {
-    'JUN 26':1469.5,'JUL 26':1495.0,'AGO 26':1521.0,'SEP 26':1547.5,
-    'OCT 26':1577.0,'NOV 26':1606.5,'DIC 26':1636.0,
-    'ENE 27':1668.0,'FEB 27':1697.5,'MAR 27':1728.5,'ABR 27':1762.0,'MAY 27':1795.0
-  };
+  var FUT_DEFAULT = {'JUN 26':1467.5,'JUL 26':1493.5,'AGO 26':1519.5,'SEP 26':1546.0,'OCT 26':1576.0,'NOV 26':1605.5,'DIC 26':1635.0,'ENE 27':1667.0,'FEB 27':1696.5,'MAR 27':1725.0,'ABR 27':1758.5,'MAY 27':1793.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
