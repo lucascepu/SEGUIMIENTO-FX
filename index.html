@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIOPEL vs Techo de Banda – 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
 <style>
   :root {
     /* fondos */
@@ -414,6 +412,11 @@
     chart.options.scales.x.max = IDX_END;
     chart.update('none');
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
+    /* Also force scale recalculation — without zoom plugin this works cleanly */
+    if(chart.scales && chart.scales.x){
+      chart.scales.x.min = s > 0 ? s : chart.scales.x.min;
+      chart.scales.x.max = IDX_END;
+    }
   }
 
 
@@ -731,7 +734,6 @@
       
       interaction:{mode:'nearest',intersect:false},
       plugins:{
-        zoom:false,
         legend:{display:false},
         tooltip:{
           backgroundColor:'#1a1d27',titleColor:'#e2e4ed',bodyColor:'#8b90a8',
