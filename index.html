@@ -410,19 +410,34 @@
     } else {
       chart.data.labels=(mode==='proj')?pDispLbl:hDispLbl;
     }
-    /* Set both the option AND the computed scale value, then draw()
-       bypasses the zoom plugin's afterUpdate hook which overrides options */
     chart.options.scales.x.min = s > 0 ? s : undefined;
     chart.options.scales.x.max = IDX_END;
-    if(chart.scales && chart.scales.x){
-      chart.scales.x.min = s > 0 ? s : chart.scales.x.min;
-      chart.scales.x.max = IDX_END;
-    }
     chart.update('none');
-    /* Force draw to ensure the computed scale values are visible */
-    setTimeout(function(){ if(chart) chart.draw(); }, 0);
+    var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   }
 
+
+  /* Custom scroll zoom */
+  (function(){
+    var mc=document.getElementById('mainChartWrap')||document.querySelector('.chart-wrap');
+    if(!mc) return;
+    mc.addEventListener('wheel',function(e){
+      if(!chart||mode==='proj') return;
+      e.preventDefault();
+      var xMin=chart.options.scales.x.min!=null?chart.options.scales.x.min:0;
+      var xMax=chart.options.scales.x.max!=null?chart.options.scales.x.max:IDX_END;
+      var range=xMax-xMin;
+      var factor=e.deltaY>0?1.15:0.87;
+      var mid=(xMin+xMax)/2;
+      var newRange=Math.max(20,Math.min(IDX_END,range*factor));
+      var newMin=Math.round(Math.max(0,mid-newRange/2));
+      var newMax=Math.round(Math.min(IDX_END,mid+newRange/2));
+      chart.options.scales.x.min=newMin;
+      chart.options.scales.x.max=newMax;
+      chart.update('none');
+      window._showRZ();
+    },{passive:false});
+  })();
   window.setPeriod=function(btn){
     var p=btn.getAttribute('data-p');
     curPeriod=p;
@@ -713,20 +728,10 @@
     options:{
       responsive:true,
       maintainAspectRatio:false,
-      plugins:{
-        zoom:{
-          limits:{ x:{min:0,max:IDX_END,minRange:5}, y:{min:500,max:3000,minRange:80} },
-          pan:{ enabled:false },
-          zoom:{
-            wheel:{ enabled:true, speed:0.08 },
-            pinch:{ enabled:true },
-            mode:'x',
-            onZoomComplete:function(){ window._showRZ(); }
-          }
-        }
-      },
+      
       interaction:{mode:'nearest',intersect:false},
       plugins:{
+        zoom:false,
         legend:{display:false},
         tooltip:{
           backgroundColor:'#1a1d27',titleColor:'#e2e4ed',bodyColor:'#8b90a8',
@@ -752,7 +757,6 @@
       },
       scales:{
         x:{
-          min:216, max:312,
           /* Force enough height so rotated labels are never clipped */
           afterFit: function(scale){ if(scale.height<48) scale.height=48; },
           border:{ display:true, color:'rgba(255,255,255,.18)', width:1 },
@@ -1015,13 +1019,8 @@
 
   /* resetZoom: manually restore y-defaults + re-apply period (no chart.resetZoom()) */
   window.resetZoom=function(){
-    if(!chart) return;
-    var isP=(mode==='proj'), isB=(mode==='brecha');
-    chart.options.scales.y.min=isB?-5:isP?1300:1000;
-    chart.options.scales.y.max=isB?55:isP?2200:1950;
-    document.querySelector('.chart-wrap').style.display=isF?'none':'block';
-    applyPeriod();   /* restores correct x.min/x.max for current period */
-    window._hideRZ();
+    applyPeriod();
+    var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   };
 
   /* Wrap setPeriod to reset y-zoom before switching period */
