@@ -644,18 +644,24 @@
   /* ── Variación mensual en card SIOPEL ── */
   (function(){
     if(lri<=0) return;
-    var now=new Date(hDates[lri]||'');
-    if(isNaN(now)) return;
-    var lpd=new Date(now.getFullYear(),now.getMonth(),0); /* último día mes anterior */
-    var iso=lpd.getFullYear()+'-'+String(lpd.getMonth()+1).padStart(2,'0')+'-'+String(lpd.getDate()).padStart(2,'0');
-    var pmIdx=findDateIdx(iso);
-    var pmVal=hS[pmIdx];
-    var curVal=hS[lri];
+    var now=new Date(hDates[lri]||''); if(isNaN(now)) return;
+    var prevMonth=now.getMonth()-1, prevYear=now.getFullYear();
+    if(prevMonth<0){ prevMonth=11; prevYear--; }
+    /* Buscar el último día hábil del mes anterior directamente en hDates */
+    var pmIdx=-1;
+    for(var i=lri-1;i>=0;i--){
+      var d=new Date(hDates[i]);
+      if(d.getFullYear()===prevYear && d.getMonth()===prevMonth){ pmIdx=i; break; }
+    }
+    if(pmIdx<0) return;
+    var pmVal=hS[pmIdx], curVal=hS[lri];
     var el=document.getElementById('monthlySiopelSub');
     if(!el||pmVal==null||curVal==null) return;
     var mv=+((curVal-pmVal)/pmVal*100).toFixed(2);
-    var lbl=lpd.toLocaleString('es-AR',{month:'short'});
-    el.innerHTML='<span class="'+(mv>=0?'dUp':'dDn')+'">'+(mv>=0?'▲ +':'▼ ')+Math.abs(mv).toFixed(2)+'%</span> vs últ. '+lbl;
+    var mesNom=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][now.getMonth()];
+    var sign=mv>=0?'+':'';
+    el.innerHTML='<span style="font-size:9px;color:var(--txt3);letter-spacing:.04em;text-transform:uppercase">'+mesNom+' m/m</span>'+
+      ' <span class="'+(mv>=0?'dUp':'dDn')+'" style="font-size:11px;font-weight:600">'+sign+mv.toFixed(2)+'%</span>';
   })();
   var curBr=lri>=0?Math.round((hT[lri]-hS[lri])/hS[lri]*1000)/10:23.2;
   var curRef=new Array(NH).fill(curBr);
@@ -1005,7 +1011,8 @@
       var _ds=+(actuals[0].s-actuals[1].s).toFixed(2);
       var _pct=(Math.abs(_ds)/actuals[1].s*100).toFixed(2);
       elDS.innerHTML='<span class="'+(_ds>=0?'dUp':'dDn')+'">'+
-        (_ds>=0?'▲ +':'▼ -')+fmt$(_ds)+' ('+_pct+'%)</span>';
+        (_ds>=0?'▲ +':'▼ ')+fmt$(_ds)+'</span>'+
+        '<span style="color:var(--txt3);font-size:10px"> ('+(_ds>=0?'+':'')+_pct+'%)</span>';
     }
 
     var elDT=document.getElementById('deltaTechoSub');
