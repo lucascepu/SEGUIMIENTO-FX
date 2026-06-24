@@ -640,6 +640,23 @@
   };
 
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+
+  /* ── Variación mensual en card SIOPEL ── */
+  (function(){
+    if(lri<=0) return;
+    var now=new Date(hDates[lri]||'');
+    if(isNaN(now)) return;
+    var lpd=new Date(now.getFullYear(),now.getMonth(),0); /* último día mes anterior */
+    var iso=lpd.getFullYear()+'-'+String(lpd.getMonth()+1).padStart(2,'0')+'-'+String(lpd.getDate()).padStart(2,'0');
+    var pmIdx=findDateIdx(iso);
+    var pmVal=hS[pmIdx];
+    var curVal=hS[lri];
+    var el=document.getElementById('monthlySiopelSub');
+    if(!el||pmVal==null||curVal==null) return;
+    var mv=+((curVal-pmVal)/pmVal*100).toFixed(2);
+    var lbl=lpd.toLocaleString('es-AR',{month:'short'});
+    el.innerHTML='<span class="'+(mv>=0?'dUp':'dDn')+'">'+(mv>=0?'▲ +':'▼ ')+Math.abs(mv).toFixed(2)+'%</span> vs últ. '+lbl;
+  })();
   var curBr=lri>=0?Math.round((hT[lri]-hS[lri])/hS[lri]*1000)/10:23.2;
   var curRef=new Array(NH).fill(curBr);
   var bPt=N(NH); if(lri>=0)bPt[lri]=7;
@@ -990,24 +1007,7 @@
       elDS.innerHTML='<span class="'+(_ds>=0?'dUp':'dDn')+'">'+
         (_ds>=0?'▲ +':'▼ -')+fmt$(_ds)+' ('+_pct+'%)</span>';
     }
-    /* Variación mensual: último día hábil del mes anterior → hoy */
-    var elMV=document.getElementById('monthlySiopelSub');
-    if(elMV&&lri>0){
-      /* Encontrar último día hábil del mes anterior */
-      var curDate=new Date(hDates[lri]||'2026-06-24');
-      var lastDayPrevMonth=new Date(curDate.getFullYear(),curDate.getMonth(),0);
-      var prevMonthIso=lastDayPrevMonth.getFullYear()+'-'+
-        String(lastDayPrevMonth.getMonth()+1).padStart(2,'0')+'-'+
-        String(lastDayPrevMonth.getDate()).padStart(2,'0');
-      var pmIdx=findDateIdx(prevMonthIso);
-      var pmVal=hS[pmIdx];
-      if(pmVal!=null&&hS[lri]!=null){
-        var mVar=+((hS[lri]-pmVal)/pmVal*100).toFixed(2);
-        var mLbl=lastDayPrevMonth.toLocaleString('es-AR',{month:'short'});
-        elMV.innerHTML='<span class="'+(mVar>=0?'dUp':'dDn')+'">'+(mVar>=0?'▲ +':'▼ ')+
-          Math.abs(mVar).toFixed(2)+'%</span> vs últ. '+mLbl;
-      }
-    }
+
     var elDT=document.getElementById('deltaTechoSub');
     if(elDT&&actuals.length>=2){
       var _dt=+(actuals[0].t-actuals[1].t).toFixed(2);
