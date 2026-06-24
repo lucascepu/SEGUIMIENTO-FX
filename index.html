@@ -779,9 +779,26 @@
             color:tc,
             font:{size:10, weight:'600'},
             maxRotation:45,
-            minRotation:30,
-            autoSkip:false,
-            padding:4
+            minRotation:0,
+            autoSkip:true,
+            maxTicksLimit:14,
+            padding:4,
+            callback:function(val){
+              /* val = index en labels array */
+              var range=(this.max!=null?this.max:IDX_END)-(this.min!=null?this.min:0);
+              var dl=hDispLbl[val]||'';
+              var sl=hLbl[val]||'';
+              if(range>150){
+                /* Serie completa / LTM: solo etiquetas de mes (ej "NOV 25") */
+                return /^[A-Z]/.test(dl)?dl:null;
+              } else if(range>40){
+                /* YTD / M-1 TD largo: fechas cada ~semana (hDispLbl) */
+                return dl||null;
+              } else {
+                /* Muy zoom: mostrar cada rueda hábil */
+                return sl||null;
+              }
+            }
           }
         },
         y:{
