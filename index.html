@@ -141,7 +141,7 @@
 <body>
 
 <div class="cards">
-  <div class="card"><div class="card-label" id="siopelLbl">SIOPEL (24/jun)</div><div class="card-val" id="siopelVal">$1.471,50</div><div class="card-sub" id="deltaSiopelSub">—</div></div>
+  <div class="card"><div class="card-label" id="siopelLbl">SIOPEL (24/jun)</div><div class="card-val" id="siopelVal">$1.471,50</div><div class="card-sub" id="deltaSiopelSub">—</div><div class="card-sub" id="monthlySiopelSub" style="color:var(--txt3)">—</div></div>
   <div class="card"><div class="card-label">TECHO BCRA</div><div class="card-val" id="techoVal">$1.797,67</div><div class="card-sub" id="deltaTechoSub">—</div></div>
   <div class="card">
     <div class="card-label">Brecha SIOPEL/TECHO</div>
@@ -253,7 +253,7 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 23/6/2026<br>
+        Cierre ROFEX 24/6/2026<br>
         REM ene–may 27: interpolado ($1.658→$1.760)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)
       </div>
@@ -475,7 +475,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUN 26':1475.0,'JUL 26':1502.0,'AGO 26':1529.5,'SEP 26':1556.0,'OCT 26':1585.0,'NOV 26':1615.0,'DIC 26':1646.5,'ENE 27':1678.0,'FEB 27':1706.5,'MAR 27':1739.5,'ABR 27':1772.0,'MAY 27':1809.0};
+  var FUT_DEFAULT = {'JUN 26':1483.5,'JUL 26':1510.5,'AGO 26':1537.5,'SEP 26':1565.5,'OCT 26':1595.0,'NOV 26':1624.0,'DIC 26':1653.0,'ENE 27':1684.5,'FEB 27':1718.0,'MAR 27':1752.0,'ABR 27':1784.0,'MAY 27':1819.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
@@ -900,7 +900,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUN 26':1475.0,'JUL 26':1502.0,'AGO 26':1529.5,'SEP 26':1556.0,'OCT 26':1585.0,'NOV 26':1615.0,'DIC 26':1646.5,'ENE 27':1678.0,'FEB 27':1706.5,'MAR 27':1739.5,'ABR 27':1772.0,'MAY 27':1809.0};
+  var FUT_DEFAULT = {'JUN 26':1483.5,'JUL 26':1510.5,'AGO 26':1537.5,'SEP 26':1565.5,'OCT 26':1595.0,'NOV 26':1624.0,'DIC 26':1653.0,'ENE 27':1684.5,'FEB 27':1718.0,'MAR 27':1752.0,'ABR 27':1784.0,'MAY 27':1819.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
@@ -989,6 +989,24 @@
       var _pct=(Math.abs(_ds)/actuals[1].s*100).toFixed(2);
       elDS.innerHTML='<span class="'+(_ds>=0?'dUp':'dDn')+'">'+
         (_ds>=0?'▲ +':'▼ -')+fmt$(_ds)+' ('+_pct+'%)</span>';
+    }
+    /* Variación mensual: último día hábil del mes anterior → hoy */
+    var elMV=document.getElementById('monthlySiopelSub');
+    if(elMV&&lri>0){
+      /* Encontrar último día hábil del mes anterior */
+      var curDate=new Date(hDates[lri]||'2026-06-24');
+      var lastDayPrevMonth=new Date(curDate.getFullYear(),curDate.getMonth(),0);
+      var prevMonthIso=lastDayPrevMonth.getFullYear()+'-'+
+        String(lastDayPrevMonth.getMonth()+1).padStart(2,'0')+'-'+
+        String(lastDayPrevMonth.getDate()).padStart(2,'0');
+      var pmIdx=findDateIdx(prevMonthIso);
+      var pmVal=hS[pmIdx];
+      if(pmVal!=null&&hS[lri]!=null){
+        var mVar=+((hS[lri]-pmVal)/pmVal*100).toFixed(2);
+        var mLbl=lastDayPrevMonth.toLocaleString('es-AR',{month:'short'});
+        elMV.innerHTML='<span class="'+(mVar>=0?'dUp':'dDn')+'">'+(mVar>=0?'▲ +':'▼ ')+
+          Math.abs(mVar).toFixed(2)+'%</span> vs últ. '+mLbl;
+      }
     }
     var elDT=document.getElementById('deltaTechoSub');
     if(elDT&&actuals.length>=2){
@@ -1258,7 +1276,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUN 26':1475.0,'JUL 26':1502.0,'AGO 26':1529.5,'SEP 26':1556.0,'OCT 26':1585.0,'NOV 26':1615.0,'DIC 26':1646.5,'ENE 27':1678.0,'FEB 27':1706.5,'MAR 27':1739.5,'ABR 27':1772.0,'MAY 27':1809.0};
+  var FUT_DEFAULT = {'JUN 26':1483.5,'JUL 26':1510.5,'AGO 26':1537.5,'SEP 26':1565.5,'OCT 26':1595.0,'NOV 26':1624.0,'DIC 26':1653.0,'ENE 27':1684.5,'FEB 27':1718.0,'MAR 27':1752.0,'ABR 27':1784.0,'MAY 27':1819.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
