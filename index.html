@@ -410,9 +410,8 @@
     } else {
       chart.data.labels=(mode==='proj')?pDispLbl:hDispLbl;
     }
-    if(chart.resetZoom) chart.resetZoom();
-    chart.options.scales.x.min=s;
-    chart.options.scales.x.max=IDX_END;
+    chart.options.scales.x.min = s > 0 ? s : undefined;
+    chart.options.scales.x.max = IDX_END;
     chart.update('none');
   }
 
@@ -745,7 +744,6 @@
       },
       scales:{
         x:{
-          min:216, max:312,
           /* Force enough height so rotated labels are never clipped */
           afterFit: function(scale){ if(scale.height<48) scale.height=48; },
           border:{ display:true, color:'rgba(255,255,255,.18)', width:1 },
