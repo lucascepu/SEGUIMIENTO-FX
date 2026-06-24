@@ -184,8 +184,6 @@
 
 <div id="periodRow" class="period-row">
   <button class="pbtn pon" data-p="3m" onclick="setPeriod(this)">May-Jul</button>
-  <button class="pbtn" data-p="6m"  onclick="setPeriod(this)">Últ. 6 meses</button>
-  <button class="pbtn" data-p="all" onclick="setPeriod(this)">Serie completa</button>
   <input type="date" id="desdeFecha" title="Desde fecha" min="2025-04-01" max="2026-06-23">
 </div>
 
@@ -391,56 +389,23 @@
   function applyPeriod(){
     if(!chart) return;
     var s=0;
-    if(curPeriod==='6m')      s=IDX_DEC1;
-    else if(curPeriod==='3m'){
+    if(curPeriod==='3m'){
       var future=IDX_END-lri;
       s=Math.max(0, lri - 2*future);
     } else if(curPeriod==='custom'){
       var v=document.getElementById('desdeFecha').value;
       s=v?findDateIdx(v):0;
     }
-    /* For 'all' view: show only monthly + key milestone labels */
-    var KEY_ALL=new Set(['1/5','1/6','1/7','31/7']);
-    if(curPeriod==='all'){
-      chart.data.labels=hDispLbl.map(function(l){
-        return (/^[A-Z]/.test(l)||KEY_ALL.has(l))?l:'';
-      });
+    chart.data.labels=(mode==='proj')?pDispLbl:hDispLbl;
+    if(s > 0){
+      chart.options.scales.x.min = s;
     } else {
-      chart.data.labels=(mode==='proj')?pDispLbl:hDispLbl;
+      delete chart.options.scales.x.min;
     }
-    chart.options.scales.x.min = s > 0 ? s : undefined;
     chart.options.scales.x.max = IDX_END;
     chart.update('none');
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
-    /* Also force scale recalculation — without zoom plugin this works cleanly */
-    if(chart.scales && chart.scales.x){
-      chart.scales.x.min = s > 0 ? s : chart.scales.x.min;
-      chart.scales.x.max = IDX_END;
-    }
   }
-
-
-  /* Custom scroll zoom */
-  (function(){
-    var mc=document.getElementById('mainChartWrap')||document.querySelector('.chart-wrap');
-    if(!mc) return;
-    mc.addEventListener('wheel',function(e){
-      if(!chart||mode==='proj') return;
-      e.preventDefault();
-      var xMin=chart.options.scales.x.min!=null?chart.options.scales.x.min:0;
-      var xMax=chart.options.scales.x.max!=null?chart.options.scales.x.max:IDX_END;
-      var range=xMax-xMin;
-      var factor=e.deltaY>0?1.15:0.87;
-      var mid=(xMin+xMax)/2;
-      var newRange=Math.max(20,Math.min(IDX_END,range*factor));
-      var newMin=Math.round(Math.max(0,mid-newRange/2));
-      var newMax=Math.round(Math.min(IDX_END,mid+newRange/2));
-      chart.options.scales.x.min=newMin;
-      chart.options.scales.x.max=newMax;
-      chart.update('none');
-      window._showRZ();
-    },{passive:false});
-  })();
   window.setPeriod=function(btn){
     var p=btn.getAttribute('data-p');
     curPeriod=p;
