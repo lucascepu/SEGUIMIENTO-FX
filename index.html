@@ -183,10 +183,10 @@
 </div>
 
 <div id="periodRow" class="period-row">
-  <button class="pbtn pon" data-p="m1td" onclick="setPeriod(this)">M-1 TD</button>
-  <button class="pbtn" data-p="12m"  onclick="setPeriod(this)">Últ. 12M</button>
-  <button class="pbtn" data-p="2026" onclick="setPeriod(this)">2026</button>
-  <button class="pbtn" data-p="all"  onclick="setPeriod(this)">Serie completa</button>
+  <button class="pbtn pon" data-p="m1td">M-1 TD</button>
+  <button class="pbtn" data-p="12m">Últ. 12M</button>
+  <button class="pbtn" data-p="2026">2026</button>
+  <button class="pbtn" data-p="all">Serie completa</button>
   <input type="date" id="desdeFecha" title="Desde fecha" min="2025-04-01" max="2026-06-23">
 </div>
 
@@ -418,21 +418,27 @@
     chart.update('none');
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   }
-  window.setPeriod=function(btn){
-    var p=btn.getAttribute('data-p');
-    curPeriod=p;
-    document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('pon');});
-    btn.classList.add('pon');
-    document.getElementById('desdeFecha').value='';
-    applyPeriod();
-  };
-
-  document.getElementById('desdeFecha').addEventListener('change',function(){
-    if(!this.value) return;
-    curPeriod='custom';
-    document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('pon');});
-    applyPeriod();
-  });
+  /* Period buttons — addEventListener (no onclick attributes) */
+  (function(){
+    document.querySelectorAll('.pbtn[data-p]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var p=this.getAttribute('data-p');
+        curPeriod=p;
+        document.querySelectorAll('.pbtn').forEach(function(b){ b.classList.remove('pon'); });
+        this.classList.add('pon');
+        var df=document.getElementById('desdeFecha'); if(df) df.value='';
+        applyPeriod();
+      });
+    });
+    /* Date picker */
+    var df=document.getElementById('desdeFecha');
+    if(df) df.addEventListener('change',function(){
+      if(!this.value) return;
+      curPeriod='custom';
+      document.querySelectorAll('.pbtn').forEach(function(b){ b.classList.remove('pon'); });
+      applyPeriod();
+    });
+  })();
 
   var sJunActual=[1426,1427,1438.5,1436.5,1440.5,1446.5,1441,1432.5,1432.5,1428,1436.5,1441.5,1451.0,1461,1461.5,1471.5];
   var tJulArr=[1808.13,1809.35,1810.56,1814.21,1815.42,1816.64,1822.74,1823.96,1825.19,1826.41,1827.63,1831.31,1832.54,1833.77,1835.0,1836.23,1839.93,1841.16,1842.4,1843.63,1844.87];
