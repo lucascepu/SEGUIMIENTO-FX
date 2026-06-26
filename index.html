@@ -113,7 +113,53 @@
   .glosario-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px 24px; }
   .glosario-item { font-size: 11px; color: var(--txt3); line-height: 1.5; }
   .glosario-item strong { color: var(--txt2); font-weight: 600; }
-  @media(max-width:600px){ .glosario-grid{ grid-template-columns:1fr; } }
+  /* ══════════════════════════════════════════
+   RESPONSIVE MOBILE
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  body { padding: 10px 12px; }
+
+  /* Cards: 2×2 */
+  .cards { grid-template-columns: repeat(2,1fr); gap:8px; margin-bottom:12px; }
+  .card  { padding:10px 12px; }
+  .card-label { font-size:10px; }
+  .card-val   { font-size:19px; }
+  .card-sub   { font-size:10px; }
+
+  /* Botones de modo */
+  .toggle-row { gap:5px; flex-wrap:wrap; }
+  .btn        { padding:5px 11px; font-size:11.5px; }
+
+  /* Gráfico principal */
+  .chart-wrap  { height:260px; }
+  .mode-desc   { font-size:11px; }
+  .legend      { font-size:11px; gap:5px 10px; }
+
+  /* Período / promedio */
+  .pbtn        { font-size:10px; padding:3px 9px; }
+  .period-row input[type=date] { font-size:10px; padding:2px 6px; }
+  .win-label   { font-size:9px; }
+
+  /* Stamp / footnote */
+  .stamp    { font-size:10px; }
+  .footnote { font-size:10px; }
+
+  /* FUTUROS */
+  .fut-cards      { grid-template-columns:repeat(2,1fr); gap:8px; }
+  #futMainGrid    { grid-template-columns:1fr !important; }
+  .chart-wrap-fut { height:200px; }
+
+  /* Glosario */
+  .glosario-grid  { grid-template-columns:1fr; }
+}
+
+@media (max-width: 400px) {
+  body       { padding:8px; }
+  .cards     { gap:6px; }
+  .card-val  { font-size:17px; }
+  .btn       { padding:4px 9px; font-size:11px; }
+  .chart-wrap { height:230px; }
+}
 
   /* ── Futuros panel ── */
   #futPanel { display:none; }
@@ -213,7 +259,7 @@
         <th>Ago 26</th><th>Sep 26</th><th>Oct 26</th><th>Nov 26</th><th>Dic 26</th>
       </tr></thead>
       <tbody id="scenBody"></tbody>
-    </table>
+    </table></div>
   </div>
 </div>
 <div class="stamp" style="display:none">
@@ -232,7 +278,7 @@
   <div id="futInsight" style="display:none"></div>
 
   <!-- Layout: tabla 1/3 izquierda | gráfico 2/3 derecha -->
-  <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start">
+  <div id="futMainGrid" style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start">
 
     <!-- TABLA (columna izquierda) -->
     <div>
