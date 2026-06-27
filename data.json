@@ -1,19 +1,10 @@
 {
-  "updated": "2026-06-22",
+  "updated": "2026-06-26",
   "siopel": {
-    "date": "2026-06-22",
-    "value": 1461.5,
-    "techo": 1794.6,
-    "brecha_pct": 22.79
+    "date": "2026-06-26",
+    "value": 1477.0,
+    "techo": 1800.75,
+    "brecha_pct": 21.92
   },
-  "rem_tc_proj": {
-    "jun_2026": 1422,
-    "jul_2026": 1447,
-    "ago_2026": 1476,
-    "sep_2026": 1516,
-    "oct_2026": 1553,
-    "nov_2026": 1597,
-    "dic_2026": 1658
-  },
-  "_note": "Actualizado manualmente 22-jun-2026 (API BCRA no disponible al momento de la corrida)"
+  "serie_completa": "https://raw.githubusercontent.com/lucascepu/SEGUIMIENTO-FX/main/historical.json"
 }
