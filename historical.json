@@ -1,0 +1,2454 @@
+{
+  "_meta": {
+    "description": "SIOPEL USD/ARS histórico vs techo banda BCRA",
+    "source": "BCRA / ROFEX",
+    "updated": "2026-06-26",
+    "fields": "date (YYYY-MM-DD) | fx (SIOPEL cierre) | techo_bcra | brecha_pct"
+  },
+  "all": [
+    {
+      "date": "2025-04-01",
+      "fx": 1072.75,
+      "techo_bcra": null,
+      "brecha_pct": null
+    },
+    {
+      "date": "2025-04-03",
+      "fx": 1074.0,
+      "techo_bcra": null,
+      "brecha_pct": null
+    },
+    {
+      "date": "2025-04-04",
+      "fx": 1073.5,
+      "techo_bcra": null,
+      "brecha_pct": null
+    },
+    {
+      "date": "2025-04-07",
+      "fx": 1075.5,
+      "techo_bcra": null,
+      "brecha_pct": null
+    },
+    {
+      "date": "2025-04-08",
+      "fx": 1076.0,
+      "techo_bcra": null,
+      "brecha_pct": null
+    },
+    {
+      "date": "2025-04-09",
+      "fx": 1076.5,
+      "techo_bcra": null,
+      "brecha_pct": null
+    },
+    {
+      "date": "2025-04-10",
+      "fx": 1076.75,
+      "techo_bcra": null,
+      "brecha_pct": null
+    },
+    {
+      "date": "2025-04-11",
+      "fx": 1074.0,
+      "techo_bcra": 1391.65,
+      "brecha_pct": 29.58
+    },
+    {
+      "date": "2025-04-14",
+      "fx": 1195.0,
+      "techo_bcra": 1393.03,
+      "brecha_pct": 16.57
+    },
+    {
+      "date": "2025-04-15",
+      "fx": 1199.5,
+      "techo_bcra": 1393.5,
+      "brecha_pct": 16.17
+    },
+    {
+      "date": "2025-04-16",
+      "fx": 1125.0,
+      "techo_bcra": 1393.96,
+      "brecha_pct": 23.91
+    },
+    {
+      "date": "2025-04-21",
+      "fx": 1094.0,
+      "techo_bcra": 1396.27,
+      "brecha_pct": 27.63
+    },
+    {
+      "date": "2025-04-22",
+      "fx": 1104.0,
+      "techo_bcra": 1396.74,
+      "brecha_pct": 26.52
+    },
+    {
+      "date": "2025-04-23",
+      "fx": 1160.0,
+      "techo_bcra": 1397.2,
+      "brecha_pct": 20.45
+    },
+    {
+      "date": "2025-04-24",
+      "fx": 1174.0,
+      "techo_bcra": 1397.66,
+      "brecha_pct": 19.05
+    },
+    {
+      "date": "2025-04-25",
+      "fx": 1169.5,
+      "techo_bcra": 1398.13,
+      "brecha_pct": 19.55
+    },
+    {
+      "date": "2025-04-28",
+      "fx": 1178.0,
+      "techo_bcra": 1399.52,
+      "brecha_pct": 18.8
+    },
+    {
+      "date": "2025-04-29",
+      "fx": 1165.0,
+      "techo_bcra": 1399.98,
+      "brecha_pct": 20.17
+    },
+    {
+      "date": "2025-04-30",
+      "fx": 1170.0,
+      "techo_bcra": 1400.45,
+      "brecha_pct": 19.7
+    },
+    {
+      "date": "2025-05-05",
+      "fx": 1200.0,
+      "techo_bcra": 1402.77,
+      "brecha_pct": 16.9
+    },
+    {
+      "date": "2025-05-06",
+      "fx": 1194.0,
+      "techo_bcra": 1403.24,
+      "brecha_pct": 17.52
+    },
+    {
+      "date": "2025-05-07",
+      "fx": 1124.0,
+      "techo_bcra": 1403.7,
+      "brecha_pct": 24.88
+    },
+    {
+      "date": "2025-05-08",
+      "fx": 1114.0,
+      "techo_bcra": 1404.17,
+      "brecha_pct": 26.05
+    },
+    {
+      "date": "2025-05-09",
+      "fx": 1136.0,
+      "techo_bcra": 1404.63,
+      "brecha_pct": 23.65
+    },
+    {
+      "date": "2025-05-12",
+      "fx": 1132.0,
+      "techo_bcra": 1406.03,
+      "brecha_pct": 24.21
+    },
+    {
+      "date": "2025-05-13",
+      "fx": 1125.5,
+      "techo_bcra": 1406.5,
+      "brecha_pct": 24.97
+    },
+    {
+      "date": "2025-05-14",
+      "fx": 1132.0,
+      "techo_bcra": 1406.96,
+      "brecha_pct": 24.29
+    },
+    {
+      "date": "2025-05-15",
+      "fx": 1138.0,
+      "techo_bcra": 1407.43,
+      "brecha_pct": 23.68
+    },
+    {
+      "date": "2025-05-16",
+      "fx": 1142.0,
+      "techo_bcra": 1407.9,
+      "brecha_pct": 23.28
+    },
+    {
+      "date": "2025-05-19",
+      "fx": 1141.0,
+      "techo_bcra": 1409.3,
+      "brecha_pct": 23.51
+    },
+    {
+      "date": "2025-05-20",
+      "fx": 1142.5,
+      "techo_bcra": 1409.77,
+      "brecha_pct": 23.39
+    },
+    {
+      "date": "2025-05-21",
+      "fx": 1146.0,
+      "techo_bcra": 1410.24,
+      "brecha_pct": 23.06
+    },
+    {
+      "date": "2025-05-22",
+      "fx": 1135.5,
+      "techo_bcra": 1410.7,
+      "brecha_pct": 24.24
+    },
+    {
+      "date": "2025-05-23",
+      "fx": 1133.5,
+      "techo_bcra": 1411.17,
+      "brecha_pct": 24.5
+    },
+    {
+      "date": "2025-05-27",
+      "fx": 1156.0,
+      "techo_bcra": 1413.04,
+      "brecha_pct": 22.24
+    },
+    {
+      "date": "2025-05-28",
+      "fx": 1160.0,
+      "techo_bcra": 1413.51,
+      "brecha_pct": 21.85
+    },
+    {
+      "date": "2025-05-29",
+      "fx": 1183.0,
+      "techo_bcra": 1413.98,
+      "brecha_pct": 19.52
+    },
+    {
+      "date": "2025-05-30",
+      "fx": 1188.0,
+      "techo_bcra": 1414.45,
+      "brecha_pct": 19.06
+    },
+    {
+      "date": "2025-06-02",
+      "fx": 1180.5,
+      "techo_bcra": 1415.86,
+      "brecha_pct": 19.94
+    },
+    {
+      "date": "2025-06-03",
+      "fx": 1184.0,
+      "techo_bcra": 1416.33,
+      "brecha_pct": 19.62
+    },
+    {
+      "date": "2025-06-04",
+      "fx": 1185.5,
+      "techo_bcra": 1416.8,
+      "brecha_pct": 19.51
+    },
+    {
+      "date": "2025-06-05",
+      "fx": 1191.0,
+      "techo_bcra": 1417.27,
+      "brecha_pct": 19.0
+    },
+    {
+      "date": "2025-06-06",
+      "fx": 1185.5,
+      "techo_bcra": 1417.74,
+      "brecha_pct": 19.59
+    },
+    {
+      "date": "2025-06-09",
+      "fx": 1185.0,
+      "techo_bcra": 1419.15,
+      "brecha_pct": 19.76
+    },
+    {
+      "date": "2025-06-10",
+      "fx": 1188.5,
+      "techo_bcra": 1419.62,
+      "brecha_pct": 19.45
+    },
+    {
+      "date": "2025-06-11",
+      "fx": 1182.0,
+      "techo_bcra": 1420.09,
+      "brecha_pct": 20.14
+    },
+    {
+      "date": "2025-06-12",
+      "fx": 1185.0,
+      "techo_bcra": 1420.56,
+      "brecha_pct": 19.88
+    },
+    {
+      "date": "2025-06-13",
+      "fx": 1182.0,
+      "techo_bcra": 1421.03,
+      "brecha_pct": 20.22
+    },
+    {
+      "date": "2025-06-17",
+      "fx": 1160.0,
+      "techo_bcra": 1422.92,
+      "brecha_pct": 22.67
+    },
+    {
+      "date": "2025-06-18",
+      "fx": 1142.5,
+      "techo_bcra": 1423.39,
+      "brecha_pct": 24.59
+    },
+    {
+      "date": "2025-06-23",
+      "fx": 1171.0,
+      "techo_bcra": 1425.76,
+      "brecha_pct": 21.76
+    },
+    {
+      "date": "2025-06-24",
+      "fx": 1174.5,
+      "techo_bcra": 1426.23,
+      "brecha_pct": 21.43
+    },
+    {
+      "date": "2025-06-25",
+      "fx": 1191.5,
+      "techo_bcra": 1426.7,
+      "brecha_pct": 19.74
+    },
+    {
+      "date": "2025-06-26",
+      "fx": 1189.5,
+      "techo_bcra": 1427.17,
+      "brecha_pct": 19.98
+    },
+    {
+      "date": "2025-06-27",
+      "fx": 1189.0,
+      "techo_bcra": 1427.65,
+      "brecha_pct": 20.07
+    },
+    {
+      "date": "2025-06-30",
+      "fx": 1205.0,
+      "techo_bcra": 1429.07,
+      "brecha_pct": 18.6
+    },
+    {
+      "date": "2025-07-01",
+      "fx": 1222.0,
+      "techo_bcra": 1429.54,
+      "brecha_pct": 16.98
+    },
+    {
+      "date": "2025-07-02",
+      "fx": 1229.0,
+      "techo_bcra": 1430.02,
+      "brecha_pct": 16.36
+    },
+    {
+      "date": "2025-07-03",
+      "fx": 1231.0,
+      "techo_bcra": 1430.49,
+      "brecha_pct": 16.21
+    },
+    {
+      "date": "2025-07-07",
+      "fx": 1264.0,
+      "techo_bcra": 1432.39,
+      "brecha_pct": 13.32
+    },
+    {
+      "date": "2025-07-08",
+      "fx": 1255.0,
+      "techo_bcra": 1432.87,
+      "brecha_pct": 14.17
+    },
+    {
+      "date": "2025-07-10",
+      "fx": 1255.0,
+      "techo_bcra": 1433.82,
+      "brecha_pct": 14.25
+    },
+    {
+      "date": "2025-07-11",
+      "fx": 1261.5,
+      "techo_bcra": 1434.29,
+      "brecha_pct": 13.7
+    },
+    {
+      "date": "2025-07-14",
+      "fx": 1280.0,
+      "techo_bcra": 1435.72,
+      "brecha_pct": 12.17
+    },
+    {
+      "date": "2025-07-15",
+      "fx": 1260.0,
+      "techo_bcra": 1436.2,
+      "brecha_pct": 13.98
+    },
+    {
+      "date": "2025-07-16",
+      "fx": 1261.0,
+      "techo_bcra": 1436.67,
+      "brecha_pct": 13.93
+    },
+    {
+      "date": "2025-07-17",
+      "fx": 1274.0,
+      "techo_bcra": 1437.15,
+      "brecha_pct": 12.81
+    },
+    {
+      "date": "2025-07-18",
+      "fx": 1286.0,
+      "techo_bcra": 1437.63,
+      "brecha_pct": 11.79
+    },
+    {
+      "date": "2025-07-21",
+      "fx": 1275.0,
+      "techo_bcra": 1439.06,
+      "brecha_pct": 12.87
+    },
+    {
+      "date": "2025-07-22",
+      "fx": 1256.5,
+      "techo_bcra": 1439.54,
+      "brecha_pct": 14.57
+    },
+    {
+      "date": "2025-07-23",
+      "fx": 1258.5,
+      "techo_bcra": 1440.01,
+      "brecha_pct": 14.42
+    },
+    {
+      "date": "2025-07-24",
+      "fx": 1272.0,
+      "techo_bcra": 1440.49,
+      "brecha_pct": 13.25
+    },
+    {
+      "date": "2025-07-25",
+      "fx": 1280.0,
+      "techo_bcra": 1440.97,
+      "brecha_pct": 12.58
+    },
+    {
+      "date": "2025-07-28",
+      "fx": 1295.0,
+      "techo_bcra": 1442.4,
+      "brecha_pct": 11.38
+    },
+    {
+      "date": "2025-07-29",
+      "fx": 1291.0,
+      "techo_bcra": 1442.88,
+      "brecha_pct": 11.76
+    },
+    {
+      "date": "2025-07-30",
+      "fx": 1315.0,
+      "techo_bcra": 1443.36,
+      "brecha_pct": 9.76
+    },
+    {
+      "date": "2025-07-31",
+      "fx": 1374.0,
+      "techo_bcra": 1443.84,
+      "brecha_pct": 5.08
+    },
+    {
+      "date": "2025-08-01",
+      "fx": 1364.0,
+      "techo_bcra": 1444.32,
+      "brecha_pct": 5.89
+    },
+    {
+      "date": "2025-08-04",
+      "fx": 1360.0,
+      "techo_bcra": 1445.76,
+      "brecha_pct": 6.31
+    },
+    {
+      "date": "2025-08-05",
+      "fx": 1338.5,
+      "techo_bcra": 1446.24,
+      "brecha_pct": 8.05
+    },
+    {
+      "date": "2025-08-06",
+      "fx": 1332.0,
+      "techo_bcra": 1446.72,
+      "brecha_pct": 8.61
+    },
+    {
+      "date": "2025-08-07",
+      "fx": 1326.5,
+      "techo_bcra": 1447.2,
+      "brecha_pct": 9.1
+    },
+    {
+      "date": "2025-08-08",
+      "fx": 1326.0,
+      "techo_bcra": 1447.68,
+      "brecha_pct": 9.18
+    },
+    {
+      "date": "2025-08-11",
+      "fx": 1322.0,
+      "techo_bcra": 1449.12,
+      "brecha_pct": 9.62
+    },
+    {
+      "date": "2025-08-12",
+      "fx": 1317.5,
+      "techo_bcra": 1449.6,
+      "brecha_pct": 10.03
+    },
+    {
+      "date": "2025-08-13",
+      "fx": 1313.0,
+      "techo_bcra": 1450.08,
+      "brecha_pct": 10.44
+    },
+    {
+      "date": "2025-08-14",
+      "fx": 1300.0,
+      "techo_bcra": 1450.56,
+      "brecha_pct": 11.58
+    },
+    {
+      "date": "2025-08-18",
+      "fx": 1293.0,
+      "techo_bcra": 1452.48,
+      "brecha_pct": 12.33
+    },
+    {
+      "date": "2025-08-19",
+      "fx": 1292.5,
+      "techo_bcra": 1452.97,
+      "brecha_pct": 12.42
+    },
+    {
+      "date": "2025-08-20",
+      "fx": 1301.0,
+      "techo_bcra": 1453.45,
+      "brecha_pct": 11.72
+    },
+    {
+      "date": "2025-08-21",
+      "fx": 1315.0,
+      "techo_bcra": 1453.93,
+      "brecha_pct": 10.57
+    },
+    {
+      "date": "2025-08-22",
+      "fx": 1321.0,
+      "techo_bcra": 1454.41,
+      "brecha_pct": 10.1
+    },
+    {
+      "date": "2025-08-25",
+      "fx": 1362.0,
+      "techo_bcra": 1455.86,
+      "brecha_pct": 6.89
+    },
+    {
+      "date": "2025-08-26",
+      "fx": 1356.5,
+      "techo_bcra": 1456.34,
+      "brecha_pct": 7.36
+    },
+    {
+      "date": "2025-08-27",
+      "fx": 1349.5,
+      "techo_bcra": 1456.83,
+      "brecha_pct": 7.95
+    },
+    {
+      "date": "2025-08-28",
+      "fx": 1333.0,
+      "techo_bcra": 1457.31,
+      "brecha_pct": 9.33
+    },
+    {
+      "date": "2025-08-29",
+      "fx": 1342.0,
+      "techo_bcra": 1457.79,
+      "brecha_pct": 8.63
+    },
+    {
+      "date": "2025-09-02",
+      "fx": 1361.0,
+      "techo_bcra": 1459.73,
+      "brecha_pct": 7.25
+    },
+    {
+      "date": "2025-09-03",
+      "fx": 1361.5,
+      "techo_bcra": 1460.21,
+      "brecha_pct": 7.25
+    },
+    {
+      "date": "2025-09-04",
+      "fx": 1362.5,
+      "techo_bcra": 1460.7,
+      "brecha_pct": 7.21
+    },
+    {
+      "date": "2025-09-05",
+      "fx": 1355.0,
+      "techo_bcra": 1461.18,
+      "brecha_pct": 7.84
+    },
+    {
+      "date": "2025-09-08",
+      "fx": 1409.0,
+      "techo_bcra": 1462.64,
+      "brecha_pct": 3.81
+    },
+    {
+      "date": "2025-09-09",
+      "fx": 1416.5,
+      "techo_bcra": 1463.12,
+      "brecha_pct": 3.29
+    },
+    {
+      "date": "2025-09-10",
+      "fx": 1423.5,
+      "techo_bcra": 1463.61,
+      "brecha_pct": 2.82
+    },
+    {
+      "date": "2025-09-11",
+      "fx": 1432.0,
+      "techo_bcra": 1464.09,
+      "brecha_pct": 2.24
+    },
+    {
+      "date": "2025-09-12",
+      "fx": 1453.0,
+      "techo_bcra": 1464.58,
+      "brecha_pct": 0.8
+    },
+    {
+      "date": "2025-09-15",
+      "fx": 1467.0,
+      "techo_bcra": 1466.04,
+      "brecha_pct": -0.07
+    },
+    {
+      "date": "2025-09-16",
+      "fx": 1469.0,
+      "techo_bcra": 1466.52,
+      "brecha_pct": -0.17
+    },
+    {
+      "date": "2025-09-17",
+      "fx": 1474.5,
+      "techo_bcra": 1467.01,
+      "brecha_pct": -0.51
+    },
+    {
+      "date": "2025-09-18",
+      "fx": 1474.5,
+      "techo_bcra": 1467.5,
+      "brecha_pct": -0.47
+    },
+    {
+      "date": "2025-09-19",
+      "fx": 1475.0,
+      "techo_bcra": 1467.98,
+      "brecha_pct": -0.48
+    },
+    {
+      "date": "2025-09-22",
+      "fx": 1408.0,
+      "techo_bcra": 1469.44,
+      "brecha_pct": 4.36
+    },
+    {
+      "date": "2025-09-23",
+      "fx": 1369.0,
+      "techo_bcra": 1469.93,
+      "brecha_pct": 7.37
+    },
+    {
+      "date": "2025-09-24",
+      "fx": 1337.5,
+      "techo_bcra": 1470.42,
+      "brecha_pct": 9.94
+    },
+    {
+      "date": "2025-09-25",
+      "fx": 1337.0,
+      "techo_bcra": 1470.91,
+      "brecha_pct": 10.02
+    },
+    {
+      "date": "2025-09-26",
+      "fx": 1326.0,
+      "techo_bcra": 1471.4,
+      "brecha_pct": 10.97
+    },
+    {
+      "date": "2025-09-29",
+      "fx": 1360.0,
+      "techo_bcra": 1472.86,
+      "brecha_pct": 8.3
+    },
+    {
+      "date": "2025-09-30",
+      "fx": 1380.0,
+      "techo_bcra": 1473.35,
+      "brecha_pct": 6.76
+    },
+    {
+      "date": "2025-10-01",
+      "fx": 1423.0,
+      "techo_bcra": 1473.84,
+      "brecha_pct": 3.57
+    },
+    {
+      "date": "2025-10-02",
+      "fx": 1424.5,
+      "techo_bcra": 1474.33,
+      "brecha_pct": 3.5
+    },
+    {
+      "date": "2025-10-03",
+      "fx": 1424.5,
+      "techo_bcra": 1474.82,
+      "brecha_pct": 3.53
+    },
+    {
+      "date": "2025-10-06",
+      "fx": 1430.0,
+      "techo_bcra": 1476.28,
+      "brecha_pct": 3.24
+    },
+    {
+      "date": "2025-10-07",
+      "fx": 1429.5,
+      "techo_bcra": 1476.77,
+      "brecha_pct": 3.31
+    },
+    {
+      "date": "2025-10-08",
+      "fx": 1430.0,
+      "techo_bcra": 1477.26,
+      "brecha_pct": 3.3
+    },
+    {
+      "date": "2025-10-09",
+      "fx": 1420.0,
+      "techo_bcra": 1477.75,
+      "brecha_pct": 4.07
+    },
+    {
+      "date": "2025-10-14",
+      "fx": 1360.0,
+      "techo_bcra": 1480.21,
+      "brecha_pct": 8.84
+    },
+    {
+      "date": "2025-10-15",
+      "fx": 1380.0,
+      "techo_bcra": 1480.7,
+      "brecha_pct": 7.3
+    },
+    {
+      "date": "2025-10-16",
+      "fx": 1402.0,
+      "techo_bcra": 1481.19,
+      "brecha_pct": 5.65
+    },
+    {
+      "date": "2025-10-17",
+      "fx": 1450.0,
+      "techo_bcra": 1481.68,
+      "brecha_pct": 2.18
+    },
+    {
+      "date": "2025-10-20",
+      "fx": 1475.0,
+      "techo_bcra": 1483.15,
+      "brecha_pct": 0.55
+    },
+    {
+      "date": "2025-10-21",
+      "fx": 1490.5,
+      "techo_bcra": 1483.65,
+      "brecha_pct": -0.46
+    },
+    {
+      "date": "2025-10-22",
+      "fx": 1489.0,
+      "techo_bcra": 1484.14,
+      "brecha_pct": -0.33
+    },
+    {
+      "date": "2025-10-23",
+      "fx": 1479.0,
+      "techo_bcra": 1484.63,
+      "brecha_pct": 0.38
+    },
+    {
+      "date": "2025-10-24",
+      "fx": 1492.0,
+      "techo_bcra": 1485.12,
+      "brecha_pct": -0.46
+    },
+    {
+      "date": "2025-10-27",
+      "fx": 1435.0,
+      "techo_bcra": 1486.6,
+      "brecha_pct": 3.6
+    },
+    {
+      "date": "2025-10-28",
+      "fx": 1470.0,
+      "techo_bcra": 1487.1,
+      "brecha_pct": 1.16
+    },
+    {
+      "date": "2025-10-29",
+      "fx": 1436.0,
+      "techo_bcra": 1487.59,
+      "brecha_pct": 3.59
+    },
+    {
+      "date": "2025-10-30",
+      "fx": 1438.0,
+      "techo_bcra": 1488.08,
+      "brecha_pct": 3.48
+    },
+    {
+      "date": "2025-10-31",
+      "fx": 1445.0,
+      "techo_bcra": 1488.58,
+      "brecha_pct": 3.02
+    },
+    {
+      "date": "2025-11-03",
+      "fx": 1482.0,
+      "techo_bcra": 1490.06,
+      "brecha_pct": 0.54
+    },
+    {
+      "date": "2025-11-04",
+      "fx": 1454.0,
+      "techo_bcra": 1490.55,
+      "brecha_pct": 2.51
+    },
+    {
+      "date": "2025-11-05",
+      "fx": 1452.0,
+      "techo_bcra": 1491.05,
+      "brecha_pct": 2.69
+    },
+    {
+      "date": "2025-11-07",
+      "fx": 1415.0,
+      "techo_bcra": 1492.04,
+      "brecha_pct": 5.44
+    },
+    {
+      "date": "2025-11-10",
+      "fx": 1420.5,
+      "techo_bcra": 1493.52,
+      "brecha_pct": 5.14
+    },
+    {
+      "date": "2025-11-12",
+      "fx": 1412.0,
+      "techo_bcra": 1494.51,
+      "brecha_pct": 5.84
+    },
+    {
+      "date": "2025-11-13",
+      "fx": 1406.0,
+      "techo_bcra": 1495.01,
+      "brecha_pct": 6.33
+    },
+    {
+      "date": "2025-11-14",
+      "fx": 1403.0,
+      "techo_bcra": 1495.5,
+      "brecha_pct": 6.59
+    },
+    {
+      "date": "2025-11-17",
+      "fx": 1387.0,
+      "techo_bcra": 1496.99,
+      "brecha_pct": 7.93
+    },
+    {
+      "date": "2025-11-18",
+      "fx": 1400.0,
+      "techo_bcra": 1497.49,
+      "brecha_pct": 6.96
+    },
+    {
+      "date": "2025-11-19",
+      "fx": 1406.5,
+      "techo_bcra": 1497.99,
+      "brecha_pct": 6.5
+    },
+    {
+      "date": "2025-11-20",
+      "fx": 1425.0,
+      "techo_bcra": 1498.48,
+      "brecha_pct": 5.16
+    },
+    {
+      "date": "2025-11-25",
+      "fx": 1447.5,
+      "techo_bcra": 1500.97,
+      "brecha_pct": 3.69
+    },
+    {
+      "date": "2025-11-26",
+      "fx": 1453.5,
+      "techo_bcra": 1501.47,
+      "brecha_pct": 3.3
+    },
+    {
+      "date": "2025-11-28",
+      "fx": 1451.5,
+      "techo_bcra": 1502.46,
+      "brecha_pct": 3.51
+    },
+    {
+      "date": "2025-12-01",
+      "fx": 1451.5,
+      "techo_bcra": 1503.96,
+      "brecha_pct": 3.61
+    },
+    {
+      "date": "2025-12-02",
+      "fx": 1455.0,
+      "techo_bcra": 1504.46,
+      "brecha_pct": 3.4
+    },
+    {
+      "date": "2025-12-03",
+      "fx": 1453.0,
+      "techo_bcra": 1504.96,
+      "brecha_pct": 3.58
+    },
+    {
+      "date": "2025-12-04",
+      "fx": 1444.0,
+      "techo_bcra": 1505.46,
+      "brecha_pct": 4.26
+    },
+    {
+      "date": "2025-12-05",
+      "fx": 1435.0,
+      "techo_bcra": 1505.96,
+      "brecha_pct": 4.94
+    },
+    {
+      "date": "2025-12-09",
+      "fx": 1442.0,
+      "techo_bcra": 1507.96,
+      "brecha_pct": 4.57
+    },
+    {
+      "date": "2025-12-10",
+      "fx": 1436.0,
+      "techo_bcra": 1508.46,
+      "brecha_pct": 5.05
+    },
+    {
+      "date": "2025-12-11",
+      "fx": 1436.0,
+      "techo_bcra": 1508.96,
+      "brecha_pct": 5.08
+    },
+    {
+      "date": "2025-12-12",
+      "fx": 1441.0,
+      "techo_bcra": 1509.46,
+      "brecha_pct": 4.75
+    },
+    {
+      "date": "2025-12-15",
+      "fx": 1438.5,
+      "techo_bcra": 1510.96,
+      "brecha_pct": 5.04
+    },
+    {
+      "date": "2025-12-16",
+      "fx": 1451.0,
+      "techo_bcra": 1511.46,
+      "brecha_pct": 4.17
+    },
+    {
+      "date": "2025-12-17",
+      "fx": 1451.0,
+      "techo_bcra": 1511.96,
+      "brecha_pct": 4.2
+    },
+    {
+      "date": "2025-12-18",
+      "fx": 1451.0,
+      "techo_bcra": 1512.46,
+      "brecha_pct": 4.24
+    },
+    {
+      "date": "2025-12-19",
+      "fx": 1450.0,
+      "techo_bcra": 1512.97,
+      "brecha_pct": 4.34
+    },
+    {
+      "date": "2025-12-22",
+      "fx": 1452.0,
+      "techo_bcra": 1514.47,
+      "brecha_pct": 4.3
+    },
+    {
+      "date": "2025-12-23",
+      "fx": 1451.0,
+      "techo_bcra": 1514.97,
+      "brecha_pct": 4.41
+    },
+    {
+      "date": "2025-12-26",
+      "fx": 1452.5,
+      "techo_bcra": 1516.48,
+      "brecha_pct": 4.4
+    },
+    {
+      "date": "2025-12-29",
+      "fx": 1457.0,
+      "techo_bcra": 1517.99,
+      "brecha_pct": 4.19
+    },
+    {
+      "date": "2025-12-30",
+      "fx": 1455.0,
+      "techo_bcra": 1518.5,
+      "brecha_pct": 4.36
+    },
+    {
+      "date": "2026-01-02",
+      "fx": 1475.0,
+      "techo_bcra": 1521.9,
+      "brecha_pct": 3.18
+    },
+    {
+      "date": "2026-01-05",
+      "fx": 1470.0,
+      "techo_bcra": 1526.26,
+      "brecha_pct": 3.83
+    },
+    {
+      "date": "2026-01-06",
+      "fx": 1467.5,
+      "techo_bcra": 1527.71,
+      "brecha_pct": 4.1
+    },
+    {
+      "date": "2026-01-07",
+      "fx": 1460.0,
+      "techo_bcra": 1529.16,
+      "brecha_pct": 4.74
+    },
+    {
+      "date": "2026-01-08",
+      "fx": 1464.0,
+      "techo_bcra": 1530.61,
+      "brecha_pct": 4.55
+    },
+    {
+      "date": "2026-01-09",
+      "fx": 1465.0,
+      "techo_bcra": 1532.06,
+      "brecha_pct": 4.58
+    },
+    {
+      "date": "2026-01-12",
+      "fx": 1467.5,
+      "techo_bcra": 1536.42,
+      "brecha_pct": 4.7
+    },
+    {
+      "date": "2026-01-13",
+      "fx": 1457.0,
+      "techo_bcra": 1537.87,
+      "brecha_pct": 5.55
+    },
+    {
+      "date": "2026-01-14",
+      "fx": 1453.0,
+      "techo_bcra": 1539.32,
+      "brecha_pct": 5.94
+    },
+    {
+      "date": "2026-01-15",
+      "fx": 1441.0,
+      "techo_bcra": 1540.77,
+      "brecha_pct": 6.92
+    },
+    {
+      "date": "2026-01-16",
+      "fx": 1430.0,
+      "techo_bcra": 1542.23,
+      "brecha_pct": 7.85
+    },
+    {
+      "date": "2026-01-20",
+      "fx": 1434.5,
+      "techo_bcra": 1548.03,
+      "brecha_pct": 7.91
+    },
+    {
+      "date": "2026-01-21",
+      "fx": 1430.5,
+      "techo_bcra": 1549.48,
+      "brecha_pct": 8.32
+    },
+    {
+      "date": "2026-01-22",
+      "fx": 1429.5,
+      "techo_bcra": 1550.94,
+      "brecha_pct": 8.5
+    },
+    {
+      "date": "2026-01-23",
+      "fx": 1433.0,
+      "techo_bcra": 1552.39,
+      "brecha_pct": 8.33
+    },
+    {
+      "date": "2026-01-26",
+      "fx": 1437.5,
+      "techo_bcra": 1556.74,
+      "brecha_pct": 8.29
+    },
+    {
+      "date": "2026-01-27",
+      "fx": 1442.5,
+      "techo_bcra": 1558.19,
+      "brecha_pct": 8.02
+    },
+    {
+      "date": "2026-01-28",
+      "fx": 1444.5,
+      "techo_bcra": 1559.65,
+      "brecha_pct": 7.97
+    },
+    {
+      "date": "2026-01-29",
+      "fx": 1444.5,
+      "techo_bcra": 1561.1,
+      "brecha_pct": 8.07
+    },
+    {
+      "date": "2026-01-30",
+      "fx": 1447.0,
+      "techo_bcra": 1562.55,
+      "brecha_pct": 7.99
+    },
+    {
+      "date": "2026-02-02",
+      "fx": 1451.0,
+      "techo_bcra": 1567.07,
+      "brecha_pct": 8.0
+    },
+    {
+      "date": "2026-02-03",
+      "fx": 1446.0,
+      "techo_bcra": 1568.61,
+      "brecha_pct": 8.48
+    },
+    {
+      "date": "2026-02-04",
+      "fx": 1447.5,
+      "techo_bcra": 1570.14,
+      "brecha_pct": 8.47
+    },
+    {
+      "date": "2026-02-05",
+      "fx": 1442.0,
+      "techo_bcra": 1571.68,
+      "brecha_pct": 8.99
+    },
+    {
+      "date": "2026-02-06",
+      "fx": 1432.0,
+      "techo_bcra": 1573.21,
+      "brecha_pct": 9.86
+    },
+    {
+      "date": "2026-02-09",
+      "fx": 1416.0,
+      "techo_bcra": 1577.82,
+      "brecha_pct": 11.43
+    },
+    {
+      "date": "2026-02-10",
+      "fx": 1406.0,
+      "techo_bcra": 1579.36,
+      "brecha_pct": 12.33
+    },
+    {
+      "date": "2026-02-11",
+      "fx": 1400.0,
+      "techo_bcra": 1580.89,
+      "brecha_pct": 12.92
+    },
+    {
+      "date": "2026-02-12",
+      "fx": 1395.0,
+      "techo_bcra": 1582.43,
+      "brecha_pct": 13.44
+    },
+    {
+      "date": "2026-02-13",
+      "fx": 1399.5,
+      "techo_bcra": 1583.96,
+      "brecha_pct": 13.18
+    },
+    {
+      "date": "2026-02-18",
+      "fx": 1396.0,
+      "techo_bcra": 1591.64,
+      "brecha_pct": 14.01
+    },
+    {
+      "date": "2026-02-19",
+      "fx": 1389.0,
+      "techo_bcra": 1593.18,
+      "brecha_pct": 14.7
+    },
+    {
+      "date": "2026-02-20",
+      "fx": 1376.0,
+      "techo_bcra": 1594.71,
+      "brecha_pct": 15.89
+    },
+    {
+      "date": "2026-02-23",
+      "fx": 1370.5,
+      "techo_bcra": 1599.32,
+      "brecha_pct": 16.7
+    },
+    {
+      "date": "2026-02-24",
+      "fx": 1380.5,
+      "techo_bcra": 1600.86,
+      "brecha_pct": 15.96
+    },
+    {
+      "date": "2026-02-25",
+      "fx": 1399.0,
+      "techo_bcra": 1602.39,
+      "brecha_pct": 14.54
+    },
+    {
+      "date": "2026-02-26",
+      "fx": 1408.0,
+      "techo_bcra": 1603.93,
+      "brecha_pct": 13.92
+    },
+    {
+      "date": "2026-02-27",
+      "fx": 1397.0,
+      "techo_bcra": 1605.46,
+      "brecha_pct": 14.92
+    },
+    {
+      "date": "2026-03-02",
+      "fx": 1395.0,
+      "techo_bcra": 1610.03,
+      "brecha_pct": 15.41
+    },
+    {
+      "date": "2026-03-03",
+      "fx": 1415.0,
+      "techo_bcra": 1611.55,
+      "brecha_pct": 13.89
+    },
+    {
+      "date": "2026-03-04",
+      "fx": 1400.5,
+      "techo_bcra": 1613.06,
+      "brecha_pct": 15.18
+    },
+    {
+      "date": "2026-03-05",
+      "fx": 1407.0,
+      "techo_bcra": 1614.58,
+      "brecha_pct": 14.75
+    },
+    {
+      "date": "2026-03-06",
+      "fx": 1416.0,
+      "techo_bcra": 1616.1,
+      "brecha_pct": 14.13
+    },
+    {
+      "date": "2026-03-09",
+      "fx": 1416.0,
+      "techo_bcra": 1620.65,
+      "brecha_pct": 14.45
+    },
+    {
+      "date": "2026-03-10",
+      "fx": 1400.0,
+      "techo_bcra": 1622.16,
+      "brecha_pct": 15.87
+    },
+    {
+      "date": "2026-03-11",
+      "fx": 1396.0,
+      "techo_bcra": 1623.68,
+      "brecha_pct": 16.31
+    },
+    {
+      "date": "2026-03-12",
+      "fx": 1394.5,
+      "techo_bcra": 1625.19,
+      "brecha_pct": 16.54
+    },
+    {
+      "date": "2026-03-13",
+      "fx": 1400.0,
+      "techo_bcra": 1626.71,
+      "brecha_pct": 16.19
+    },
+    {
+      "date": "2026-03-16",
+      "fx": 1396.0,
+      "techo_bcra": 1631.26,
+      "brecha_pct": 16.85
+    },
+    {
+      "date": "2026-03-17",
+      "fx": 1396.0,
+      "techo_bcra": 1632.77,
+      "brecha_pct": 16.96
+    },
+    {
+      "date": "2026-03-18",
+      "fx": 1394.0,
+      "techo_bcra": 1634.29,
+      "brecha_pct": 17.24
+    },
+    {
+      "date": "2026-03-19",
+      "fx": 1394.5,
+      "techo_bcra": 1635.81,
+      "brecha_pct": 17.3
+    },
+    {
+      "date": "2026-03-20",
+      "fx": 1390.5,
+      "techo_bcra": 1637.32,
+      "brecha_pct": 17.75
+    },
+    {
+      "date": "2026-03-25",
+      "fx": 1377.5,
+      "techo_bcra": 1644.9,
+      "brecha_pct": 19.41
+    },
+    {
+      "date": "2026-03-26",
+      "fx": 1368.0,
+      "techo_bcra": 1646.42,
+      "brecha_pct": 20.35
+    },
+    {
+      "date": "2026-03-27",
+      "fx": 1382.5,
+      "techo_bcra": 1647.94,
+      "brecha_pct": 19.2
+    },
+    {
+      "date": "2026-03-30",
+      "fx": 1398.0,
+      "techo_bcra": 1652.48,
+      "brecha_pct": 18.2
+    },
+    {
+      "date": "2026-03-31",
+      "fx": 1382.0,
+      "techo_bcra": 1654.0,
+      "brecha_pct": 19.68
+    },
+    {
+      "date": "2026-04-01",
+      "fx": 1394.0,
+      "techo_bcra": 1655.53,
+      "brecha_pct": 18.76
+    },
+    {
+      "date": "2026-04-06",
+      "fx": 1393.0,
+      "techo_bcra": 1663.2,
+      "brecha_pct": 19.4
+    },
+    {
+      "date": "2026-04-07",
+      "fx": 1392.5,
+      "techo_bcra": 1664.73,
+      "brecha_pct": 19.55
+    },
+    {
+      "date": "2026-04-08",
+      "fx": 1387.5,
+      "techo_bcra": 1666.27,
+      "brecha_pct": 20.09
+    },
+    {
+      "date": "2026-04-09",
+      "fx": 1381.0,
+      "techo_bcra": 1667.8,
+      "brecha_pct": 20.77
+    },
+    {
+      "date": "2026-04-10",
+      "fx": 1370.0,
+      "techo_bcra": 1669.33,
+      "brecha_pct": 21.85
+    },
+    {
+      "date": "2026-04-13",
+      "fx": 1354.0,
+      "techo_bcra": 1673.93,
+      "brecha_pct": 23.63
+    },
+    {
+      "date": "2026-04-14",
+      "fx": 1366.0,
+      "techo_bcra": 1675.47,
+      "brecha_pct": 22.66
+    },
+    {
+      "date": "2026-04-15",
+      "fx": 1359.0,
+      "techo_bcra": 1677.0,
+      "brecha_pct": 23.4
+    },
+    {
+      "date": "2026-04-16",
+      "fx": 1358.0,
+      "techo_bcra": 1678.53,
+      "brecha_pct": 23.6
+    },
+    {
+      "date": "2026-04-17",
+      "fx": 1364.5,
+      "techo_bcra": 1680.07,
+      "brecha_pct": 23.13
+    },
+    {
+      "date": "2026-04-20",
+      "fx": 1377.0,
+      "techo_bcra": 1684.67,
+      "brecha_pct": 22.34
+    },
+    {
+      "date": "2026-04-21",
+      "fx": 1375.5,
+      "techo_bcra": 1686.2,
+      "brecha_pct": 22.59
+    },
+    {
+      "date": "2026-04-22",
+      "fx": 1378.0,
+      "techo_bcra": 1687.73,
+      "brecha_pct": 22.48
+    },
+    {
+      "date": "2026-04-23",
+      "fx": 1392.0,
+      "techo_bcra": 1689.27,
+      "brecha_pct": 21.36
+    },
+    {
+      "date": "2026-04-24",
+      "fx": 1399.5,
+      "techo_bcra": 1690.8,
+      "brecha_pct": 20.81
+    },
+    {
+      "date": "2026-04-27",
+      "fx": 1417.0,
+      "techo_bcra": 1695.4,
+      "brecha_pct": 19.65
+    },
+    {
+      "date": "2026-04-28",
+      "fx": 1404.5,
+      "techo_bcra": 1696.93,
+      "brecha_pct": 20.82
+    },
+    {
+      "date": "2026-04-29",
+      "fx": 1391.5,
+      "techo_bcra": 1698.47,
+      "brecha_pct": 22.06
+    },
+    {
+      "date": "2026-04-30",
+      "fx": 1391.0,
+      "techo_bcra": 1700.0,
+      "brecha_pct": 22.21
+    },
+    {
+      "date": "2026-05-01",
+      "fx": 1391.0,
+      "techo_bcra": 1704.95,
+      "brecha_pct": 22.57
+    },
+    {
+      "date": "2026-05-04",
+      "fx": 1402.5,
+      "techo_bcra": 1710.53,
+      "brecha_pct": 21.96
+    },
+    {
+      "date": "2026-05-05",
+      "fx": 1393.0,
+      "techo_bcra": 1712.39,
+      "brecha_pct": 22.93
+    },
+    {
+      "date": "2026-05-06",
+      "fx": 1388.0,
+      "techo_bcra": 1714.25,
+      "brecha_pct": 23.51
+    },
+    {
+      "date": "2026-05-07",
+      "fx": 1396.0,
+      "techo_bcra": 1716.11,
+      "brecha_pct": 22.93
+    },
+    {
+      "date": "2026-05-08",
+      "fx": 1398.0,
+      "techo_bcra": 1717.97,
+      "brecha_pct": 22.89
+    },
+    {
+      "date": "2026-05-11",
+      "fx": 1391.5,
+      "techo_bcra": 1723.56,
+      "brecha_pct": 23.86
+    },
+    {
+      "date": "2026-05-12",
+      "fx": 1384.0,
+      "techo_bcra": 1725.42,
+      "brecha_pct": 24.67
+    },
+    {
+      "date": "2026-05-13",
+      "fx": 1392.0,
+      "techo_bcra": 1727.28,
+      "brecha_pct": 24.09
+    },
+    {
+      "date": "2026-05-14",
+      "fx": 1391.0,
+      "techo_bcra": 1729.14,
+      "brecha_pct": 24.31
+    },
+    {
+      "date": "2026-05-15",
+      "fx": 1394.5,
+      "techo_bcra": 1731.0,
+      "brecha_pct": 24.13
+    },
+    {
+      "date": "2026-05-18",
+      "fx": 1397.0,
+      "techo_bcra": 1736.58,
+      "brecha_pct": 24.31
+    },
+    {
+      "date": "2026-05-19",
+      "fx": 1398.0,
+      "techo_bcra": 1738.45,
+      "brecha_pct": 24.35
+    },
+    {
+      "date": "2026-05-20",
+      "fx": 1397.0,
+      "techo_bcra": 1740.31,
+      "brecha_pct": 24.57
+    },
+    {
+      "date": "2026-05-21",
+      "fx": 1389.5,
+      "techo_bcra": 1742.17,
+      "brecha_pct": 25.38
+    },
+    {
+      "date": "2026-05-22",
+      "fx": 1403.0,
+      "techo_bcra": 1744.03,
+      "brecha_pct": 24.31
+    },
+    {
+      "date": "2026-05-26",
+      "fx": 1411.0,
+      "techo_bcra": 1751.47,
+      "brecha_pct": 24.13
+    },
+    {
+      "date": "2026-05-27",
+      "fx": 1412.5,
+      "techo_bcra": 1753.33,
+      "brecha_pct": 24.13
+    },
+    {
+      "date": "2026-05-28",
+      "fx": 1410.0,
+      "techo_bcra": 1755.19,
+      "brecha_pct": 24.48
+    },
+    {
+      "date": "2026-05-29",
+      "fx": 1408.0,
+      "techo_bcra": 1757.06,
+      "brecha_pct": 24.79
+    },
+    {
+      "date": "2026-06-01",
+      "fx": 1426.0,
+      "techo_bcra": 1762.64,
+      "brecha_pct": 23.61
+    },
+    {
+      "date": "2026-06-02",
+      "fx": 1427.0,
+      "techo_bcra": 1764.15,
+      "brecha_pct": 23.63
+    },
+    {
+      "date": "2026-06-03",
+      "fx": 1438.5,
+      "techo_bcra": 1765.66,
+      "brecha_pct": 22.74
+    },
+    {
+      "date": "2026-06-04",
+      "fx": 1436.5,
+      "techo_bcra": 1767.17,
+      "brecha_pct": 23.02
+    },
+    {
+      "date": "2026-06-05",
+      "fx": 1440.5,
+      "techo_bcra": 1768.68,
+      "brecha_pct": 22.78
+    },
+    {
+      "date": "2026-06-08",
+      "fx": 1446.5,
+      "techo_bcra": 1773.23,
+      "brecha_pct": 22.59
+    },
+    {
+      "date": "2026-06-09",
+      "fx": 1441.0,
+      "techo_bcra": 1774.75,
+      "brecha_pct": 23.16
+    },
+    {
+      "date": "2026-06-10",
+      "fx": 1432.5,
+      "techo_bcra": 1776.27,
+      "brecha_pct": 24.0
+    },
+    {
+      "date": "2026-06-11",
+      "fx": 1432.5,
+      "techo_bcra": 1777.79,
+      "brecha_pct": 24.1
+    },
+    {
+      "date": "2026-06-12",
+      "fx": 1428.0,
+      "techo_bcra": 1779.31,
+      "brecha_pct": 24.6
+    },
+    {
+      "date": "2026-06-16",
+      "fx": 1436.5,
+      "techo_bcra": 1785.41,
+      "brecha_pct": 24.29
+    },
+    {
+      "date": "2026-06-17",
+      "fx": 1441.5,
+      "techo_bcra": 1786.94,
+      "brecha_pct": 23.96
+    },
+    {
+      "date": "2026-06-18",
+      "fx": 1451.0,
+      "techo_bcra": 1788.47,
+      "brecha_pct": 23.26
+    },
+    {
+      "date": "2026-06-19",
+      "fx": 1461.0,
+      "techo_bcra": 1790.0,
+      "brecha_pct": 22.52
+    },
+    {
+      "date": "2026-06-22",
+      "fx": 1461.5,
+      "techo_bcra": 1794.6,
+      "brecha_pct": 22.79
+    },
+    {
+      "date": "2026-06-23",
+      "fx": 1471.5,
+      "techo_bcra": 1796.13,
+      "brecha_pct": 22.06
+    },
+    {
+      "date": "2026-06-24",
+      "fx": 1479.0,
+      "techo_bcra": 1797.67,
+      "brecha_pct": 21.55
+    },
+    {
+      "date": "2026-06-25",
+      "fx": 1477.0,
+      "techo_bcra": 1799.21,
+      "brecha_pct": 21.82
+    },
+    {
+      "date": "2026-06-26",
+      "fx": 1477.0,
+      "techo_bcra": 1800.75,
+      "brecha_pct": 21.92
+    }
+  ],
+  "2026": [
+    {
+      "date": "2026-01-02",
+      "fx": 1475.0,
+      "techo_bcra": 1521.9,
+      "brecha_pct": 3.18
+    },
+    {
+      "date": "2026-01-05",
+      "fx": 1470.0,
+      "techo_bcra": 1526.26,
+      "brecha_pct": 3.83
+    },
+    {
+      "date": "2026-01-06",
+      "fx": 1467.5,
+      "techo_bcra": 1527.71,
+      "brecha_pct": 4.1
+    },
+    {
+      "date": "2026-01-07",
+      "fx": 1460.0,
+      "techo_bcra": 1529.16,
+      "brecha_pct": 4.74
+    },
+    {
+      "date": "2026-01-08",
+      "fx": 1464.0,
+      "techo_bcra": 1530.61,
+      "brecha_pct": 4.55
+    },
+    {
+      "date": "2026-01-09",
+      "fx": 1465.0,
+      "techo_bcra": 1532.06,
+      "brecha_pct": 4.58
+    },
+    {
+      "date": "2026-01-12",
+      "fx": 1467.5,
+      "techo_bcra": 1536.42,
+      "brecha_pct": 4.7
+    },
+    {
+      "date": "2026-01-13",
+      "fx": 1457.0,
+      "techo_bcra": 1537.87,
+      "brecha_pct": 5.55
+    },
+    {
+      "date": "2026-01-14",
+      "fx": 1453.0,
+      "techo_bcra": 1539.32,
+      "brecha_pct": 5.94
+    },
+    {
+      "date": "2026-01-15",
+      "fx": 1441.0,
+      "techo_bcra": 1540.77,
+      "brecha_pct": 6.92
+    },
+    {
+      "date": "2026-01-16",
+      "fx": 1430.0,
+      "techo_bcra": 1542.23,
+      "brecha_pct": 7.85
+    },
+    {
+      "date": "2026-01-20",
+      "fx": 1434.5,
+      "techo_bcra": 1548.03,
+      "brecha_pct": 7.91
+    },
+    {
+      "date": "2026-01-21",
+      "fx": 1430.5,
+      "techo_bcra": 1549.48,
+      "brecha_pct": 8.32
+    },
+    {
+      "date": "2026-01-22",
+      "fx": 1429.5,
+      "techo_bcra": 1550.94,
+      "brecha_pct": 8.5
+    },
+    {
+      "date": "2026-01-23",
+      "fx": 1433.0,
+      "techo_bcra": 1552.39,
+      "brecha_pct": 8.33
+    },
+    {
+      "date": "2026-01-26",
+      "fx": 1437.5,
+      "techo_bcra": 1556.74,
+      "brecha_pct": 8.29
+    },
+    {
+      "date": "2026-01-27",
+      "fx": 1442.5,
+      "techo_bcra": 1558.19,
+      "brecha_pct": 8.02
+    },
+    {
+      "date": "2026-01-28",
+      "fx": 1444.5,
+      "techo_bcra": 1559.65,
+      "brecha_pct": 7.97
+    },
+    {
+      "date": "2026-01-29",
+      "fx": 1444.5,
+      "techo_bcra": 1561.1,
+      "brecha_pct": 8.07
+    },
+    {
+      "date": "2026-01-30",
+      "fx": 1447.0,
+      "techo_bcra": 1562.55,
+      "brecha_pct": 7.99
+    },
+    {
+      "date": "2026-02-02",
+      "fx": 1451.0,
+      "techo_bcra": 1567.07,
+      "brecha_pct": 8.0
+    },
+    {
+      "date": "2026-02-03",
+      "fx": 1446.0,
+      "techo_bcra": 1568.61,
+      "brecha_pct": 8.48
+    },
+    {
+      "date": "2026-02-04",
+      "fx": 1447.5,
+      "techo_bcra": 1570.14,
+      "brecha_pct": 8.47
+    },
+    {
+      "date": "2026-02-05",
+      "fx": 1442.0,
+      "techo_bcra": 1571.68,
+      "brecha_pct": 8.99
+    },
+    {
+      "date": "2026-02-06",
+      "fx": 1432.0,
+      "techo_bcra": 1573.21,
+      "brecha_pct": 9.86
+    },
+    {
+      "date": "2026-02-09",
+      "fx": 1416.0,
+      "techo_bcra": 1577.82,
+      "brecha_pct": 11.43
+    },
+    {
+      "date": "2026-02-10",
+      "fx": 1406.0,
+      "techo_bcra": 1579.36,
+      "brecha_pct": 12.33
+    },
+    {
+      "date": "2026-02-11",
+      "fx": 1400.0,
+      "techo_bcra": 1580.89,
+      "brecha_pct": 12.92
+    },
+    {
+      "date": "2026-02-12",
+      "fx": 1395.0,
+      "techo_bcra": 1582.43,
+      "brecha_pct": 13.44
+    },
+    {
+      "date": "2026-02-13",
+      "fx": 1399.5,
+      "techo_bcra": 1583.96,
+      "brecha_pct": 13.18
+    },
+    {
+      "date": "2026-02-18",
+      "fx": 1396.0,
+      "techo_bcra": 1591.64,
+      "brecha_pct": 14.01
+    },
+    {
+      "date": "2026-02-19",
+      "fx": 1389.0,
+      "techo_bcra": 1593.18,
+      "brecha_pct": 14.7
+    },
+    {
+      "date": "2026-02-20",
+      "fx": 1376.0,
+      "techo_bcra": 1594.71,
+      "brecha_pct": 15.89
+    },
+    {
+      "date": "2026-02-23",
+      "fx": 1370.5,
+      "techo_bcra": 1599.32,
+      "brecha_pct": 16.7
+    },
+    {
+      "date": "2026-02-24",
+      "fx": 1380.5,
+      "techo_bcra": 1600.86,
+      "brecha_pct": 15.96
+    },
+    {
+      "date": "2026-02-25",
+      "fx": 1399.0,
+      "techo_bcra": 1602.39,
+      "brecha_pct": 14.54
+    },
+    {
+      "date": "2026-02-26",
+      "fx": 1408.0,
+      "techo_bcra": 1603.93,
+      "brecha_pct": 13.92
+    },
+    {
+      "date": "2026-02-27",
+      "fx": 1397.0,
+      "techo_bcra": 1605.46,
+      "brecha_pct": 14.92
+    },
+    {
+      "date": "2026-03-02",
+      "fx": 1395.0,
+      "techo_bcra": 1610.03,
+      "brecha_pct": 15.41
+    },
+    {
+      "date": "2026-03-03",
+      "fx": 1415.0,
+      "techo_bcra": 1611.55,
+      "brecha_pct": 13.89
+    },
+    {
+      "date": "2026-03-04",
+      "fx": 1400.5,
+      "techo_bcra": 1613.06,
+      "brecha_pct": 15.18
+    },
+    {
+      "date": "2026-03-05",
+      "fx": 1407.0,
+      "techo_bcra": 1614.58,
+      "brecha_pct": 14.75
+    },
+    {
+      "date": "2026-03-06",
+      "fx": 1416.0,
+      "techo_bcra": 1616.1,
+      "brecha_pct": 14.13
+    },
+    {
+      "date": "2026-03-09",
+      "fx": 1416.0,
+      "techo_bcra": 1620.65,
+      "brecha_pct": 14.45
+    },
+    {
+      "date": "2026-03-10",
+      "fx": 1400.0,
+      "techo_bcra": 1622.16,
+      "brecha_pct": 15.87
+    },
+    {
+      "date": "2026-03-11",
+      "fx": 1396.0,
+      "techo_bcra": 1623.68,
+      "brecha_pct": 16.31
+    },
+    {
+      "date": "2026-03-12",
+      "fx": 1394.5,
+      "techo_bcra": 1625.19,
+      "brecha_pct": 16.54
+    },
+    {
+      "date": "2026-03-13",
+      "fx": 1400.0,
+      "techo_bcra": 1626.71,
+      "brecha_pct": 16.19
+    },
+    {
+      "date": "2026-03-16",
+      "fx": 1396.0,
+      "techo_bcra": 1631.26,
+      "brecha_pct": 16.85
+    },
+    {
+      "date": "2026-03-17",
+      "fx": 1396.0,
+      "techo_bcra": 1632.77,
+      "brecha_pct": 16.96
+    },
+    {
+      "date": "2026-03-18",
+      "fx": 1394.0,
+      "techo_bcra": 1634.29,
+      "brecha_pct": 17.24
+    },
+    {
+      "date": "2026-03-19",
+      "fx": 1394.5,
+      "techo_bcra": 1635.81,
+      "brecha_pct": 17.3
+    },
+    {
+      "date": "2026-03-20",
+      "fx": 1390.5,
+      "techo_bcra": 1637.32,
+      "brecha_pct": 17.75
+    },
+    {
+      "date": "2026-03-25",
+      "fx": 1377.5,
+      "techo_bcra": 1644.9,
+      "brecha_pct": 19.41
+    },
+    {
+      "date": "2026-03-26",
+      "fx": 1368.0,
+      "techo_bcra": 1646.42,
+      "brecha_pct": 20.35
+    },
+    {
+      "date": "2026-03-27",
+      "fx": 1382.5,
+      "techo_bcra": 1647.94,
+      "brecha_pct": 19.2
+    },
+    {
+      "date": "2026-03-30",
+      "fx": 1398.0,
+      "techo_bcra": 1652.48,
+      "brecha_pct": 18.2
+    },
+    {
+      "date": "2026-03-31",
+      "fx": 1382.0,
+      "techo_bcra": 1654.0,
+      "brecha_pct": 19.68
+    },
+    {
+      "date": "2026-04-01",
+      "fx": 1394.0,
+      "techo_bcra": 1655.53,
+      "brecha_pct": 18.76
+    },
+    {
+      "date": "2026-04-06",
+      "fx": 1393.0,
+      "techo_bcra": 1663.2,
+      "brecha_pct": 19.4
+    },
+    {
+      "date": "2026-04-07",
+      "fx": 1392.5,
+      "techo_bcra": 1664.73,
+      "brecha_pct": 19.55
+    },
+    {
+      "date": "2026-04-08",
+      "fx": 1387.5,
+      "techo_bcra": 1666.27,
+      "brecha_pct": 20.09
+    },
+    {
+      "date": "2026-04-09",
+      "fx": 1381.0,
+      "techo_bcra": 1667.8,
+      "brecha_pct": 20.77
+    },
+    {
+      "date": "2026-04-10",
+      "fx": 1370.0,
+      "techo_bcra": 1669.33,
+      "brecha_pct": 21.85
+    },
+    {
+      "date": "2026-04-13",
+      "fx": 1354.0,
+      "techo_bcra": 1673.93,
+      "brecha_pct": 23.63
+    },
+    {
+      "date": "2026-04-14",
+      "fx": 1366.0,
+      "techo_bcra": 1675.47,
+      "brecha_pct": 22.66
+    },
+    {
+      "date": "2026-04-15",
+      "fx": 1359.0,
+      "techo_bcra": 1677.0,
+      "brecha_pct": 23.4
+    },
+    {
+      "date": "2026-04-16",
+      "fx": 1358.0,
+      "techo_bcra": 1678.53,
+      "brecha_pct": 23.6
+    },
+    {
+      "date": "2026-04-17",
+      "fx": 1364.5,
+      "techo_bcra": 1680.07,
+      "brecha_pct": 23.13
+    },
+    {
+      "date": "2026-04-20",
+      "fx": 1377.0,
+      "techo_bcra": 1684.67,
+      "brecha_pct": 22.34
+    },
+    {
+      "date": "2026-04-21",
+      "fx": 1375.5,
+      "techo_bcra": 1686.2,
+      "brecha_pct": 22.59
+    },
+    {
+      "date": "2026-04-22",
+      "fx": 1378.0,
+      "techo_bcra": 1687.73,
+      "brecha_pct": 22.48
+    },
+    {
+      "date": "2026-04-23",
+      "fx": 1392.0,
+      "techo_bcra": 1689.27,
+      "brecha_pct": 21.36
+    },
+    {
+      "date": "2026-04-24",
+      "fx": 1399.5,
+      "techo_bcra": 1690.8,
+      "brecha_pct": 20.81
+    },
+    {
+      "date": "2026-04-27",
+      "fx": 1417.0,
+      "techo_bcra": 1695.4,
+      "brecha_pct": 19.65
+    },
+    {
+      "date": "2026-04-28",
+      "fx": 1404.5,
+      "techo_bcra": 1696.93,
+      "brecha_pct": 20.82
+    },
+    {
+      "date": "2026-04-29",
+      "fx": 1391.5,
+      "techo_bcra": 1698.47,
+      "brecha_pct": 22.06
+    },
+    {
+      "date": "2026-04-30",
+      "fx": 1391.0,
+      "techo_bcra": 1700.0,
+      "brecha_pct": 22.21
+    },
+    {
+      "date": "2026-05-01",
+      "fx": 1391.0,
+      "techo_bcra": 1704.95,
+      "brecha_pct": 22.57
+    },
+    {
+      "date": "2026-05-04",
+      "fx": 1402.5,
+      "techo_bcra": 1710.53,
+      "brecha_pct": 21.96
+    },
+    {
+      "date": "2026-05-05",
+      "fx": 1393.0,
+      "techo_bcra": 1712.39,
+      "brecha_pct": 22.93
+    },
+    {
+      "date": "2026-05-06",
+      "fx": 1388.0,
+      "techo_bcra": 1714.25,
+      "brecha_pct": 23.51
+    },
+    {
+      "date": "2026-05-07",
+      "fx": 1396.0,
+      "techo_bcra": 1716.11,
+      "brecha_pct": 22.93
+    },
+    {
+      "date": "2026-05-08",
+      "fx": 1398.0,
+      "techo_bcra": 1717.97,
+      "brecha_pct": 22.89
+    },
+    {
+      "date": "2026-05-11",
+      "fx": 1391.5,
+      "techo_bcra": 1723.56,
+      "brecha_pct": 23.86
+    },
+    {
+      "date": "2026-05-12",
+      "fx": 1384.0,
+      "techo_bcra": 1725.42,
+      "brecha_pct": 24.67
+    },
+    {
+      "date": "2026-05-13",
+      "fx": 1392.0,
+      "techo_bcra": 1727.28,
+      "brecha_pct": 24.09
+    },
+    {
+      "date": "2026-05-14",
+      "fx": 1391.0,
+      "techo_bcra": 1729.14,
+      "brecha_pct": 24.31
+    },
+    {
+      "date": "2026-05-15",
+      "fx": 1394.5,
+      "techo_bcra": 1731.0,
+      "brecha_pct": 24.13
+    },
+    {
+      "date": "2026-05-18",
+      "fx": 1397.0,
+      "techo_bcra": 1736.58,
+      "brecha_pct": 24.31
+    },
+    {
+      "date": "2026-05-19",
+      "fx": 1398.0,
+      "techo_bcra": 1738.45,
+      "brecha_pct": 24.35
+    },
+    {
+      "date": "2026-05-20",
+      "fx": 1397.0,
+      "techo_bcra": 1740.31,
+      "brecha_pct": 24.57
+    },
+    {
+      "date": "2026-05-21",
+      "fx": 1389.5,
+      "techo_bcra": 1742.17,
+      "brecha_pct": 25.38
+    },
+    {
+      "date": "2026-05-22",
+      "fx": 1403.0,
+      "techo_bcra": 1744.03,
+      "brecha_pct": 24.31
+    },
+    {
+      "date": "2026-05-26",
+      "fx": 1411.0,
+      "techo_bcra": 1751.47,
+      "brecha_pct": 24.13
+    },
+    {
+      "date": "2026-05-27",
+      "fx": 1412.5,
+      "techo_bcra": 1753.33,
+      "brecha_pct": 24.13
+    },
+    {
+      "date": "2026-05-28",
+      "fx": 1410.0,
+      "techo_bcra": 1755.19,
+      "brecha_pct": 24.48
+    },
+    {
+      "date": "2026-05-29",
+      "fx": 1408.0,
+      "techo_bcra": 1757.06,
+      "brecha_pct": 24.79
+    },
+    {
+      "date": "2026-06-01",
+      "fx": 1426.0,
+      "techo_bcra": 1762.64,
+      "brecha_pct": 23.61
+    },
+    {
+      "date": "2026-06-02",
+      "fx": 1427.0,
+      "techo_bcra": 1764.15,
+      "brecha_pct": 23.63
+    },
+    {
+      "date": "2026-06-03",
+      "fx": 1438.5,
+      "techo_bcra": 1765.66,
+      "brecha_pct": 22.74
+    },
+    {
+      "date": "2026-06-04",
+      "fx": 1436.5,
+      "techo_bcra": 1767.17,
+      "brecha_pct": 23.02
+    },
+    {
+      "date": "2026-06-05",
+      "fx": 1440.5,
+      "techo_bcra": 1768.68,
+      "brecha_pct": 22.78
+    },
+    {
+      "date": "2026-06-08",
+      "fx": 1446.5,
+      "techo_bcra": 1773.23,
+      "brecha_pct": 22.59
+    },
+    {
+      "date": "2026-06-09",
+      "fx": 1441.0,
+      "techo_bcra": 1774.75,
+      "brecha_pct": 23.16
+    },
+    {
+      "date": "2026-06-10",
+      "fx": 1432.5,
+      "techo_bcra": 1776.27,
+      "brecha_pct": 24.0
+    },
+    {
+      "date": "2026-06-11",
+      "fx": 1432.5,
+      "techo_bcra": 1777.79,
+      "brecha_pct": 24.1
+    },
+    {
+      "date": "2026-06-12",
+      "fx": 1428.0,
+      "techo_bcra": 1779.31,
+      "brecha_pct": 24.6
+    },
+    {
+      "date": "2026-06-16",
+      "fx": 1436.5,
+      "techo_bcra": 1785.41,
+      "brecha_pct": 24.29
+    },
+    {
+      "date": "2026-06-17",
+      "fx": 1441.5,
+      "techo_bcra": 1786.94,
+      "brecha_pct": 23.96
+    },
+    {
+      "date": "2026-06-18",
+      "fx": 1451.0,
+      "techo_bcra": 1788.47,
+      "brecha_pct": 23.26
+    },
+    {
+      "date": "2026-06-19",
+      "fx": 1461.0,
+      "techo_bcra": 1790.0,
+      "brecha_pct": 22.52
+    },
+    {
+      "date": "2026-06-22",
+      "fx": 1461.5,
+      "techo_bcra": 1794.6,
+      "brecha_pct": 22.79
+    },
+    {
+      "date": "2026-06-23",
+      "fx": 1471.5,
+      "techo_bcra": 1796.13,
+      "brecha_pct": 22.06
+    },
+    {
+      "date": "2026-06-24",
+      "fx": 1479.0,
+      "techo_bcra": 1797.67,
+      "brecha_pct": 21.55
+    },
+    {
+      "date": "2026-06-25",
+      "fx": 1477.0,
+      "techo_bcra": 1799.21,
+      "brecha_pct": 21.82
+    },
+    {
+      "date": "2026-06-26",
+      "fx": 1477.0,
+      "techo_bcra": 1800.75,
+      "brecha_pct": 21.92
+    }
+  ]
+}
