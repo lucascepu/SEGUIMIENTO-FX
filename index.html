@@ -299,7 +299,7 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 24/6/2026<br>
+        Cierre ROFEX 1/7/2026<br>
         REM ene–may 27: interpolado ($1.658→$1.760)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)
       </div>
@@ -470,19 +470,33 @@
       delete chart.options.scales.x.min;
     }
     chart.options.scales.x.max = IDX_END;
-    /* Auto-fit Y al rango X visible */
+    /* Auto-fit Y al rango X visible — según el modo activo */
     (function(){
       var xMn=s>0?s:0, xMx=IDX_END;
       var vals=[];
-      for(var i=xMn;i<=xMx;i++){
-        if(hS[i]!=null) vals.push(hS[i]);
-        if(hT[i]!=null) vals.push(hT[i]);
+      if(mode==='brecha'){
+        /* Brecha: usar porcentajes */
+        for(var i=xMn;i<=xMx;i++){
+          if(brechaVals[i]!=null) vals.push(brechaVals[i]);
+        }
+        if(!vals.length) return;
+        var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+        var pad=(mx-mn)*0.15;
+        chart.options.scales.y.min=Math.floor(mn-pad);
+        chart.options.scales.y.max=Math.ceil(mx+pad);
+      } else if(mode==='hist'){
+        /* SIOPEL: usar hS + hT */
+        for(var i=xMn;i<=xMx;i++){
+          if(hS[i]!=null) vals.push(hS[i]);
+          if(hT[i]!=null) vals.push(hT[i]);
+        }
+        if(!vals.length) return;
+        var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+        var pad=(mx-mn)*0.10;
+        chart.options.scales.y.min=Math.floor((mn-pad)/50)*50;
+        chart.options.scales.y.max=Math.ceil((mx+pad)/50)*50;
       }
-      if(!vals.length) return;
-      var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
-      var pad=(mx-mn)*0.10;
-      chart.options.scales.y.min=Math.floor((mn-pad)/50)*50;
-      chart.options.scales.y.max=Math.ceil((mx+pad)/50)*50;
+      /* proj: no tocar el Y (escala fija para que se vean los escenarios) */
     })();
     chart.update('none');
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
@@ -514,10 +528,10 @@
   var pT=[1718,1731,1744,1757,1762.64,1764.15,1765.66,1767.17,1768.68,1773.23,1774.75,1776.27,1777.79,1779.31,1785.41,1786.94,1788.47,1790.0,1794.6,1796.13,1797.67,1799.21,1800.75,1805.38,1806.92,1808.13,1809.35,1810.56,1814.21,1815.42,1816.64,1822.74,1823.96,1825.19,1826.41,1827.63,1831.31,1832.54,1833.77,1835.0,1836.23,1839.93,1841.16,1842.4,1843.63,1844.87,1900.22,1953.43,2004.22,2052.32,2097.47];
   var pS=[1398,1394.5,1403,1408].concat(sJunActual, N(25));
   var pA=pT.map(function(t){ return Math.round(t/1.157); });
-  var pREM=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1422,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1447,1476,1516,1553,1597,1658];
-  var pSCA=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1468,1469,1470,1471,1474,1475,1476,1481,1482,1483,1484,1485,1488,1489,1490,1491,1492,1495,1496,1497,1498,1499,1544,1587,1628,1667,1704];
-  var pSCB=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1562,1563,1564,1565,1568,1569,1570,1575,1576,1578,1579,1580,1583,1584,1585,1586,1587,1590,1591,1592,1593,1595,1642,1688,1732,1774,1813];
-  var pSCC=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1721,1722,1723,1724,1728,1729,1730,1736,1737,1738,1739,1741,1744,1745,1746,1748,1749,1752,1753,1755,1756,1757,1810,1860,1909,1955,1998]; 
+  var pREM=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1447,1476,1516,1553,1597,1658];
+  var pSCA=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1469,1470,1471,1474,1475,1476,1481,1482,1483,1484,1485,1488,1489,1490,1491,1492,1495,1496,1497,1498,1499,1544,1587,1628,1667,1704];
+  var pSCB=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1563,1564,1565,1568,1569,1570,1575,1576,1578,1579,1580,1583,1584,1585,1586,1587,1590,1591,1592,1593,1595,1642,1688,1732,1774,1813];
+  var pSCC=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1722,1723,1724,1728,1729,1730,1736,1737,1738,1739,1741,1744,1745,1746,1748,1749,1752,1753,1755,1756,1757,1810,1860,1909,1955,1998]; 
   var pLbl=['8/5','15/5','22/5','29/5',
     '1/6','2/6','3/6','4/6','5/6','8/6','9/6','10/6','11/6','12/6',
     '16/6','17/6','18/6','19/6','22/6','23/6','24/6','25/6','26/6','29/6','30/6',
@@ -544,7 +558,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUN 26':1483.5,'JUL 26':1510.5,'AGO 26':1537.5,'SEP 26':1565.5,'OCT 26':1595.0,'NOV 26':1624.0,'DIC 26':1653.0,'ENE 27':1684.5,'FEB 27':1718.0,'MAR 27':1752.0,'ABR 27':1784.0,'MAY 27':1819.0};
+  var FUT_DEFAULT = {'JUL 26':1507.0,'AGO 26':1533.5,'SEP 26':1561.0,'OCT 26':1591.5,'NOV 26':1624.0,'DIC 26':1655.0,'ENE 27':1684.0,'FEB 27':1721.0,'MAR 27':1745.0,'ABR 27':1775.0,'MAY 27':1800.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
@@ -1015,7 +1029,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUN 26':1483.5,'JUL 26':1510.5,'AGO 26':1537.5,'SEP 26':1565.5,'OCT 26':1595.0,'NOV 26':1624.0,'DIC 26':1653.0,'ENE 27':1684.5,'FEB 27':1718.0,'MAR 27':1752.0,'ABR 27':1784.0,'MAY 27':1819.0};
+  var FUT_DEFAULT = {'JUL 26':1507.0,'AGO 26':1533.5,'SEP 26':1561.0,'OCT 26':1591.5,'NOV 26':1624.0,'DIC 26':1655.0,'ENE 27':1684.0,'FEB 27':1721.0,'MAR 27':1745.0,'ABR 27':1775.0,'MAY 27':1800.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
@@ -1383,7 +1397,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1900.22,'SEP 26':1953.43,'OCT 26':2004.22,'NOV 26':2052.32,'DIC 26':2097.47,'ENE 27':2133.13,'FEB 27':2168.08,'MAR 27':2203.6,'ABR 27':2239.7,'MAY 27':2276.39};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUN 26':1483.5,'JUL 26':1510.5,'AGO 26':1537.5,'SEP 26':1565.5,'OCT 26':1595.0,'NOV 26':1624.0,'DIC 26':1653.0,'ENE 27':1684.5,'FEB 27':1718.0,'MAR 27':1752.0,'ABR 27':1784.0,'MAY 27':1819.0};
+  var FUT_DEFAULT = {'JUL 26':1507.0,'AGO 26':1533.5,'SEP 26':1561.0,'OCT 26':1591.5,'NOV 26':1624.0,'DIC 26':1655.0,'ENE 27':1684.0,'FEB 27':1721.0,'MAR 27':1745.0,'ABR 27':1775.0,'MAY 27':1800.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
