@@ -1240,7 +1240,7 @@
         var yLo=mode==='brecha'?-5:500, yHi=mode==='brecha'?60:3000;
         var nymin=Math.max(yLo,_ad.y0min+ydelta);
         var nymax=Math.min(yHi,_ad.y0max+ydelta);
-        if(nymax-nymin>80){
+        if(nymax-nymin>(mode==='brecha'?1:80)){
           chart.options.scales.y.min=nymin;
           chart.options.scales.y.max=nymax;
           updated=true;
