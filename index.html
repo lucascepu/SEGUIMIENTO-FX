@@ -573,7 +573,7 @@
 
   function renderFut(){
     var siopel = hS[lri];
-    var KEYS   = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
+    var KEYS   = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
     var futs   = KEYS.map(function(k){ return futPrices[k]||null; });
     var rems   = KEYS.map(function(k){ return FUT_REM[k]; });
     var techos = KEYS.map(function(k){ return FUT_TECHO[k]; });
@@ -723,6 +723,17 @@
   };
 
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+
+  /* ── pSCA dinámico: "mantiene brecha actual" — se recalcula cada día ── */
+  (function(){
+    if(lri<0||brechaVals[lri]==null) return;
+    var bf=1+brechaVals[lri]/100;   /* factor: e.g. 1.2143 para 21.43% */
+    /* Proj ia = 25 (primer índice de hoy en el chart de proyección) */
+    var projIa=25;
+    for(var i=projIa;i<pT.length;i++){
+      pSCA[i]=(pT[i]!=null)?Math.round(pT[i]/bf):null;
+    }
+  })();
 
   /* ── Variación mensual en card SIOPEL ── */
   (function(){
