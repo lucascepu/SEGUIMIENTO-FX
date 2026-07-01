@@ -1237,8 +1237,9 @@
         var ys=chart.scales.y;
         var yrange=_ad.y0max-_ad.y0min;
         var ydelta=Math.round(dy*yrange/ys.height);
-        var nymin=Math.max(500,_ad.y0min+ydelta);
-        var nymax=Math.min(3000,_ad.y0max+ydelta);
+        var yLo=mode==='brecha'?-5:500, yHi=mode==='brecha'?60:3000;
+        var nymin=Math.max(yLo,_ad.y0min+ydelta);
+        var nymax=Math.min(yHi,_ad.y0max+ydelta);
         if(nymax-nymin>80){
           chart.options.scales.y.min=nymin;
           chart.options.scales.y.max=nymax;
@@ -1289,8 +1290,9 @@
       var ys=chart.scales.y;
       var f=e.deltaY>0?1.12:0.88;
       var ctr=(ys.max+ys.min)/2, half=(ys.max-ys.min)/2*f;
-      chart.options.scales.y.min=Math.max(500,Math.round(ctr-half));
-      chart.options.scales.y.max=Math.min(3000,Math.round(ctr+half));
+      var yLo=mode==='brecha'?-5:500, yHi=mode==='brecha'?60:3000;
+      chart.options.scales.y.min=Math.max(yLo,Math.round(ctr-half));
+      chart.options.scales.y.max=Math.min(yHi,Math.round(ctr+half));
       chart.update('none'); window._showRZ();
     }
   },{passive:false});
@@ -1319,8 +1321,9 @@
       var f=e.deltaY>0?1.12:0.88;
       var ctr=(ys.max+ys.min)/2;
       var half=(ys.max-ys.min)/2*f;
-      chart.options.scales.y.min=Math.max(500,Math.round(ctr-half));
-      chart.options.scales.y.max=Math.min(3000,Math.round(ctr+half));
+      var yLo=mode==='brecha'?-5:500, yHi=mode==='brecha'?60:3000;
+      chart.options.scales.y.min=Math.max(yLo,Math.round(ctr-half));
+      chart.options.scales.y.max=Math.min(yHi,Math.round(ctr+half));
       chart.update('none'); window._showRZ();
     }
   },{passive:false});
