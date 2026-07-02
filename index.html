@@ -283,7 +283,7 @@
   <div id="futInsight" style="display:none"></div>
 
   <!-- Layout: tabla 1/3 izquierda | gráfico 2/3 derecha -->
-  <div id="futMainGrid" style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start">
+  <div id="futMainGrid" style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start;overflow:hidden;min-width:0">
 
     <!-- TABLA (columna izquierda) -->
     <div>
@@ -334,7 +334,7 @@
         </div>
       </div>
       <!-- Gráfico -->
-      <div id="futChartBox" style="position:relative;height:340px;margin-bottom:8px">
+      <div id="futChartBox" style="position:relative;width:100%;height:340px;margin-bottom:8px;overflow:hidden">
         <canvas id="futCanvas"></canvas>
       </div>
       <!-- Leyenda -->
@@ -1261,11 +1261,12 @@
         var dy=e.clientY-_ad.sy;
         var ys=chart.scales.y;
         var yrange=_ad.y0max-_ad.y0min;
-        var ydelta=Math.round(dy*yrange/ys.height);
+        /* NO Math.round — fractional delta para movimiento suave en brecha */
+        var ydelta=dy*yrange/ys.height;
         var yLo=mode==='brecha'?-5:500, yHi=mode==='brecha'?60:3000;
         var nymin=Math.max(yLo,_ad.y0min+ydelta);
         var nymax=Math.min(yHi,_ad.y0max+ydelta);
-        if(nymax-nymin>(mode==='brecha'?1:80)){
+        if(nymax-nymin>(mode==='brecha'?0.5:80)){
           chart.options.scales.y.min=nymin;
           chart.options.scales.y.max=nymax;
           updated=true;
