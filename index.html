@@ -39,7 +39,7 @@
   body{background:var(--bg);color:var(--txt);font-family:var(--font);
        font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
        font-feature-settings:"tnum" 1;margin:0;padding:0;}
-  .container{max-width:1440px;margin:0 auto;padding:20px 28px;overflow-x:hidden;}
+  .container{max-width:1280px;margin:0 auto;padding:20px 28px;overflow-x:hidden;}
   #futMainGrid>*{min-width:0;}  /* prevent grid cells from overflowing container */
   #futPanel{width:100%;box-sizing:border-box;}
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
@@ -166,7 +166,7 @@
 }
 
   /* ── Futuros panel ── */
-  #futPanel { display:none; }
+  #futPanel { display:none; padding-top:4px; }
   .fut-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
   .fut-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
   .fut-table th { font-size:11px; font-weight:600; color:var(--txt3); padding:6px 10px;
