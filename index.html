@@ -749,34 +749,35 @@
       pSCA[i]=(pT[i]!=null)?Math.round(pT[i]/bf):null;
     }
   })();
-
-  /* ── Variación mensual en card SIOPEL ── */
+  /* ── MTD + YTD en card SIOPEL ── */
   (function(){
-    if(lri<=0||!hDates[lri]) return;
-    /* Parsear sin new Date() para evitar bug de timezone (UTC vs AR) */
+    if(lri<=0||!hDates[lri]||hS[lri]==null) return;
+    var curVal=hS[lri];
     function ymParts(iso){ var p=iso.split('-'); return {y:+p[0],m:+p[1]-1}; }
     var cur=ymParts(hDates[lri]);
     var prevM=cur.m-1, prevY=cur.y;
     if(prevM<0){ prevM=11; prevY--; }
-    /* Buscar último día hábil del mes anterior */
     var pmIdx=-1;
     for(var i=lri-1;i>=0;i--){
       if(!hDates[i]) continue;
       var p=ymParts(hDates[i]);
       if(p.y===prevY && p.m===prevM){ pmIdx=i; break; }
     }
-    if(pmIdx<0) return;
-    var pmVal=hS[pmIdx], curVal=hS[lri];
+    var ytdIdx=IDX_2026-1;
     var el=document.getElementById('monthlySiopelSub');
-    if(!el||pmVal==null||curVal==null) return;
-    var mv=+((curVal-pmVal)/pmVal*100).toFixed(2);
-    var meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    var sign=mv>=0?'+':'';
-    var mdelta=Math.round(Math.abs(curVal-pmVal)*10)/10;
-    var mdeltaFmt='$'+mdelta.toLocaleString('es-AR');
-    el.innerHTML='<span style="font-size:9px;color:var(--txt3);letter-spacing:.04em;text-transform:uppercase">'+
-      meses[cur.m]+' m/m</span> <span class="'+(mv>=0?'dUp':'dDn')+'" style="font-size:11px;font-weight:600">'+
-      (mv>=0?'▲ +':'▼ ')+mdeltaFmt+' ('+sign+mv.toFixed(2)+'%)</span>';
+    if(!el) return;
+    var parts=[];
+    if(pmIdx>=0 && hS[pmIdx]!=null){
+      var mtd=+((curVal-hS[pmIdx])/hS[pmIdx]*100).toFixed(2);
+      parts.push('<span style="color:var(--txt3);font-size:9px;letter-spacing:.04em">MTD</span> '+
+        '<span class="'+(mtd>=0?'dUp':'dDn')+'" style="font-size:11px;font-weight:600">'+(mtd>=0?'+':'')+mtd.toFixed(2)+'%</span>');
+    }
+    if(ytdIdx>=0 && hS[ytdIdx]!=null){
+      var ytd=+((curVal-hS[ytdIdx])/hS[ytdIdx]*100).toFixed(2);
+      parts.push('<span style="color:var(--txt3);font-size:9px;letter-spacing:.04em">YTD</span> '+
+        '<span class="'+(ytd>=0?'dUp':'dDn')+'" style="font-size:11px;font-weight:600">'+(ytd>=0?'+':'')+ytd.toFixed(2)+'%</span>');
+    }
+    if(parts.length) el.innerHTML=parts.join('<span style="color:var(--txt3);margin:0 5px">·</span>');
   })();
   var curBr=lri>=0?Math.round((hT[lri]-hS[lri])/hS[lri]*1000)/10:23.2;
   var curRef=new Array(NH).fill(curBr);
