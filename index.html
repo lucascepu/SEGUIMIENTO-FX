@@ -38,8 +38,9 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--txt);font-family:var(--font);
        font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
-       font-feature-settings:"tnum" 1;margin:0;padding:0;}
-  .container{max-width:1280px;margin:0 auto;padding:20px 28px;overflow-x:hidden;}
+       font-feature-settings:"tnum" 1;
+       max-width:1280px;margin:0 auto;padding:20px 28px;box-sizing:border-box;}
+  .container{width:100%;max-width:100%;}
   #futMainGrid>*{min-width:0;}  /* prevent grid cells from overflowing container */
   #futPanel{width:100%;box-sizing:border-box;}
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
@@ -223,7 +224,7 @@
   </span>
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
-    <span class="leg-item"><span class="leg-line leg-d4"></span>mantiene brecha ~23%</span>
+    <span class="leg-item"><span class="leg-line leg-d4"></span>mantiene brecha actual</span>
     <span class="leg-item"><span class="leg-line leg-d6"></span>brecha 5%</span>
   </span>
   <span id="legB" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
@@ -858,6 +859,7 @@
     options:{
       responsive:true,
       maintainAspectRatio:false,
+      layout:{padding:{right:18,left:4,top:8,bottom:4}},
       
       interaction:{mode:'nearest',intersect:false},
       plugins:{
