@@ -1272,7 +1272,16 @@
           updated=true;
         }
       }
-      if(updated){ chart.update('none'); window._showRZ(); }
+      if(updated){
+        if(!window._rafPending){
+          window._rafPending=true;
+          requestAnimationFrame(function(){
+            window._rafPending=false;
+            chart.update('none');
+            window._showRZ();
+          });
+        }
+      }
     } else if(_ad.mode==='yzoom'){
       var dy=e.clientY-_ad.sy;
       var f=Math.pow(1.004,-dy);
