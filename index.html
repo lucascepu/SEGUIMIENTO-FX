@@ -38,7 +38,8 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--txt);font-family:var(--font);
        font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
-       font-feature-settings:"tnum" 1;padding:20px;}
+       font-feature-settings:"tnum" 1;margin:0;padding:0;}
+  .container{max-width:1440px;margin:0 auto;padding:20px 28px;}
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
   .card{background:var(--bg-card);border-radius:12px;padding:14px 16px;border:1px solid var(--brd);transition:border-color .15s,background .15s;}
   .card-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:8px;}
@@ -154,7 +155,8 @@
 }
 
 @media (max-width: 400px) {
-  body       { padding:8px; }
+  body       { padding:0; }
+  .container { padding:8px; }
   .cards     { gap:6px; }
   .card-val  { font-size:17px; }
   .btn       { padding:4px 9px; font-size:11px; }
@@ -185,6 +187,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="container">
 
 <div class="cards">
   <div class="card"><div class="card-label" id="siopelLbl">SIOPEL (2/7)</div><div class="card-val" id="siopelVal">$1.488,00</div><div class="card-sub" id="deltaSiopelSub">—</div><div class="card-sub" id="monthlySiopelSub" style="color:var(--txt3)">—</div></div>
@@ -1465,5 +1468,6 @@
   applyPeriod();
 })();
 </script>
+</div><!-- /container -->
 </body>
 </html>
