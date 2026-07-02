@@ -39,7 +39,9 @@
   body{background:var(--bg);color:var(--txt);font-family:var(--font);
        font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
        font-feature-settings:"tnum" 1;margin:0;padding:0;}
-  .container{max-width:1440px;margin:0 auto;padding:20px 28px;}
+  .container{max-width:1440px;margin:0 auto;padding:20px 28px;overflow-x:hidden;}
+  #futMainGrid>*{min-width:0;}  /* prevent grid cells from overflowing container */
+  #futPanel{width:100%;box-sizing:border-box;}
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
   .card{background:var(--bg-card);border-radius:12px;padding:14px 16px;border:1px solid var(--brd);transition:border-color .15s,background .15s;}
   .card-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:8px;}
@@ -148,7 +150,7 @@
   /* FUTUROS */
   .fut-cards      { grid-template-columns:repeat(2,1fr); gap:8px; }
   #futMainGrid    { grid-template-columns:1fr !important; }
-  .chart-wrap-fut { height:200px; }
+  .chart-wrap-fut { height:200px; width:100%; box-sizing:border-box; }
 
   /* Glosario */
   .glosario-grid  { grid-template-columns:1fr; }
