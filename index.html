@@ -203,7 +203,7 @@
 <div id="deltaBar" class="delta-bar" style="display:none">—</div>
 <div class="toggle-row">
   <button id="bH" class="btn btn-on"  onclick="sw('hist')">SIOPEL</button>
-  <button id="bP" class="btn btn-off" onclick="sw('proj')">PROYECCIÓN (desde Mayo)</button>
+  <button id="bP" class="btn btn-off" onclick="sw('proj')">PROYECCIÓN</button>
   <button id="bB" class="btn btn-off" onclick="sw('brecha')">BRECHA</button>
   <button id="bF" class="btn btn-off" onclick="sw('fut')">FUTUROS</button>
 </div>
@@ -426,6 +426,18 @@
   var IDX_DEC1=154, IDX_MAY1=251, IDX_END=312;
   /* Period indices — computed from hDates array */
   var IDX_2026 = (function(){ for(var i=0;i<hDates.length;i++){ if(hDates[i]==='2026-01-02') return i; } return 173; })();
+  /* projM1Start: primer índice del mes anterior en pLbl (para chart PROJ) */
+  var projM1Start = (function(){
+    if(!hDates[lri]) return 4;
+    var curM=parseInt(hDates[lri].split('-')[1]);
+    var prevM=curM===1?12:curM-1;
+    var target='1/'+prevM;
+    for(var i=0;i<pLbl.length;i++){
+      if(pLbl[i]===target) return i;
+    }
+    return 4; /* fallback */
+  })();
+
   var IDX_M1TD = (function(){
     if(!hDates[lri]) return IDX_MAY1;
     var p=hDates[lri].split('-');
@@ -541,6 +553,9 @@
   var pShow=new Set(['8/5','29/5','1/6','4/6','5/6','8/6','9/6','10/6','30/6','1/7','31/7',
     'Ago','Sep','Oct','Nov','Dic 26']);
   var pDispLbl=pLbl.map(function(l){ return pShow.has(l)?(LM[l]||l):''; });
+
+  /* pDispLbl: labels del chart de proyección (mismo que pLbl) */
+  var pDispLbl=pLbl;
 
   var pPt=N(51); pPt[25]=7;
   var pPtSc=N(51); for(var k=46;k<51;k++) pPtSc[k]=3;
@@ -958,7 +973,10 @@
     }
 
     /* reset x range before render */
-    if(isP){ chart.options.scales.x.min=null; chart.options.scales.x.max=null; }
+    if(isP){
+      chart.options.scales.x.min=projM1Start;
+      chart.options.scales.x.max=50;  /* last pLbl index */
+    }
     chart.update('none');
     document.getElementById('periodRow').style.display=isP?'none':'flex';
     document.getElementById('winRow').style.display='flex';
@@ -971,7 +989,7 @@
     var _bF=document.getElementById('bF'); if(_bF) _bF.className='btn '+(isF?'btn-on':'btn-off');
 
     var descs={hist:'SIOPEL diario abr 2025 – 1-JUL 2026 vs techo banda BCRA.',
-               proj:'Mayo real + techo jun-jul oficial + escenarios TC desde ago 2026.',
+               proj:'Datos reales M-1 + techo oficial + escenarios TC proyectados.',
                brecha:'Evolución diaria de la brecha % (techo − SIOPEL) / SIOPEL.'};
     document.getElementById('mD').textContent=descs[m]||'';
     /* Show/hide futPanel and main chart */
