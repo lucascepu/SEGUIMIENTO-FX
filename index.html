@@ -1020,7 +1020,11 @@
               if(range>150){
                 return /^[A-Z]/.test(dl)?dl:null;
               } else if(range>40){
-                return dl||null;
+                /* filtro semanal: evita bunching de fechas consecutivas */
+                if(!dl) return null;
+                if(/^[A-Z]/.test(dl)) return dl;
+                var dn=parseInt(dl.split('/')[0]);
+                return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
               } else {
                 return sl||null;
               }
