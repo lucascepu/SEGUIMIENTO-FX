@@ -434,7 +434,7 @@
 
 <script>
 (function(){
-  var gc='rgba(255,255,255,.07)', tc='rgba(255,255,255,.80)';
+  var gc='rgba(255,255,255,.04)', tc='rgba(255,255,255,.80)';
   var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)';
   var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#7EC8E3', SCB='#5DCAA5', SCC='#F0997B';
   function N(n){ return new Array(n).fill(null); }
@@ -984,14 +984,14 @@
           /* Force enough height so rotated labels are never clipped */
           afterFit: function(scale){ if(scale.height<48) scale.height=48; },
           border:{ display:true, color:'rgba(255,255,255,.18)', width:1 },
-          grid:{color:gc, drawTicks:true},
+          grid:{display:false, drawTicks:false},
           ticks:{
             color:tc,
             font:{size:10, weight:'600'},
             maxRotation:45,
             minRotation:0,
             autoSkip:true,
-            maxTicksLimit:14,
+            maxTicksLimit:10,
             padding:4,
             callback:function(val){
               var range=(this.max!=null?this.max:IDX_END)-(this.min!=null?this.min:0);
