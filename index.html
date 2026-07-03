@@ -844,8 +844,8 @@
       if(p.y===prevY && p.m===prevM){ pmIdx=i; break; }
     }
     var ytdIdx=IDX_2026-1;
+    /* monthlySiopelSub ya no existe en Bloomberg layout — seguir de todas formas */
     var el=document.getElementById('monthlySiopelSub');
-    if(!el) return;
     var parts=[];
     if(pmIdx>=0 && hS[pmIdx]!=null){
       var mtd=+((curVal-hS[pmIdx])/hS[pmIdx]*100).toFixed(2);
