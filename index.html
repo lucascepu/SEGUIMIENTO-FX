@@ -756,17 +756,28 @@
     /* Proj ia = 25 (primer índice de hoy en el chart de proyección) */
     /* projIa dinámico: pMay(4) + sJunActual — siempre apunta al día de hoy */
     var projIa=3+sJunActual.length;
-    /* Limpiar TODOS los escenarios para índices < projIa (zona de datos reales) */
+
+    /* Prom. 6M actual para pA ("prom. 6M rolling") */
+    var roll6M=computeRolling(126);
+    var avg6M=roll6M[lri]||17;           /* % brecha promedio 6M */
+    var bf6M=1+avg6M/100;
+
+    /* Limpiar TODOS los escenarios < projIa (zona de datos reales) */
     for(var i=0;i<projIa;i++){
-      pSCA[i]=null;
-      if(i<pSCB.length) pSCB[i]=null;   /* evita pSCB en zona real */
-      if(i<pSCC.length) pSCC[i]=null;   /* evita pSCC en zona real */
-      if(i<pA.length)   pA[i]=null;     /* pA era full-range → solo proyección */
+      pSCA[i]=null; pSCB[i]=null; pSCC[i]=null; pA[i]=null;
     }
-    /* Recalcular pSCA desde hoy con brecha actual */
-    for(var i=projIa;i<pT.length;i++){
+
+    /* pSCA: mantiene brecha ACTUAL (dinámica) */
+    for(var i=projIa;i<pT.length;i++)
       pSCA[i]=(pT[i]!=null)?Math.round(pT[i]/bf):null;
-    }
+
+    /* pA: mantiene brecha PROM. 6M (dinámica — antes hardcodeada en 1.157) */
+    for(var i=projIa;i<pT.length;i++)
+      pA[i]=(pT[i]!=null)?Math.round(pT[i]/bf6M):null;
+
+    /* pSCC: brecha fija 5% (dinámica — antes estática) */
+    for(var i=projIa;i<pT.length;i++)
+      pSCC[i]=(pT[i]!=null)?Math.round(pT[i]/1.05):null;
   })();
   /* ── MTD + YTD en card SIOPEL ── */
   (function(){
