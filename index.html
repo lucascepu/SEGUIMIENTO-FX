@@ -933,12 +933,12 @@
   var chart=new Chart(document.getElementById('mc3'),{
     type:'line', plugins:[zPlug],
     data:{labels:hDispLbl, datasets:[
-      {label:'Techo',data:hT,borderColor:TECH,borderWidth:2,borderDash:[6,3],
+      {label:'Techo',data:hT,borderColor:TECH,borderWidth:1.5,borderDash:[6,3],
        pointRadius:0,fill:false,tension:.15,spanGaps:true},
-      {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:2.5,
+      {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:3,
        pointRadius:hPt,pointBackgroundColor:DOLAR,
        fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-      {label:'Prom. brecha 6M (rolling)',data:hA,borderColor:AVGC,borderWidth:1.5,
+      {label:'Prom. brecha 6M (rolling)',data:hA,borderColor:AVGC,borderWidth:1,
        borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'REM',data:N(46),borderColor:REMC,borderWidth:1.5,
        borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -1105,7 +1105,7 @@
     bB.className='btn '+(isB?'btn-on':'btn-off');
     var _bF=document.getElementById('bF'); if(_bF) _bF.className='btn '+(isF?'btn-on':'btn-off');
 
-    var descs={hist:'SIOPEL diario abr 2025 – 3-JUL 2026 vs techo banda BCRA.',
+    var descs={hist:'',
                proj:'Datos reales M-1 + techo oficial + escenarios TC proyectados.',
                brecha:'Evolución diaria de la brecha % (techo − SIOPEL) / SIOPEL.'};
     document.getElementById('mD').textContent=descs[m]||'';
