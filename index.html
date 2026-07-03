@@ -756,8 +756,14 @@
     /* Proj ia = 25 (primer índice de hoy en el chart de proyección) */
     /* projIa dinámico: pMay(4) + sJunActual — siempre apunta al día de hoy */
     var projIa=3+sJunActual.length;
-    /* Nullear índices anteriores a hoy en pSCA (por si quedaron valores del ia anterior) */
-    for(var i=0;i<projIa;i++) pSCA[i]=null;
+    /* Limpiar TODOS los escenarios para índices < projIa (zona de datos reales) */
+    for(var i=0;i<projIa;i++){
+      pSCA[i]=null;
+      if(i<pSCB.length) pSCB[i]=null;   /* evita pSCB en zona real */
+      if(i<pSCC.length) pSCC[i]=null;   /* evita pSCC en zona real */
+      if(i<pA.length)   pA[i]=null;     /* pA era full-range → solo proyección */
+    }
+    /* Recalcular pSCA desde hoy con brecha actual */
     for(var i=projIa;i<pT.length;i++){
       pSCA[i]=(pT[i]!=null)?Math.round(pT[i]/bf):null;
     }
