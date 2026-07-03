@@ -904,12 +904,27 @@
             maxTicksLimit:14,
             padding:4,
             callback:function(val){
-              /* En PROYECCIÓN usar pLbl directamente (51 elementos, labels 2026) */
-              if(mode==='proj'){
-                return (pLbl[val]!=null&&pLbl[val]!=='')?pLbl[val]:null;
-              }
-              /* SIOPEL / BRECHA: adaptativo por rango visible */
               var range=(this.max!=null?this.max:IDX_END)-(this.min!=null?this.min:0);
+
+              /* ── PROYECCIÓN: labels adaptativos por densidad ── */
+              if(mode==='proj'){
+                var lbl=pLbl[val]||'';
+                if(!lbl) return null;
+                /* Etiquetas de mes (Ago, Sep, Oct...): siempre mostrar */
+                if(lbl.indexOf('/')<0) return lbl;
+                /* Etiquetas de fecha (D/M): filtrar por rango visible */
+                var d=parseInt(lbl.split('/')[0]);
+                if(range>25){
+                  /* Vista completa: solo día 1 y 15 de cada mes */
+                  return (d===1||d===15)?lbl:null;
+                } else if(range>12){
+                  /* Vista media: cada semana aprox */
+                  return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null;
+                }
+                return lbl; /* Vista zoom: todos los días */
+              }
+
+              /* ── SIOPEL / BRECHA: adaptativo por rango visible ── */
               var dl=hDispLbl[val]||'';
               var sl=hLbl[val]||'';
               if(range>150){
