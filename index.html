@@ -140,6 +140,16 @@
    RESPONSIVE MOBILE
    ══════════════════════════════════════════ */
 @media (max-width: 768px) {
+
+  /* KPIs: grid 3 columnas iguales, sin sub-texto en mobile */
+  .bb-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:0; align-items:start; }
+  .bb-vsep    { display:none; }
+  .bb-metric  { padding:0 8px; min-height:auto; }
+  .bb-metric:first-child { padding-left:0; }
+  .bb-metric:last-child  { padding-right:0; }
+  .bb-m-sub   { display:none; }   /* ocultar sub-texto: limpia la alineación */
+  .bb-m-val   { font-size:17px; }
+  .bb-m-label { font-size:8.5px; }
   body { padding: 10px 12px; }
 
   /* Cards: 2×2 */
