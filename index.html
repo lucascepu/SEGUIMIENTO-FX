@@ -67,12 +67,12 @@
   .card-val{font-size:22px;font-weight:500;line-height:1.1;}
   .card-sub{font-size:11px;color:var(--txt3);margin-top:4px;line-height:1.4;}
   .card-val.green{color:var(--green);}
-  .toggle-row{display:flex;gap:0;margin-bottom:0;margin-top:6px;border-bottom:1px solid rgba(255,255,255,.07);}
+  .toggle-row{display:flex;gap:0;margin-bottom:0;margin-top:18px;border-bottom:1px solid rgba(255,255,255,.07);}
   .delta-bar{font-size:12px;color:var(--txt2);text-align:center;margin:-4px 0 10px;letter-spacing:.02em;}
   .delta-bar .dUp{color:#c8965a;}
   .delta-bar .dDn{color:#6aabcc;}
   .win-label{font-size:10px;color:var(--txt2);opacity:.7;align-self:center;}
-  .period-row{display:flex;gap:6px;margin-bottom:5px;align-items:center;flex-wrap:wrap;}
+  .period-row{display:flex;gap:6px;margin-bottom:0;padding-top:12px;align-items:center;flex-wrap:wrap;}
   .pbtn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--brd);cursor:pointer;background:var(--bg-card);color:var(--txt2);transition:all .15s;font-family:var(--font);}
   .pbtn.pon{background:var(--blue);color:#fff;border-color:var(--blue);}
   .period-row input[type=date]{font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid var(--brd);background:var(--bg2);color:var(--txt);cursor:pointer;outline:none;}
@@ -279,7 +279,7 @@
   <input type="date" id="desdeFecha" title="Desde fecha" min="2025-04-01" max="2026-07-03">
 </div>
 
-<div id="winRow" class="period-row">
+<div id="winRow" class="period-row" style="padding-top:12px;margin-bottom:0;">
   <span class="win-label">Promedio:</span>
   <button class="pbtn" data-w="30"  onclick="setAvgWindow(30,this)">30d</button>
   <button class="pbtn" data-w="63"  onclick="setAvgWindow(63,this)">90d</button>
