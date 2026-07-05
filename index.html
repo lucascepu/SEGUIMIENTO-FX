@@ -983,28 +983,38 @@
             var bar=document.getElementById('hoverBar');
             if(!bar) return;
             var tt=context.tooltip;
-            if(tt.opacity===0){ bar.style.display='none'; return; }
-            var idx=tt.dataPoints[0].dataIndex;
-            /* Date label */
+            if(tt.opacity===0||!tt.dataPoints||!tt.dataPoints.length){
+              bar.style.display='none'; return;
+            }
+            var dp=tt.dataPoints[0];
+            var idx=dp.dataIndex;
+            var v=dp.raw; if(v===null||v===undefined){ bar.style.display='none'; return; }
+            /* Date */
             var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
             var dateLbl=MFMT[raw]||LM[raw]||raw||'';
-            /* Leer SIOPEL directamente del array — funciona sobre cualquier línea */
-            var sVal=mode==='hist'?hS[idx]:(pS?pS[idx]:null);
-            if(sVal===null||sVal===undefined){ bar.style.display='none'; return; }
-            /* Techo + brecha */
-            var tArr=mode==='hist'?hT:pT;
-            var tVal=tArr[idx];
-            var brecha=(tVal&&Math.abs(sVal-tVal)>0.5)?Math.round((tVal-sVal)/sVal*100):null;
-            var fmtP=parseFloat(sVal).toLocaleString('es-AR',{minimumFractionDigits:1,maximumFractionDigits:1});
-            var html='<span style="color:var(--txt3)">'+dateLbl+'</span>'
-              +' <span style="color:rgba(255,255,255,.2)">·</span> '
-              +'<span style="color:var(--txt);font-weight:600">$'+fmtP+'</span>';
-            if(brecha!==null){
-              html+=' <span style="color:rgba(255,255,255,.2)">·</span> '
-                +'<span style="color:var(--txt3)">brecha</span> '
-                +'<span style="color:var(--amber);font-weight:500">+'+brecha+'%</span>';
+            var sep=' <span style="color:rgba(255,255,255,.18)">·</span> ';
+            var dsLabel=dp.dataset.label||'';
+            var fmt=function(n){ return parseFloat(n).toLocaleString('es-AR',{minimumFractionDigits:1,maximumFractionDigits:1}); };
+            var out='<span style="color:var(--txt3)">'+dateLbl+'</span>'+sep;
+            /* Contextual: qué dataset estoy mirando */
+            if(dsLabel.indexOf('SIOPEL')>-1){
+              /* SIOPEL: precio + brecha */
+              var tArr=mode==='hist'?hT:pT;
+              var tVal=tArr[idx];
+              var brecha=(tVal&&Math.abs(v-tVal)>0.5)?Math.round((tVal-v)/v*100):null;
+              out+='<span style="color:var(--txt);font-weight:600">$'+fmt(v)+'</span>';
+              if(brecha!==null) out+=sep+'<span style="color:var(--txt3)">brecha</span> <span style="color:var(--amber);font-weight:500">+'+brecha+'%</span>';
+            } else if(dsLabel.indexOf('echo')>-1||dsLabel.indexOf('Techo')>-1){
+              /* Techo */
+              out+='<span style="color:var(--txt3)">Techo</span> <span style="color:var(--amber);font-weight:600">$'+fmt(v)+'</span>';
+            } else if(dsLabel.indexOf('recha')>-1||dsLabel.indexOf('Brecha')>-1){
+              /* Brecha % */
+              out+='<span style="color:var(--txt3)">Brecha</span> <span style="color:var(--green);font-weight:600">+'+fmt(v)+'%</span>';
+            } else {
+              /* Cualquier otro (prom, REM, etc.) */
+              out+='<span style="color:var(--txt3)">'+dsLabel+'</span> <span style="color:var(--txt);font-weight:600">$'+fmt(v)+'</span>';
             }
-            bar.innerHTML=html;
+            bar.innerHTML=out;
             bar.style.display='block';
           }
         }
