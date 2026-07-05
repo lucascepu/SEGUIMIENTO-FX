@@ -55,11 +55,11 @@
   /* ── Separator ── */
   .bb-sep{border:none;border-top:1px solid rgba(255,255,255,.07);margin:0;}
   /* ── Metrics strip ── */
-  .bb-metrics{display:flex;align-items:center;padding:7px 0;}
-  .bb-metric{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 20px;min-height:56px;}
+  .bb-metrics{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;align-items:stretch;padding:7px 0;}
+  .bb-metric{display:flex;flex-direction:column;gap:4px;padding:0 20px;min-height:56px;}
   .bb-metric:first-child{padding-left:0;}
   .bb-metric:last-child{padding-right:0;}
-  .bb-vsep{width:1px;height:38px;background:rgba(255,255,255,.08);flex-shrink:0;}
+  .bb-vsep{background:rgba(255,255,255,.08);align-self:center;height:36px;}
   .bb-m-label{font-size:9px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);opacity:.8;margin-bottom:3px;}
   .bb-m-val{font-size:19px;font-weight:600;line-height:1;margin-bottom:4px;}
   .bb-m-sub{font-size:10px;color:var(--txt3);}
