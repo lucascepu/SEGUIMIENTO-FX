@@ -94,6 +94,9 @@
   .leg-d6{border-top:1.5px dashed var(--coral);}
   /* chart container includes space for x-axis labels */
   .chart-wrap{position:relative;width:100%;height:500px;margin-top:10px;}
+  #hoverBar{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:10;
+    font-size:12px;color:var(--txt2);pointer-events:none;white-space:nowrap;display:none;
+    background:rgba(13,17,23,.85);padding:3px 12px;border-radius:4px;letter-spacing:.01em;}
   .stamp{font-size:11px;color:var(--txt2);margin-top:10px;padding:6px 12px;
          background:var(--bg-card);border-radius:8px;display:inline-block;border:1px solid var(--brd);}
   .stamp span{color:var(--txt);font-weight:500;}
@@ -316,6 +319,7 @@
   </span>
 </div>
 <div class="chart-wrap">
+<div id="hoverBar"></div>
 
   <canvas id="mc3"></canvas>
 </div>
@@ -972,24 +976,38 @@
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#1a1d27',titleColor:'#e2e4ed',bodyColor:'#8b90a8',
-          borderColor:'rgba(255,255,255,.12)',borderWidth:1,padding:10,
-          filter:function(item){ return item.raw!==null; },
-          callbacks:{
-            title:function(items){
-              /* Raw label from original array (not display label) */
-              var idx=items[0].dataIndex;
-              var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
-              return MFMT[raw]||LM[raw]||raw||'';
-            },
-            label:function(ctx){
-              var v=ctx.raw; if(v===null) return null;
-              var ts=mode==='hist'?hT:pT;
-              var t=ts[ctx.dataIndex]||0;
-              var b=(t&&Math.abs(v-t)>0.5)?' (+'+Math.round((t-v)/v*100)+'% al techo)':'';
-              var fmt=parseFloat(v).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:1});
-              return '  '+ctx.dataset.label+': $'+fmt+b;
+          enabled:false,
+          external:function(context){
+            var bar=document.getElementById('hoverBar');
+            if(!bar) return;
+            var tt=context.tooltip;
+            if(tt.opacity===0){ bar.style.display='none'; return; }
+            var idx=tt.dataPoints[0].dataIndex;
+            /* Date label */
+            var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
+            var dateLbl=MFMT[raw]||LM[raw]||raw||'';
+            /* Find SIOPEL value among hovered datasets */
+            var sVal=null;
+            tt.dataPoints.forEach(function(dp){
+              if(dp.raw===null) return;
+              if(dp.dataset.label&&dp.dataset.label.indexOf('SIOPEL')>-1) sVal=dp.raw;
+            });
+            if(sVal===null){ bar.style.display='none'; return; }
+            /* Techo + brecha */
+            var tArr=mode==='hist'?hT:pT;
+            var tVal=tArr[idx];
+            var brecha=(tVal&&Math.abs(sVal-tVal)>0.5)?Math.round((tVal-sVal)/sVal*100):null;
+            var fmtP=parseFloat(sVal).toLocaleString('es-AR',{minimumFractionDigits:1,maximumFractionDigits:1});
+            var html='<span style="color:var(--txt3)">'+dateLbl+'</span>'
+              +' <span style="color:rgba(255,255,255,.2)">·</span> '
+              +'<span style="color:var(--txt);font-weight:600">$'+fmtP+'</span>';
+            if(brecha!==null){
+              html+=' <span style="color:rgba(255,255,255,.2)">·</span> '
+                +'<span style="color:var(--txt3)">brecha</span> '
+                +'<span style="color:var(--amber);font-weight:500">+'+brecha+'%</span>';
             }
+            bar.innerHTML=html;
+            bar.style.display='block';
           }
         }
       },
