@@ -708,9 +708,15 @@
               },
               pan:{ enabled:true, mode:'xy' }
             },
-            tooltip:{callbacks:{label:function(c){
-              return c.dataset.label+': '+(c.raw!=null?'$'+Math.round(c.raw).toLocaleString('es-AR'):'—');
-            }}}
+            interaction:{mode:'index',intersect:false},
+          tooltip:{
+            filter:function(item){ return item.raw!=null; },
+            callbacks:{
+              label:function(c){
+                return '  '+c.dataset.label+':  $'+Math.round(c.raw).toLocaleString('es-AR');
+              }
+            }
+          }
           },
           scales:{
             x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
