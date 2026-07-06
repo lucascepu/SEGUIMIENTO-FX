@@ -962,7 +962,7 @@
        borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'REM',data:N(46),borderColor:REMC,borderWidth:1.5,
        borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
-      {label:'Mantiene brecha ~23%',data:N(46),borderColor:SCA,borderWidth:1.5,
+      {label:'Mantiene brecha actual',data:N(46),borderColor:SCA,borderWidth:1.5,
        borderDash:[7,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
       {label:'Brecha 15%',data:N(46),borderColor:SCB,borderWidth:1.5,
        borderDash:[5,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -1540,11 +1540,14 @@
   window.renderScen=function(){
     var inp=document.getElementById('brechaInp');
     var br=inp?parseFloat(inp.value)||15:15;
+    /* Brecha actual dinámica */
+    var curBr=(brechaVals&&lri>=0&&brechaVals[lri]!=null)?+brechaVals[lri].toFixed(1):21.6;
+    var curBrFactor=1+curBr/100;
     var rows=[
       {cls:'row-techo', label:'Techo proyectado',
         vals:_tM.map(function(t){return t;})},
-      {cls:'', label:'Mantiene brecha ~23%',
-        vals:_tM.map(function(t){return t/1.231;})},
+      {cls:'', label:'Mantiene brecha '+curBr.toFixed(1)+'%',
+        vals:_tM.map(function(t){return t/curBrFactor;})},
       {cls:'', label:'Brecha 5%',
         vals:_tM.map(function(t){return t/1.05;})},
       {cls:'', label:'REM consenso',
