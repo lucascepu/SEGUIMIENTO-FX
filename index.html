@@ -567,14 +567,15 @@
       chart.options.scales.x.max = hView?hView.raw.length-1:IDX_HIST_MAX-IDX_HIST_MIN;
     } else if(s > 0){
       chart.options.scales.x.min = s;
-      chart.options.scales.x.max = IDX_END;
+      chart.options.scales.x.max = IDX_HIST_MAX;   /* horizonte cercano, no el techo proyectado hasta jun-27 */
     } else {
       delete chart.options.scales.x.min;
-      chart.options.scales.x.max = IDX_END;
+      chart.options.scales.x.max = IDX_HIST_MAX;
     }
     /* Auto-fit Y al rango X visible — según el modo activo */
     (function(){
-      var xMn=(mode==='hist')?IDX_HIST_MIN:(s>0?s:0), xMx=(mode==='hist')?IDX_HIST_MAX:IDX_END;
+      var xMn=(mode==='hist')?IDX_HIST_MIN:(s>0?s:0), xMx=(mode==='hist')?IDX_HIST_MAX:IDX_HIST_MAX;
+      /* nota: ambas ramas iguales a propósito — brecha y hist comparten el mismo horizonte cercano */
       var vals=[];
       if(mode==='brecha'){
         /* Brecha: usar porcentajes */
@@ -1083,21 +1084,32 @@
     ctx.save();
     ctx.font="600 10px system-ui";
     var pxPerUnit=scale.width/Math.max(1,((scale.max!=null?scale.max:candidates[candidates.length-1].value)-(scale.min!=null?scale.min:candidates[0].value)));
-    var kept=[], lastRight=-Infinity;
-    for(var i=0;i<candidates.length;i++){
-      var t=candidates[i];
+    function box(t){
       var txt=tickLabelFor(t.value, scale.min, scale.max);
       var w=ctx.measureText(txt).width;
       var center=(t.value-(scale.min||0))*pxPerUnit;
-      var left=center-w/2-6; /* 6px de padding mínimo entre labels */
-      var isEdge=(i===0||i===candidates.length-1);
-      if(isEdge || left>lastRight){
-        kept.push(t);
-        lastRight=center+w/2+6;
-      }
+      return {t:t, txt:txt, left:center-w/2-6, right:center+w/2+6};
     }
+    var boxes=candidates.map(box);
+    /* Pass 1: labels de mes (mayúsculas, ej 'JUL 26') SIEMPRE se reservan primero —
+       cargan más información que un simple día/mes y no pueden perderse por orden. */
+    var reserved=[];
+    boxes.forEach(function(b){
+      if(/^[A-Z]/.test(b.txt)){
+        var collide=reserved.some(function(r){ return b.left<r.right && b.right>r.left; });
+        if(!collide) reserved.push(b);
+      }
+    });
+    /* Pass 2: el resto de ticks, en orden, solo si no chocan con lo ya reservado */
+    var kept=reserved.slice();
+    boxes.forEach(function(b){
+      if(/^[A-Z]/.test(b.txt)) return; /* ya procesado en pass 1 */
+      var collide=kept.some(function(r){ return b.left<r.right && b.right>r.left; });
+      if(!collide) kept.push(b);
+    });
+    kept.sort(function(a,b){ return a.t.value-b.t.value; });
     ctx.restore();
-    scale.ticks=kept;
+    scale.ticks=kept.map(function(k){ return k.t; });
   }
 
   var chart=new Chart(document.getElementById('mc3'),{
@@ -1508,7 +1520,7 @@
       var xs=chart.scales.x;
       var range=_ad.x0max-_ad.x0min;
       if(range<=0) return;
-      var xMax=(mode==='proj')?50:(mode==='hist'?(hView?hView.raw.length-1:IDX_HIST_MAX):IDX_END);
+      var xMax=(mode==='proj')?50:(mode==='hist'?(hView?hView.raw.length-1:IDX_HIST_MAX):IDX_HIST_MAX);
       var xMinBound=(mode==='hist')?0:0;
       var delta=Math.round(-dx*range/xs.width);
       var updated=false;
