@@ -560,11 +560,11 @@
       var v=document.getElementById('desdeFecha').value;
       s=v?findDateIdx(v):0;
     }
-    chart.data.labels=(mode==='proj')?pDispLbl:hDispLbl;
+    chart.data.labels=(mode==='proj')?pDispLbl:(mode==='hist'&&hView?hView.Disp:hDispLbl);
     if(mode==='hist'){
-      /* SIOPEL: rango fijo M-1/M/M+1, ignora el selector de período */
-      chart.options.scales.x.min = IDX_HIST_MIN;
-      chart.options.scales.x.max = IDX_HIST_MAX;
+      /* SIOPEL: rango fijo M-1/M/M+1 comprimido, ignora el selector de período */
+      chart.options.scales.x.min = 0;
+      chart.options.scales.x.max = hView?hView.raw.length-1:IDX_HIST_MAX-IDX_HIST_MIN;
     } else if(s > 0){
       chart.options.scales.x.min = s;
       chart.options.scales.x.max = IDX_END;
@@ -921,11 +921,63 @@
 
   var mode='hist';
 
+  /* ── VISTA COMPRIMIDA SOLAPA SIOPEL ──────────────────────────────────────
+     M-1 + mes actual (datos reales, hasta lri) ocupan 2/3 del gráfico;
+     el resto de real + M+1 (proyección de techo) se muestra con menos
+     puntos (misma cantidad de "categorías" = 1/2 de la parte densa),
+     comprimiendo esa porción a 1/3 del ancho. Se recalcula en cada sw('hist')
+     así siempre refleja el lri (hoy) actual sin tocar código a mano. */
+  function buildHistView(){
+    var dStart=IDX_HIST_MIN, dEnd=lri;
+    var raw=[];
+    for(var i=dStart;i<=dEnd;i++) raw.push(i);
+    var denseLen=raw.length;
+    var sLo=dEnd+1, sHi=IDX_HIST_MAX;
+    var sparse=[];
+    if(sHi>=sLo){
+      var sparseCount=Math.max(1,Math.round(denseLen/2));
+      if(sparseCount===1 || sHi===sLo){
+        sparse=[sHi];
+      }else{
+        for(var k=0;k<sparseCount;k++){
+          sparse.push(Math.round(sLo + k*(sHi-sLo)/(sparseCount-1)));
+        }
+        sparse=sparse.filter(function(v,idx){return sparse.indexOf(v)===idx;});
+        /* forzar inclusión de labels de mes (hDispLbl no vacío) para no perder ticks */
+        for(var mIdx=sLo;mIdx<=sHi;mIdx++){
+          if(hDispLbl[mIdx] && sparse.indexOf(mIdx)===-1 && sparse.length>2){
+            var closest=-1,closestD=1e9;
+            for(var q=1;q<sparse.length-1;q++){
+              var dd=Math.abs(sparse[q]-mIdx);
+              if(dd<closestD){closestD=dd;closest=q;}
+            }
+            if(closest>=0) sparse[closest]=mIdx;
+          }
+        }
+        sparse=sparse.filter(function(v,idx){return sparse.indexOf(v)===idx;}).sort(function(a,b){return a-b;});
+      }
+    }
+    raw=raw.concat(sparse);
+    var vT=[],vS=[],vA=[],vLbl=[],vDisp=[],vPt=[];
+    for(var j=0;j<raw.length;j++){
+      var r=raw[j];
+      vT.push(hT[r]!==undefined?hT[r]:null);
+      vS.push(hS[r]!==undefined?hS[r]:null);
+      vA.push(hA[r]!==undefined?hA[r]:null);
+      vLbl.push(hLbl[r]||'');
+      vDisp.push(hDispLbl[r]||'');
+      vPt.push(0);
+    }
+    if(denseLen>0) vPt[denseLen-1]=7; /* marcador "hoy" al final de la parte densa */
+    return {raw:raw, T:vT, S:vS, A:vA, Lbl:vLbl, Disp:vDisp, Pt:vPt, denseLen:denseLen};
+  }
+  var hView=null; /* se recalcula en cada sw('hist') */
+
   /* ── ZONES PLUGIN ── */
   var zPlug={id:'z', beforeDraw:function(c){
     var ctx=c.ctx, ca=c.chartArea, xs=c.scales.x;
     try{
-      var ia=mode==='proj'?29:296, ib=ia;
+      var ia=mode==='proj'?29:(mode==='hist'&&hView?hView.denseLen-1:296), ib=ia;
       var xA=(xs.getPixelForValue(ia)+xs.getPixelForValue(ib))/2;
       ctx.save();
       ctx.fillStyle='rgba(255,255,255,.04)';
@@ -935,7 +987,13 @@
       ctx.beginPath(); ctx.moveTo(xA,ca.top); ctx.lineTo(xA,ca.bottom); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font='9px system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
-      ctx.textAlign='right'; ctx.fillText('7-JUL ←',xA-3,ca.top+13);
+      var MESN=['','ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+      var hoyLbl='HOY ←';
+      if(lri>=0 && hDates[lri]){
+        var hp=hDates[lri].split('-');
+        hoyLbl=(parseInt(hp[2])+'-'+MESN[parseInt(hp[1])]+' ←');
+      }
+      ctx.textAlign='right'; ctx.fillText(hoyLbl,xA-3,ca.top+13);
       ctx.textAlign='left';  ctx.fillText('→ sin SIOPEL',xA+3,ca.top+13);
       if(mode==='proj'){
         var xB=(xs.getPixelForValue(45)+xs.getPixelForValue(46))/2;
@@ -1007,7 +1065,7 @@
             var idx=dp.dataIndex;
             var v=dp.raw; if(v===null||v===undefined){ bar.style.display='none'; return; }
             /* Date */
-            var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
+            var raw=mode==='hist'?(hView?hView.Lbl[idx]:''):pLbl[idx];
             var dateLbl=MFMT[raw]||LM[raw]||raw||'';
             var sep=' <span style="color:rgba(255,255,255,.18)">·</span> ';
             var dsLabel=dp.dataset.label||'';
@@ -1016,7 +1074,7 @@
             /* Contextual: qué dataset estoy mirando */
             if(dsLabel.indexOf('SIOPEL')>-1){
               /* SIOPEL: precio + brecha */
-              var tArr=mode==='hist'?hT:pT;
+              var tArr=mode==='hist'?(hView?hView.T:[]):pT;
               var tVal=tArr[idx];
               var brecha=(tVal&&Math.abs(v-tVal)>0.5)?Math.round((tVal-v)/v*100):null;
               out+='<span style="color:var(--txt);font-weight:600">$'+fmt(v)+'</span>';
@@ -1071,7 +1129,15 @@
                 return lbl; /* Vista zoom: todos los días */
               }
 
-              /* ── SIOPEL / BRECHA: adaptativo por rango visible ── */
+              /* ── SIOPEL (comprimido): usa las labels ya resueltas en hView ── */
+              if(mode==='hist'){
+                if(!hView) return null;
+                var dlH=hView.Disp[val]||'';
+                var slH=hView.Lbl[val]||'';
+                return dlH||slH||null;
+              }
+
+              /* ── BRECHA: adaptativo por rango visible ── */
               var dl=hDispLbl[val]||'';
               var sl=hLbl[val]||'';
               if(range>150){
@@ -1114,6 +1180,7 @@
   window.sw=function(m){
     mode=m;
     var isH=(m==='hist'),isP=(m==='proj'),isB=(m==='brecha'),isF=(m==='fut');
+    if(isH){ hView=buildHistView(); }
 
     if(isB){
       chart.data.labels=hDispLbl;
@@ -1129,14 +1196,14 @@
       chart.options.scales.y.min=0;
       chart.options.scales.y.max=30;
     }else{
-      chart.data.labels=isH?hDispLbl:pDispLbl;
+      chart.data.labels=isH?hView.Disp:pDispLbl;
       chart.data.datasets=[
-        {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
+        {label:'Techo',data:isH?hView.T:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
          pointRadius:isP?tPtSc:0,pointBackgroundColor:TECH,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
-        {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
-         pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
+        {label:'SIOPEL',data:isH?hView.S:pS,borderColor:DOLAR,borderWidth:2.5,
+         pointRadius:isH?hView.Pt:pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-        {label:'Prom. 6M (rolling)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. 6M (rolling)',data:isH?hView.A:pA,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
         {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -1154,6 +1221,9 @@
     if(isP){
       chart.options.scales.x.min=projM1Start;
       chart.options.scales.x.max=50;  /* last pLbl index */
+    } else if(isH){
+      chart.options.scales.x.min=0;
+      chart.options.scales.x.max=hView.raw.length-1;
     }
     chart.update('none');
     document.getElementById('periodRow').style.display=isP?'none':'flex';
@@ -1403,8 +1473,8 @@
       var xs=chart.scales.x;
       var range=_ad.x0max-_ad.x0min;
       if(range<=0) return;
-      var xMax=(mode==='proj')?50:(mode==='hist'?IDX_HIST_MAX:IDX_END);
-      var xMinBound=(mode==='hist')?IDX_HIST_MIN:0;
+      var xMax=(mode==='proj')?50:(mode==='hist'?(hView?hView.raw.length-1:IDX_HIST_MAX):IDX_END);
+      var xMinBound=(mode==='hist')?0:0;
       var delta=Math.round(-dx*range/xs.width);
       var updated=false;
       if(_ad.mode==='xpan'){
