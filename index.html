@@ -1025,6 +1025,81 @@
     'ENE 26':'2/1/26','FEB 26':'2/2/26','MAR 26':'2/3/26',
     'ABR 26':'1/4/26','JUL 26':'1/7/26'
   };
+  function tickLabelFor(val, mn, mx){
+    var range=(mx!=null?mx:IDX_END)-(mn!=null?mn:0);
+
+    /* ── PROYECCIÓN: labels adaptativos por densidad ── */
+    if(mode==='proj'){
+      var lbl=pLbl[val]||'';
+      if(!lbl) return null;
+      /* Etiquetas de mes (Ago, Sep, Oct...): siempre mostrar */
+      if(lbl.indexOf('/')<0) return lbl;
+      /* Etiquetas de fecha (D/M): filtrar por rango visible */
+      var d=parseInt(lbl.split('/')[0]);
+      if(range>25){
+        /* Vista completa: solo día 1 y 15 de cada mes */
+        return (d===1||d===15)?lbl:null;
+      } else if(range>12){
+        /* Vista media: cada semana aprox */
+        return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null;
+      }
+      return lbl; /* Vista zoom: todos los días */
+    }
+
+    /* ── SIOPEL (comprimido): usa las labels ya resueltas en hView ── */
+    if(mode==='hist'){
+      if(!hView) return null;
+      var dlH=hView.Disp[val]||'';
+      var slH=hView.Lbl[val]||'';
+      return dlH||slH||null;
+    }
+
+    /* ── BRECHA: adaptativo por rango visible ── */
+    var dl=hDispLbl[val]||'';
+    var sl=hLbl[val]||'';
+    if(range>150){
+      return /^[A-Z]/.test(dl)?dl:null;
+    } else if(range>40){
+      /* filtro semanal: evita bunching de fechas consecutivas */
+      if(!dl) return null;
+      if(/^[A-Z]/.test(dl)) return dl;
+      var dn=parseInt(dl.split('/')[0]);
+      return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
+    } else {
+      return sl||null;
+    }
+  }
+
+  /* Declutter genérico: mide el ancho REAL del texto en canvas y descarta
+     cualquier tick candidato que colisione con el anterior ya aceptado.
+     Corre para todos los modos — soluciona el solapamiento de una vez,
+     sin importar qué par de fechas caiga junto. */
+  function declutterTicks(scale){
+    var chart=scale.chart, ctx=chart.ctx;
+    var candidates=scale.ticks.filter(function(t){
+      return tickLabelFor(t.value, scale.min, scale.max)!=null;
+    });
+    if(!candidates.length){ scale.ticks=[]; return; }
+    ctx.save();
+    ctx.font="600 10px system-ui";
+    var pxPerUnit=scale.width/Math.max(1,((scale.max!=null?scale.max:candidates[candidates.length-1].value)-(scale.min!=null?scale.min:candidates[0].value)));
+    var kept=[], lastRight=-Infinity;
+    for(var i=0;i<candidates.length;i++){
+      var t=candidates[i];
+      var txt=tickLabelFor(t.value, scale.min, scale.max);
+      var w=ctx.measureText(txt).width;
+      var center=(t.value-(scale.min||0))*pxPerUnit;
+      var left=center-w/2-6; /* 6px de padding mínimo entre labels */
+      var isEdge=(i===0||i===candidates.length-1);
+      if(isEdge || left>lastRight){
+        kept.push(t);
+        lastRight=center+w/2+6;
+      }
+    }
+    ctx.restore();
+    scale.ticks=kept;
+  }
+
   var chart=new Chart(document.getElementById('mc3'),{
     type:'line', plugins:[zPlug],
     data:{labels:hDispLbl, datasets:[
@@ -1098,6 +1173,7 @@
         x:{
           /* Force enough height so rotated labels are never clipped */
           afterFit: function(scale){ if(scale.height<48) scale.height=48; },
+          afterBuildTicks: declutterTicks,
           border:{ display:true, color:'rgba(255,255,255,.18)', width:1 },
           grid:{display:false, drawTicks:false},
           ticks:{
@@ -1109,48 +1185,7 @@
             maxTicksLimit:10,
             padding:4,
             callback:function(val){
-              var range=(this.max!=null?this.max:IDX_END)-(this.min!=null?this.min:0);
-
-              /* ── PROYECCIÓN: labels adaptativos por densidad ── */
-              if(mode==='proj'){
-                var lbl=pLbl[val]||'';
-                if(!lbl) return null;
-                /* Etiquetas de mes (Ago, Sep, Oct...): siempre mostrar */
-                if(lbl.indexOf('/')<0) return lbl;
-                /* Etiquetas de fecha (D/M): filtrar por rango visible */
-                var d=parseInt(lbl.split('/')[0]);
-                if(range>25){
-                  /* Vista completa: solo día 1 y 15 de cada mes */
-                  return (d===1||d===15)?lbl:null;
-                } else if(range>12){
-                  /* Vista media: cada semana aprox */
-                  return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null;
-                }
-                return lbl; /* Vista zoom: todos los días */
-              }
-
-              /* ── SIOPEL (comprimido): usa las labels ya resueltas en hView ── */
-              if(mode==='hist'){
-                if(!hView) return null;
-                var dlH=hView.Disp[val]||'';
-                var slH=hView.Lbl[val]||'';
-                return dlH||slH||null;
-              }
-
-              /* ── BRECHA: adaptativo por rango visible ── */
-              var dl=hDispLbl[val]||'';
-              var sl=hLbl[val]||'';
-              if(range>150){
-                return /^[A-Z]/.test(dl)?dl:null;
-              } else if(range>40){
-                /* filtro semanal: evita bunching de fechas consecutivas */
-                if(!dl) return null;
-                if(/^[A-Z]/.test(dl)) return dl;
-                var dn=parseInt(dl.split('/')[0]);
-                return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
-              } else {
-                return sl||null;
-              }
+              return tickLabelFor(val, this.min, this.max);
             }
           }
         },
