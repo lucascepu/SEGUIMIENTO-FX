@@ -726,7 +726,7 @@
           },
           scales:{
             x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
-            y:{grace:'4%',
+            y:{grace:0,
                ticks:{color:'#adbac7',font:{size:11},
                       callback:function(v){return '$'+Math.round(v).toLocaleString('es-AR');}},
                grid:{color:'rgba(255,255,255,.06)'}}
@@ -1091,7 +1091,7 @@
           min:1200, max:1900,
           grid:{color:gc},
           ticks:{color:tc,font:{size:11},
-            callback:function(v){ return mode==='brecha'?v+'%':'$'+v.toLocaleString('es-AR'); }
+            callback:function(v){ return mode==='brecha'?Math.round(v)+'%':'$'+Math.round(v).toLocaleString('es-AR'); }
           }
         }
       }
@@ -1447,6 +1447,7 @@
         var yLo=mode==='brecha'?-5:500, yHi=mode==='brecha'?60:3000;
         var nymin=Math.max(yLo,_ad.y0min+ydelta);
         var nymax=Math.min(yHi,_ad.y0max+ydelta);
+        if(mode==='brecha'){ nymin=Math.round(nymin*10)/10; nymax=Math.round(nymax*10)/10; }
         if(nymax-nymin>(mode==='brecha'?0.5:80)){
           chart.options.scales.y.min=nymin;
           chart.options.scales.y.max=nymax;
@@ -1472,7 +1473,7 @@
       var minDiff=mode==='brecha'?0.5:80;
       var nmin2=Math.max(yMinLim,ctr-half);
       var nmax2=Math.min(yMaxLim,ctr+half);
-      if(!Number.isFinite(nmin2)||!Number.isFinite(nmax2)) return;
+      if(mode==='brecha'){ nmin2=Math.round(nmin2*10)/10; nmax2=Math.round(nmax2*10)/10; }
       if(nmax2-nmin2>minDiff){
         chart.options.scales.y.min=nmin2;
         chart.options.scales.y.max=nmax2;
