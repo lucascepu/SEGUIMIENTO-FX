@@ -495,7 +495,7 @@
   hDispLbl[291]='';      // remove '30/6': crowded next to 'JUL 26' (index 292)
   hDispLbl[312]='31/7';  // add end-of-July marker
 
-  var hA=[null,null,null,null,null,null,null,1074,1132,1154,1146,1137,1132,1136,1141,1144,1149,1150,1153,1157,1161,1158,1156,1155,1155,1154,1153,1153,1152,1153,1153,1153,1153,1152,1154,1155,1156,1157,1159,1160,1161,1163,1164,1165,1166,1167,1168,1169,1170,1170,1172,1172,1172,1174,1174,1176,1178,1179,1180,1183,1184,1187,1188,1190,1193,1194,1196,1197,1199,1201,1202,1203,1205,1207,1209,1211,1213,1216,1219,1220,1222,1224,1226,1228,1230,1231,1232,1234,1236,1237,1237,1239,1242,1244,1245,1247,1248,1251,1252,1254,1255,1258,1259,1262,1263,1266,1268,1271,1272,1275,1277,1279,1280,1281,1282,1283,1285,1287,1287,1289,1290,1293,1294,1296,1297,1300,1301,1303,1304,1307,1308,1310,1312,1314,1317,1320,1321,1324,1327,1330,1332,1334,1336,1338,1342,1342,1344,1347,1349,1351,1354,1358,1360,1363,1367,1369,1372,1374,1377,1380,1383,1384,1386,1389,1392,1394,1395,1397,1400,1403,1405,1408,1410,1416,1421,1425,1428,1430,1435,1440,1443,1445,1448,1449,1456,1459,1460,1462,1467,1469,1471,1473,1475,1480,1481,1484,1486,1487,1491,1493,1494,1496,1496,1503,1503,1503,1507,1507,1509,1509,1510,1515,1515,1516,1517,1519,1523,1523,1523,1525,1525,1527,1529,1529,1529,1529,1534,1534,1534,1537,1536,1536,1540,1540,1539,1537,1537,1539,1539,1539,1539,1539,1541,1540,1540,1538,1538,1541,1540,1540,1538,1542,1545,1545,1544,1543,1542,1546,1545,1544,1542,1541,1545,1544,1543,1542,1542,1546,1545,1545,1544,1548,1548,1546,1546,1546,1547,1547,1546,1546,1545,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]; /* rolling 6M */
+  var hA=new Array(NH).fill(null); /* se recalcula dinámicamente por initRolling() */
   var AVG_ROLL=15.0;
   var NH=hS.length;
   var hPt=N(NH); hPt[296]=7;
@@ -567,39 +567,36 @@
       chart.options.scales.x.max = hView?hView.raw.length-1:IDX_HIST_MAX-IDX_HIST_MIN;
     } else if(s > 0){
       chart.options.scales.x.min = s;
-      chart.options.scales.x.max = IDX_HIST_MAX;   /* horizonte cercano, no el techo proyectado hasta jun-27 */
+      chart.options.scales.x.max = IDX_HIST_MAX;
     } else {
       delete chart.options.scales.x.min;
       chart.options.scales.x.max = IDX_HIST_MAX;
     }
     /* Auto-fit Y al rango X visible — según el modo activo */
     (function(){
-      var xMn=(mode==='hist')?IDX_HIST_MIN:(s>0?s:0), xMx=(mode==='hist')?IDX_HIST_MAX:IDX_HIST_MAX;
-      /* nota: ambas ramas iguales a propósito — brecha y hist comparten el mismo horizonte cercano */
+      var xMn=s>0?s:0, xMx=IDX_HIST_MAX;
+      if(mode==='hist'){ xMn=IDX_HIST_MIN; xMx=IDX_HIST_MAX; }
       var vals=[];
       if(mode==='brecha'){
-        /* Brecha: usar porcentajes */
         for(var i=xMn;i<=xMx;i++){
           if(brechaVals[i]!=null) vals.push(brechaVals[i]);
         }
         if(!vals.length) return;
         var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
-        var pad=(mx-mn)*0.15;
+        var pad=(mx-mn)*0.15||1;
         chart.options.scales.y.min=Math.floor(mn-pad);
         chart.options.scales.y.max=Math.ceil(mx+pad);
       } else if(mode==='hist'){
-        /* SIOPEL: usar hS + hT */
         for(var i=xMn;i<=xMx;i++){
           if(hS[i]!=null) vals.push(hS[i]);
           if(hT[i]!=null) vals.push(hT[i]);
         }
         if(!vals.length) return;
         var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
-        var pad=(mx-mn)*0.10;
+        var pad=(mx-mn)*0.10||50;
         chart.options.scales.y.min=Math.floor((mn-pad)/50)*50;
         chart.options.scales.y.max=Math.ceil((mx+pad)/50)*50;
       }
-      /* proj: no tocar el Y (escala fija para que se vean los escenarios) */
     })();
     chart.update('none');
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
@@ -654,7 +651,7 @@
 
   /* ── BRECHA MODE DATA ── */
   var brechaVals=hS.map(function(s,i){return s!=null?Math.round((hT[i]-s)/s*1000)/10:null;});
-  var avgRef=[null,null,null,null,null,null,null,29.6,23.1,20.8,21.6,22.8,23.4,23.0,22.5,22.2,21.8,21.7,21.5,21.2,20.9,21.2,21.5,21.6,21.7,21.9,22.0,22.1,22.2,22.2,22.3,22.3,22.4,22.5,22.4,22.4,22.3,22.2,22.2,22.1,22.0,21.9,21.8,21.8,21.7,21.7,21.6,21.6,21.6,21.7,21.7,21.7,21.7,21.6,21.6,21.5,21.4,21.3,21.2,21.1,21.0,20.8,20.7,20.6,20.4,20.3,20.2,20.1,20.0,19.9,19.8,19.7,19.6,19.5,19.3,19.2,19.0,18.8,18.6,18.5,18.4,18.2,18.1,18.0,17.9,17.8,17.7,17.7,17.6,17.5,17.5,17.4,17.2,17.1,17.0,16.9,16.8,16.7,16.6,16.5,16.4,16.3,16.2,16.0,15.9,15.7,15.6,15.4,15.3,15.1,15.0,14.9,14.8,14.8,14.7,14.7,14.6,14.5,14.5,14.4,14.3,14.2,14.1,14.0,13.9,13.9,13.8,13.7,13.6,13.5,13.4,13.3,13.2,13.0,12.9,12.7,12.6,12.4,12.2,12.0,11.9,11.8,11.7,11.6,11.4,11.4,11.3,11.1,11.0,10.9,10.7,10.5,10.4,10.2,10.0,9.9,9.7,9.6,9.4,9.3,9.1,9.0,8.9,8.8,8.6,8.5,8.4,8.3,8.2,8.0,7.9,7.8,7.7,7.5,7.4,7.2,7.1,7.0,6.8,6.7,6.6,6.5,6.4,6.4,6.3,6.2,6.2,6.2,6.1,6.1,6.0,6.0,5.9,5.9,5.9,5.8,5.8,5.8,5.8,5.8,5.8,5.8,5.9,5.9,6.0,6.1,6.1,6.2,6.2,6.3,6.3,6.3,6.4,6.4,6.4,6.4,6.4,6.5,6.6,6.6,6.7,6.8,6.8,6.9,7.0,7.1,7.2,7.3,7.4,7.5,7.7,7.8,8.0,8.1,8.3,8.5,8.6,8.8,8.9,9.0,9.1,9.2,9.3,9.5,9.6,9.8,9.9,10.0,10.2,10.3,10.5,10.6,10.7,10.8,11.0,11.2,11.4,11.5,11.7,11.9,12.1,12.3,12.4,12.6,12.8,13.0,13.1,13.3,13.5,13.6,13.8,13.9,14.0,14.2,14.3,14.4,14.6,14.7,14.9,15.0,15.2,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]; /* rolling 6M brecha % */
+  var avgRef=new Array(NH).fill(null); /* se recalcula dinámicamente por initRolling() */
 
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
   var FUT_REM   = {
@@ -1343,8 +1340,33 @@
       avgRef[i]=roll[i];
       hA[i]=(hT[i]&&roll[i])?Math.round(hT[i]/(1+roll[i]/100)):null;
     }
-    /* current value for card */
-  
+    if(hView) hView=buildHistView(); /* reconstruir vista con nuevo hA */
+    /* update chart if visible */
+    if(chart){
+      if(mode==='brecha'){
+        chart.data.datasets[1].data=avgRef;
+        chart.update('none');
+      } else if(mode==='hist'){
+        chart.data.datasets[2].data=hView?hView.A:hA;
+        chart.update('none');
+      }
+    }
+    /* highlight button */
+    var btns=document.querySelectorAll('.avg-btn');
+    btns.forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+  };
+
+  /* Inicializar hA y avgRef dinámicamente al cargar (6M por defecto) */
+  (function initRolling(){
+    var roll=computeRolling(126);
+    for(var i=0;i<NH;i++){
+      avgRef[i]=roll[i];
+      hA[i]=(hT[i]&&roll[i])?Math.round(hT[i]/(1+roll[i]/100)):null;
+    }
+  })();
+
+
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
   var FUT_REM   = {
     'JUN 26':1422,'JUL 26':1482,'AGO 26':1513,'SEP 26':1548,
@@ -1380,35 +1402,6 @@
     msg.style.display='inline'; setTimeout(function(){msg.style.display='none';},2000);
   };
 
-  lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
-    var curR=roll[lri];
-    var wl=win===126?'6M':win===63?'90d':'30d';
-    var el=document.getElementById('cardProm');
-    if(el) el.textContent='+'+(curR||'—')+'%';
-    var wlEl=document.getElementById('winLabel');
-    if(wlEl) wlEl.textContent=wl;
-    /* update buttons */
-    document.querySelectorAll('#winRow .pbtn').forEach(function(b){b.classList.remove('pon');});
-    if(btn) btn.classList.add('pon');
-    /* Update pA for proj mode based on current rolling avg */
-    if(curR){
-      for(var j=0;j<pT.length;j++){
-        pA[j]=pT[j]?Math.round(pT[j]/(1+curR/100)):null;
-      }
-    }
-    if(typeof chart!=='undefined'){
-      chart.data.datasets.forEach(function(ds){
-        if(!ds.label) return;
-        if(ds.label.indexOf('Prom')!==-1||ds.label.indexOf('rolling')!==-1){
-          if(mode==='brecha') ds.data=avgRef;
-          else if(mode==='proj') ds.data=pA;
-          else ds.data=hA;
-          ds.label='Prom. '+wl+' ('+curR+'%)';
-        }
-      });
-      chart.update('none');
-    }
-  };
 
 
   /* ── SIMULATED SIOPEL (zona sin datos) ── */
