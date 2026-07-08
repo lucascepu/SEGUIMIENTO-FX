@@ -1391,13 +1391,15 @@
     } else if(mx<ca.left-2){
       /* y-axis area → zoom prices */
       _ad.mode='yzoom'; _ad.on=true; _ad.sy=e.clientY;
-      _ad.y0min=chart.scales.y.min; _ad.y0max=chart.scales.y.max;
+      _ad.y0min=chart.scales.y.min!=null?chart.scales.y.min:chart.scales.y.ticks[0].value;
+      _ad.y0max=chart.scales.y.max!=null?chart.scales.y.max:chart.scales.y.ticks[chart.scales.y.ticks.length-1].value;
       e.preventDefault(); _cvs.style.cursor='ns-resize';
     } else if(mx>=ca.left&&mx<=ca.right&&my>=ca.top&&my<=ca.bottom){
       /* chart area → pan (useful after zoom) */
       _ad.mode='chartpan'; _ad.on=true; _ad.sx=e.clientX; _ad.sy=e.clientY;
       _ad.x0min=chart.scales.x.min||0; _ad.x0max=chart.scales.x.max||IDX_END;
-      _ad.y0min=chart.scales.y.min; _ad.y0max=chart.scales.y.max;
+      _ad.y0min=chart.scales.y.min!=null?chart.scales.y.min:chart.scales.y.ticks[0].value;
+      _ad.y0max=chart.scales.y.max!=null?chart.scales.y.max:chart.scales.y.ticks[chart.scales.y.ticks.length-1].value;
       _cvs.style.cursor='grabbing';
       /* don't preventDefault here so tooltips still work */
     }
@@ -1465,9 +1467,12 @@
       var f=Math.pow(1.004,-dy);
       var ctr=(_ad.y0max+_ad.y0min)/2;
       var half=(_ad.y0max-_ad.y0min)/2*f;
-      var nmin2=Math.max(500,Math.round(ctr-half));
-      var nmax2=Math.min(3000,Math.round(ctr+half));
-      if(nmax2-nmin2>80){
+      var yMinLim=mode==='brecha'?-10:500, yMaxLim=mode==='brecha'?100:3000;
+      var minDiff=mode==='brecha'?0.5:80;
+      var nmin2=Math.max(yMinLim,ctr-half);
+      var nmax2=Math.min(yMaxLim,ctr+half);
+      if(!Number.isFinite(nmin2)||!Number.isFinite(nmax2)) return;
+      if(nmax2-nmin2>minDiff){
         chart.options.scales.y.min=nmin2;
         chart.options.scales.y.max=nmax2;
         chart.update('none');
