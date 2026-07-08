@@ -307,7 +307,7 @@
   <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
   <span class="leg-item"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
-  <span class="leg-item"><span class="leg-line leg-d2"></span>prom. 6M (rolling)</span>
+  <span class="leg-item"><span class="leg-line leg-d2"></span>prom. <span id="legWinLabel">30d</span> (rolling)</span>
   </span>
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
@@ -970,7 +970,7 @@
       {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:3,
        pointRadius:hPt,pointBackgroundColor:DOLAR,
        fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-      {label:'Prom. brecha 6M (rolling)',data:hA,borderColor:AVGC,borderWidth:1,
+      {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:hA,borderColor:AVGC,borderWidth:1,
        borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'REM',data:N(46),borderColor:REMC,borderWidth:1.5,
        borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -1022,8 +1022,12 @@
             } else if(dsLabel.indexOf('recha')>-1||dsLabel.indexOf('Brecha')>-1){
               /* Brecha % */
               out+='<span style="color:var(--txt3)">Brecha</span> <span style="color:var(--green);font-weight:600">+'+fmt(v)+'%</span>';
+            } else if(dsLabel.indexOf('Prom')>-1||dsLabel.indexOf('rolling')>-1||dsLabel.indexOf('Nivel')>-1){
+              /* Promedio rolling: % si es brecha, $ si es precio */
+              var isBrechaMode=(mode==='brecha');
+              out+='<span style="color:var(--txt3)">'+dsLabel+'</span> <span style="color:var(--txt);font-weight:600">'+(isBrechaMode?'+'+fmt(v)+'%':'$'+fmt(v))+'</span>';
             } else {
-              /* Cualquier otro (prom, REM, etc.) */
+              /* Cualquier otro (REM, etc.) */
               out+='<span style="color:var(--txt3)">'+dsLabel+'</span> <span style="color:var(--txt);font-weight:600">$'+fmt(v)+'</span>';
             }
             bar.innerHTML=out;
@@ -1131,7 +1135,7 @@
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-        {label:'Prom. 6M (rolling)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
         {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -1270,6 +1274,7 @@
     if(el) el.textContent='+'+(curR||'—')+'%';
     var wlEl=document.getElementById('winLabel');
     if(wlEl) wlEl.textContent=wl;
+    var legWl=document.getElementById('legWinLabel'); if(legWl) legWl.textContent=wl;
     /* update buttons */
     document.querySelectorAll('#winRow .pbtn').forEach(function(b){b.classList.remove('pon');});
     if(btn) btn.classList.add('pon');
