@@ -589,7 +589,7 @@
       }
       /* proj: no tocar el Y (escala fija para que se vean los escenarios) */
     })();
-    chart.update('none');
+    chart.update({duration:350, easing:'easeInOutQuart'});
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   }
   /* Period buttons — addEventListener (no onclick attributes) */
