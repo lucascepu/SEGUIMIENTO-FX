@@ -378,7 +378,7 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 7/7/2026<br>
+        Cierre ROFEX 2/7/2026<br>
         REM ene–may 27: interpolado ($1.658→$1.760)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)
       </div>
@@ -495,7 +495,7 @@
   hDispLbl[291]='';      // remove '30/6': crowded next to 'JUL 26' (index 292)
   hDispLbl[312]='31/7';  // add end-of-July marker
 
-  var hA=new Array(NH).fill(null); /* se recalcula dinámicamente por initRolling() */
+  var hA=new Array(NH).fill(null); /* se recalcula dinámicamente */
   var AVG_ROLL=15.0;
   var NH=hS.length;
   var hPt=N(NH); hPt[296]=7;
@@ -503,12 +503,6 @@
   /* ── PERIOD SELECTOR ── */
   var hDates=['2025-04-01','2025-04-03','2025-04-04','2025-04-07','2025-04-08','2025-04-09','2025-04-10','2025-04-11','2025-04-14','2025-04-15','2025-04-16','2025-04-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25','2025-04-28','2025-04-29','2025-04-30','2025-05-05','2025-05-06','2025-05-07','2025-05-08','2025-05-09','2025-05-12','2025-05-13','2025-05-14','2025-05-15','2025-05-16','2025-05-19','2025-05-20','2025-05-21','2025-05-22','2025-05-23','2025-05-27','2025-05-28','2025-05-29','2025-05-30','2025-06-02','2025-06-03','2025-06-04','2025-06-05','2025-06-06','2025-06-09','2025-06-10','2025-06-11','2025-06-12','2025-06-13','2025-06-17','2025-06-18','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-07','2025-07-08','2025-07-10','2025-07-11','2025-07-14','2025-07-15','2025-07-16','2025-07-17','2025-07-18','2025-07-21','2025-07-22','2025-07-23','2025-07-24','2025-07-25','2025-07-28','2025-07-29','2025-07-30','2025-07-31','2025-08-01','2025-08-04','2025-08-05','2025-08-06','2025-08-07','2025-08-08','2025-08-11','2025-08-12','2025-08-13','2025-08-14','2025-08-18','2025-08-19','2025-08-20','2025-08-21','2025-08-22','2025-08-25','2025-08-26','2025-08-27','2025-08-28','2025-08-29','2025-09-02','2025-09-03','2025-09-04','2025-09-05','2025-09-08','2025-09-09','2025-09-10','2025-09-11','2025-09-12','2025-09-15','2025-09-16','2025-09-17','2025-09-18','2025-09-19','2025-09-22','2025-09-23','2025-09-24','2025-09-25','2025-09-26','2025-09-29','2025-09-30','2025-10-01','2025-10-02','2025-10-03','2025-10-06','2025-10-07','2025-10-08','2025-10-09','2025-10-14','2025-10-15','2025-10-16','2025-10-17','2025-10-20','2025-10-21','2025-10-22','2025-10-23','2025-10-24','2025-10-27','2025-10-28','2025-10-29','2025-10-30','2025-10-31','2025-11-03','2025-11-04','2025-11-05','2025-11-07','2025-11-10','2025-11-12','2025-11-13','2025-11-14','2025-11-17','2025-11-18','2025-11-19','2025-11-20','2025-11-25','2025-11-26','2025-11-28','2025-12-01','2025-12-02','2025-12-03','2025-12-04','2025-12-05','2025-12-09','2025-12-10','2025-12-11','2025-12-12','2025-12-15','2025-12-16','2025-12-17','2025-12-18','2025-12-19','2025-12-22','2025-12-23','2025-12-26','2025-12-29','2025-12-30','2026-01-02','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-09','2026-01-12','2026-01-13','2026-01-14','2026-01-15','2026-01-16','2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-18','2026-02-19','2026-02-20','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-25','2026-03-26','2026-03-27','2026-03-30','2026-03-31','2026-04-01','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-06','2026-07-07','2026-07-08','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-27','2026-07-28','2026-07-29','2026-07-30','2026-07-31','2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07','2026-08-10','2026-08-11','2026-08-12','2026-08-13','2026-08-14','2026-08-18','2026-08-19','2026-08-20','2026-08-21','2026-08-24','2026-08-25','2026-08-26','2026-08-27','2026-08-28','2026-08-31','2026-09-01','2026-09-02','2026-09-03','2026-09-04','2026-09-07','2026-09-08','2026-09-09','2026-09-10','2026-09-11','2026-09-14','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-09-21','2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02','2026-10-05','2026-10-06','2026-10-07','2026-10-08','2026-10-09','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-19','2026-10-20','2026-10-21','2026-10-22','2026-10-23','2026-10-26','2026-10-27','2026-10-28','2026-10-29','2026-10-30','2026-11-02','2026-11-03','2026-11-04','2026-11-05','2026-11-06','2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13','2026-11-16','2026-11-17','2026-11-18','2026-11-19','2026-11-20','2026-11-24','2026-11-25','2026-11-26','2026-11-27','2026-11-30','2026-12-01','2026-12-02','2026-12-03','2026-12-04','2026-12-09','2026-12-10','2026-12-11','2026-12-14','2026-12-15','2026-12-16','2026-12-17','2026-12-18','2026-12-21','2026-12-22','2026-12-23','2026-12-24','2026-12-28','2026-12-29','2026-12-30','2026-12-31','2027-01-04','2027-01-05','2027-01-06','2027-01-07','2027-01-08','2027-01-11','2027-01-12','2027-01-13','2027-01-14','2027-01-15','2027-01-18','2027-01-19','2027-01-20','2027-01-21','2027-01-22','2027-01-25','2027-01-26','2027-01-27','2027-01-28','2027-01-29','2027-02-01','2027-02-02','2027-02-03','2027-02-04','2027-02-05','2027-02-10','2027-02-11','2027-02-12','2027-02-15','2027-02-16','2027-02-17','2027-02-18','2027-02-19','2027-02-22','2027-02-23','2027-02-24','2027-02-25','2027-02-26','2027-03-01','2027-03-02','2027-03-03','2027-03-04','2027-03-05','2027-03-08','2027-03-09','2027-03-10','2027-03-11','2027-03-12','2027-03-15','2027-03-16','2027-03-17','2027-03-18','2027-03-19','2027-03-22','2027-03-23','2027-03-29','2027-03-30','2027-03-31','2027-04-01','2027-04-05','2027-04-06','2027-04-07','2027-04-08','2027-04-09','2027-04-12','2027-04-13','2027-04-14','2027-04-15','2027-04-16','2027-04-19','2027-04-20','2027-04-21','2027-04-22','2027-04-23','2027-04-26','2027-04-27','2027-04-28','2027-04-29','2027-04-30','2027-05-03','2027-05-04','2027-05-05','2027-05-06','2027-05-07','2027-05-10','2027-05-11','2027-05-12','2027-05-13','2027-05-14','2027-05-17','2027-05-18','2027-05-19','2027-05-20','2027-05-21','2027-05-24','2027-05-26','2027-05-27','2027-05-28','2027-05-31','2027-06-01','2027-06-02','2027-06-03','2027-06-04','2027-06-07','2027-06-08','2027-06-09','2027-06-10','2027-06-11','2027-06-14','2027-06-15','2027-06-16','2027-06-17','2027-06-18','2027-06-22','2027-06-23','2027-06-24','2027-06-25','2027-06-28','2027-06-29','2027-06-30'];
   var IDX_DEC1=154, IDX_MAY1=251, IDX_END=535;
-  /* Solapa SIOPEL: mostrar SOLO M-1 / mes actual / M+1 (jun-jul-ago 2026).
-     El techo completo (hasta jun-27) vive en hT[] para la solapa PROYECCIONES,
-     pero acá no debe verse entero. ACTUALIZAR ESTOS DOS ÍNDICES CADA MES
-     (correr +1 mes) — ver hDates[] para ubicar el 1er día hábil de junio, agosto, etc.
-     Última actualización: 7-jul-2026 → ventana jun/jul/ago-26. */
-  var IDX_HIST_MIN=271 /* 2026-06-01 */, IDX_HIST_MAX=332 /* 2026-08-31 */;
   /* Period indices — computed from hDates array */
   var IDX_2026 = (function(){ for(var i=0;i<hDates.length;i++){ if(hDates[i]==='2026-01-02') return i; } return 173; })();
   /* projM1Start: primer índice del mes anterior en pLbl (para chart PROJ) */
@@ -523,22 +517,21 @@
     return 4; /* fallback */
   })();
 
-  function getIDX_M1TD(){
-    var ri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
-    if(ri<0||!hDates[ri]) return IDX_MAY1;
-    var p=hDates[ri].split('-');
+  var IDX_M1TD = (function(){
+    if(!hDates[lri]) return IDX_MAY1;
+    var p=hDates[lri].split('-');
     var pm=parseInt(p[1])-1,py=parseInt(p[0]);
     if(pm<1){pm=12;py--;}
     var prefix=py+'-'+String(pm).padStart(2,'0');
     for(var i=0;i<hDates.length;i++){if(hDates[i]&&hDates[i].startsWith(prefix))return i;}
     return IDX_MAY1;
-  }
-  function getIDX_12M(){
-    var ri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
-    if(ri<0||!hDates[ri]) return 50;
-    var d=new Date(hDates[ri]); d.setFullYear(d.getFullYear()-1);
-    return findDateIdx(d.toISOString().slice(0,10));
-  }
+  })();
+  var IDX_12M  = (function(){
+    if(!hDates[lri]) return 50;
+    var d=new Date(hDates[lri]); d.setFullYear(d.getFullYear()-1);
+    var iso=d.toISOString().slice(0,10);
+    return findDateIdx(iso);
+  })();
   var curPeriod='m1td';
 
   function findDateIdx(iso){
@@ -553,54 +546,50 @@
   function applyPeriod(){
     if(!chart) return;
     var s=0;
-    if(curPeriod==='m1td')     s=getIDX_M1TD();
-    else if(curPeriod==='12m') s=getIDX_12M();
+    if(curPeriod==='m1td')     s=IDX_M1TD;      /* May 1 → hoy (M-1 TD) */
+    else if(curPeriod==='12m') s=IDX_12M;        /* 1 año atrás */
     else if(curPeriod==='2026') s=IDX_2026;      /* Ene 2 2026 */
     else if(curPeriod==='all')  s=0;             /* Serie completa */
     else if(curPeriod==='custom'){
       var v=document.getElementById('desdeFecha').value;
       s=v?findDateIdx(v):0;
     }
-    chart.data.labels=(mode==='proj')?pDispLbl:(mode==='hist'&&hView?hView.Disp:hDispLbl);
-    var labels=chart.data.labels;
-    if(mode==='hist'){
-      /* SIOPEL: rango fijo M-1/M/M+1 comprimido, ignora el selector de período */
-      chart.options.scales.x.min = labels[0];
-      chart.options.scales.x.max = labels[labels.length-1];
-    } else if(s > 0 && labels[s]!==undefined){
-      chart.options.scales.x.min = labels[s];
-      chart.options.scales.x.max = labels[Math.min(IDX_HIST_MAX, labels.length-1)];
+    chart.data.labels=(mode==='proj')?pDispLbl:hDispLbl;
+    if(s > 0){
+      chart.options.scales.x.min = s;
     } else {
-      chart.options.scales.x.min = labels[0];
-      chart.options.scales.x.max = labels[Math.min(IDX_HIST_MAX, labels.length-1)];
+      delete chart.options.scales.x.min;
     }
+    chart.options.scales.x.max = IDX_END;
     /* Auto-fit Y al rango X visible — según el modo activo */
     (function(){
-      var xMn=s>0?s:0, xMx=IDX_HIST_MAX;
-      if(mode==='hist'){ xMn=IDX_HIST_MIN; xMx=IDX_HIST_MAX; }
+      var xMn=s>0?s:0, xMx=IDX_END;
       var vals=[];
       if(mode==='brecha'){
+        /* Brecha: usar porcentajes */
         for(var i=xMn;i<=xMx;i++){
           if(brechaVals[i]!=null) vals.push(brechaVals[i]);
         }
         if(!vals.length) return;
         var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
-        var pad=(mx-mn)*0.15||1;
+        var pad=(mx-mn)*0.15;
         chart.options.scales.y.min=Math.floor(mn-pad);
         chart.options.scales.y.max=Math.ceil(mx+pad);
       } else if(mode==='hist'){
+        /* SIOPEL: usar hS + hT */
         for(var i=xMn;i<=xMx;i++){
           if(hS[i]!=null) vals.push(hS[i]);
           if(hT[i]!=null) vals.push(hT[i]);
         }
         if(!vals.length) return;
         var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
-        var pad=(mx-mn)*0.10||50;
+        var pad=(mx-mn)*0.10;
         chart.options.scales.y.min=Math.floor((mn-pad)/50)*50;
         chart.options.scales.y.max=Math.ceil((mx+pad)/50)*50;
       }
+      /* proj: no tocar el Y (escala fija para que se vean los escenarios) */
     })();
-    chart.update();
+    chart.update('none');
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   }
   /* Period buttons — addEventListener (no onclick attributes) */
@@ -609,7 +598,7 @@
       btn.addEventListener('click', function(){
         var p=this.getAttribute('data-p');
         curPeriod=p;
-        document.querySelectorAll('#periodRow .pbtn').forEach(function(b){ b.classList.remove('pon'); });
+        document.querySelectorAll('.pbtn').forEach(function(b){ b.classList.remove('pon'); });
         this.classList.add('pon');
         var df=document.getElementById('desdeFecha'); if(df) df.value='';
         applyPeriod();
@@ -620,7 +609,7 @@
     if(df) df.addEventListener('change',function(){
       if(!this.value) return;
       curPeriod='custom';
-      document.querySelectorAll('#periodRow .pbtn').forEach(function(b){ b.classList.remove('pon'); });
+      document.querySelectorAll('.pbtn').forEach(function(b){ b.classList.remove('pon'); });
       applyPeriod();
     });
   })();
@@ -653,7 +642,16 @@
 
   /* ── BRECHA MODE DATA ── */
   var brechaVals=hS.map(function(s,i){return s!=null?Math.round((hT[i]-s)/s*1000)/10:null;});
-  var avgRef=new Array(NH).fill(null); /* se recalcula dinámicamente por initRolling() */
+  var avgRef=new Array(NH).fill(null); /* se recalcula dinámicamente */
+
+  /* Inicializar hA y avgRef al cargar (6M por defecto) */
+  (function(){
+    var roll=computeRolling(126);
+    for(var i=0;i<NH;i++){
+      avgRef[i]=roll[i];
+      hA[i]=(hT[i]&&roll[i])?Math.round(hT[i]/(1+roll[i]/100)):null;
+    }
+  })();
 
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
   var FUT_REM   = {
@@ -662,7 +660,7 @@
   ,'ENE 27':1699,'FEB 27':1725,'MAR 27':1752,'ABR 27':1779,'MAY 27':1807};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1881.77,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.36,'MAR 27':2129.96,'ABR 27':2166.17,'MAY 27':2203.0,'JUN 27':2240.45};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
-  // Datos ROFEX cierre 7/7/2026 — actualizá con el formulario cuando cambien
+  // Datos ROFEX cierre [fecha a confirmar, actualizado 7-jul-2026] — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {'JUL 26':1502.5,'AGO 26':1528.5,'SEP 26':1556.0,'OCT 26':1584.5,'NOV 26':1613.5,'DIC 26':1643.0,'ENE 27':1675.0,'FEB 27':1704.0,'MAR 27':1736.5,'ABR 27':1766.5,'MAY 27':1801.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
@@ -921,63 +919,11 @@
 
   var mode='hist';
 
-  /* ── VISTA COMPRIMIDA SOLAPA SIOPEL ──────────────────────────────────────
-     M-1 + mes actual (datos reales, hasta lri) ocupan 2/3 del gráfico;
-     el resto de real + M+1 (proyección de techo) se muestra con menos
-     puntos (misma cantidad de "categorías" = 1/2 de la parte densa),
-     comprimiendo esa porción a 1/3 del ancho. Se recalcula en cada sw('hist')
-     así siempre refleja el lri (hoy) actual sin tocar código a mano. */
-  function buildHistView(){
-    var dStart=IDX_HIST_MIN, dEnd=lri;
-    var raw=[];
-    for(var i=dStart;i<=dEnd;i++) raw.push(i);
-    var denseLen=raw.length;
-    var sLo=dEnd+1, sHi=IDX_HIST_MAX;
-    var sparse=[];
-    if(sHi>=sLo){
-      var sparseCount=Math.max(1,Math.round(denseLen/2));
-      if(sparseCount===1 || sHi===sLo){
-        sparse=[sHi];
-      }else{
-        for(var k=0;k<sparseCount;k++){
-          sparse.push(Math.round(sLo + k*(sHi-sLo)/(sparseCount-1)));
-        }
-        sparse=sparse.filter(function(v,idx){return sparse.indexOf(v)===idx;});
-        /* forzar inclusión de labels de mes (hDispLbl no vacío) para no perder ticks */
-        for(var mIdx=sLo;mIdx<=sHi;mIdx++){
-          if(hDispLbl[mIdx] && sparse.indexOf(mIdx)===-1 && sparse.length>2){
-            var closest=-1,closestD=1e9;
-            for(var q=1;q<sparse.length-1;q++){
-              var dd=Math.abs(sparse[q]-mIdx);
-              if(dd<closestD){closestD=dd;closest=q;}
-            }
-            if(closest>=0) sparse[closest]=mIdx;
-          }
-        }
-        sparse=sparse.filter(function(v,idx){return sparse.indexOf(v)===idx;}).sort(function(a,b){return a-b;});
-      }
-    }
-    raw=raw.concat(sparse);
-    var vT=[],vS=[],vA=[],vLbl=[],vDisp=[],vPt=[];
-    for(var j=0;j<raw.length;j++){
-      var r=raw[j];
-      vT.push(hT[r]!==undefined?hT[r]:null);
-      vS.push(hS[r]!==undefined?hS[r]:null);
-      vA.push(hA[r]!==undefined?hA[r]:null);
-      vLbl.push(hLbl[r]||'');
-      vDisp.push(hDispLbl[r]||'');
-      vPt.push(0);
-    }
-    if(denseLen>0) vPt[denseLen-1]=7; /* marcador "hoy" al final de la parte densa */
-    return {raw:raw, T:vT, S:vS, A:vA, Lbl:vLbl, Disp:vDisp, Pt:vPt, denseLen:denseLen};
-  }
-  var hView=null; /* se recalcula en cada sw('hist') */
-
   /* ── ZONES PLUGIN ── */
   var zPlug={id:'z', beforeDraw:function(c){
     var ctx=c.ctx, ca=c.chartArea, xs=c.scales.x;
     try{
-      var ia=mode==='proj'?29:(mode==='hist'&&hView?hView.denseLen-1:296), ib=ia;
+      var ia=mode==='proj'?29:296, ib=ia;
       var xA=(xs.getPixelForValue(ia)+xs.getPixelForValue(ib))/2;
       ctx.save();
       ctx.fillStyle='rgba(255,255,255,.04)';
@@ -987,13 +933,7 @@
       ctx.beginPath(); ctx.moveTo(xA,ca.top); ctx.lineTo(xA,ca.bottom); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font='9px system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
-      var MESN=['','ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-      var hoyLbl='HOY ←';
-      if(lri>=0 && hDates[lri]){
-        var hp=hDates[lri].split('-');
-        hoyLbl=(parseInt(hp[2])+'-'+MESN[parseInt(hp[1])]+' ←');
-      }
-      ctx.textAlign='right'; ctx.fillText(hoyLbl,xA-3,ca.top+13);
+      ctx.textAlign='right'; ctx.fillText('7-JUL ←',xA-3,ca.top+13);
       ctx.textAlign='left';  ctx.fillText('→ sin SIOPEL',xA+3,ca.top+13);
       if(mode==='proj'){
         var xB=(xs.getPixelForValue(45)+xs.getPixelForValue(46))/2;
@@ -1025,92 +965,6 @@
     'ENE 26':'2/1/26','FEB 26':'2/2/26','MAR 26':'2/3/26',
     'ABR 26':'1/4/26','JUL 26':'1/7/26'
   };
-  function tickLabelFor(val, mn, mx){
-    var range=(mx!=null?mx:IDX_END)-(mn!=null?mn:0);
-
-    /* ── PROYECCIÓN: labels adaptativos por densidad ── */
-    if(mode==='proj'){
-      var lbl=pLbl[val]||'';
-      if(!lbl) return null;
-      /* Etiquetas de mes (Ago, Sep, Oct...): siempre mostrar */
-      if(lbl.indexOf('/')<0) return lbl;
-      /* Etiquetas de fecha (D/M): filtrar por rango visible */
-      var d=parseInt(lbl.split('/')[0]);
-      if(range>25){
-        /* Vista completa: solo día 1 y 15 de cada mes */
-        return (d===1||d===15)?lbl:null;
-      } else if(range>12){
-        /* Vista media: cada semana aprox */
-        return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null;
-      }
-      return lbl; /* Vista zoom: todos los días */
-    }
-
-    /* ── SIOPEL (comprimido): usa las labels ya resueltas en hView ── */
-    if(mode==='hist'){
-      if(!hView) return null;
-      var dlH=hView.Disp[val]||'';
-      var slH=hView.Lbl[val]||'';
-      return dlH||slH||null;
-    }
-
-    /* ── BRECHA: adaptativo por rango visible ── */
-    var dl=hDispLbl[val]||'';
-    var sl=hLbl[val]||'';
-    if(range>150){
-      return /^[A-Z]/.test(dl)?dl:null;
-    } else if(range>40){
-      /* filtro semanal: evita bunching de fechas consecutivas */
-      if(!dl) return null;
-      if(/^[A-Z]/.test(dl)) return dl;
-      var dn=parseInt(dl.split('/')[0]);
-      return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
-    } else {
-      return sl||null;
-    }
-  }
-
-  /* Declutter genérico: mide el ancho REAL del texto en canvas y descarta
-     cualquier tick candidato que colisione con el anterior ya aceptado.
-     Corre para todos los modos — soluciona el solapamiento de una vez,
-     sin importar qué par de fechas caiga junto. */
-  function declutterTicks(scale){
-    var chart=scale.chart, ctx=chart.ctx;
-    var candidates=scale.ticks.filter(function(t){
-      return tickLabelFor(t.value, scale.min, scale.max)!=null;
-    });
-    if(!candidates.length){ scale.ticks=[]; return; }
-    ctx.save();
-    ctx.font="600 10px system-ui";
-    var pxPerUnit=scale.width/Math.max(1,((scale.max!=null?scale.max:candidates[candidates.length-1].value)-(scale.min!=null?scale.min:candidates[0].value)));
-    function box(t){
-      var txt=tickLabelFor(t.value, scale.min, scale.max);
-      var w=ctx.measureText(txt).width;
-      var center=(t.value-(scale.min||0))*pxPerUnit;
-      return {t:t, txt:txt, left:center-w/2-6, right:center+w/2+6};
-    }
-    var boxes=candidates.map(box);
-    /* Pass 1: labels de mes (mayúsculas, ej 'JUL 26') SIEMPRE se reservan primero —
-       cargan más información que un simple día/mes y no pueden perderse por orden. */
-    var reserved=[];
-    boxes.forEach(function(b){
-      if(/^[A-Z]/.test(b.txt)){
-        var collide=reserved.some(function(r){ return b.left<r.right && b.right>r.left; });
-        if(!collide) reserved.push(b);
-      }
-    });
-    /* Pass 2: el resto de ticks, en orden, solo si no chocan con lo ya reservado */
-    var kept=reserved.slice();
-    boxes.forEach(function(b){
-      if(/^[A-Z]/.test(b.txt)) return; /* ya procesado en pass 1 */
-      var collide=kept.some(function(r){ return b.left<r.right && b.right>r.left; });
-      if(!collide) kept.push(b);
-    });
-    kept.sort(function(a,b){ return a.t.value-b.t.value; });
-    ctx.restore();
-    scale.ticks=kept.map(function(k){ return k.t; });
-  }
-
   var chart=new Chart(document.getElementById('mc3'),{
     type:'line', plugins:[zPlug],
     data:{labels:hDispLbl, datasets:[
@@ -1151,7 +1005,7 @@
             var idx=dp.dataIndex;
             var v=dp.raw; if(v===null||v===undefined){ bar.style.display='none'; return; }
             /* Date */
-            var raw=mode==='hist'?(hView?hView.Lbl[idx]:''):pLbl[idx];
+            var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
             var dateLbl=MFMT[raw]||LM[raw]||raw||'';
             var sep=' <span style="color:rgba(255,255,255,.18)">·</span> ';
             var dsLabel=dp.dataset.label||'';
@@ -1160,7 +1014,7 @@
             /* Contextual: qué dataset estoy mirando */
             if(dsLabel.indexOf('SIOPEL')>-1){
               /* SIOPEL: precio + brecha */
-              var tArr=mode==='hist'?(hView?hView.T:[]):pT;
+              var tArr=mode==='hist'?hT:pT;
               var tVal=tArr[idx];
               var brecha=(tVal&&Math.abs(v-tVal)>0.5)?Math.round((tVal-v)/v*100):null;
               out+='<span style="color:var(--txt);font-weight:600">$'+fmt(v)+'</span>';
@@ -1184,7 +1038,6 @@
         x:{
           /* Force enough height so rotated labels are never clipped */
           afterFit: function(scale){ if(scale.height<48) scale.height=48; },
-          afterBuildTicks: declutterTicks,
           border:{ display:true, color:'rgba(255,255,255,.18)', width:1 },
           grid:{display:false, drawTicks:false},
           ticks:{
@@ -1196,7 +1049,40 @@
             maxTicksLimit:10,
             padding:4,
             callback:function(val){
-              return tickLabelFor(val, this.min, this.max);
+              var range=(this.max!=null?this.max:IDX_END)-(this.min!=null?this.min:0);
+
+              /* ── PROYECCIÓN: labels adaptativos por densidad ── */
+              if(mode==='proj'){
+                var lbl=pLbl[val]||'';
+                if(!lbl) return null;
+                /* Etiquetas de mes (Ago, Sep, Oct...): siempre mostrar */
+                if(lbl.indexOf('/')<0) return lbl;
+                /* Etiquetas de fecha (D/M): filtrar por rango visible */
+                var d=parseInt(lbl.split('/')[0]);
+                if(range>25){
+                  /* Vista completa: solo día 1 y 15 de cada mes */
+                  return (d===1||d===15)?lbl:null;
+                } else if(range>12){
+                  /* Vista media: cada semana aprox */
+                  return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null;
+                }
+                return lbl; /* Vista zoom: todos los días */
+              }
+
+              /* ── SIOPEL / BRECHA: adaptativo por rango visible ── */
+              var dl=hDispLbl[val]||'';
+              var sl=hLbl[val]||'';
+              if(range>150){
+                return /^[A-Z]/.test(dl)?dl:null;
+              } else if(range>40){
+                /* filtro semanal: evita bunching de fechas consecutivas */
+                if(!dl) return null;
+                if(/^[A-Z]/.test(dl)) return dl;
+                var dn=parseInt(dl.split('/')[0]);
+                return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
+              } else {
+                return sl||null;
+              }
             }
           }
         },
@@ -1226,7 +1112,6 @@
   window.sw=function(m){
     mode=m;
     var isH=(m==='hist'),isP=(m==='proj'),isB=(m==='brecha'),isF=(m==='fut');
-    if(isH){ hView=buildHistView(); }
 
     if(isB){
       chart.data.labels=hDispLbl;
@@ -1242,14 +1127,14 @@
       chart.options.scales.y.min=0;
       chart.options.scales.y.max=30;
     }else{
-      chart.data.labels=isH?hView.Disp:pDispLbl;
+      chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
-        {label:'Techo',data:isH?hView.T:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
+        {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
          pointRadius:isP?tPtSc:0,pointBackgroundColor:TECH,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
-        {label:'SIOPEL',data:isH?hView.S:pS,borderColor:DOLAR,borderWidth:2.5,
-         pointRadius:isH?hView.Pt:pPt,pointBackgroundColor:DOLAR,
+        {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
+         pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-        {label:'Prom. 6M (rolling)',data:isH?hView.A:pA,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. 6M (rolling)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
         {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -1265,14 +1150,8 @@
 
     /* reset x range before render */
     if(isP){
-      chart.options.scales.x.min=pDispLbl[projM1Start]||pDispLbl[0];
-      chart.options.scales.x.max=pDispLbl[50]||pDispLbl[pDispLbl.length-1];
-    } else if(isH){
-      chart.options.scales.x.min=hView.Disp[0];
-      chart.options.scales.x.max=hView.Disp[hView.Disp.length-1];
-    } else if(isB){
-      chart.options.scales.x.min=hDispLbl[0];
-      chart.options.scales.x.max=hDispLbl[IDX_HIST_MAX]||hDispLbl[332];
+      chart.options.scales.x.min=projM1Start;
+      chart.options.scales.x.max=50;  /* last pLbl index */
     }
     chart.update('none');
     document.getElementById('periodRow').style.display=isP?'none':'flex';
@@ -1345,33 +1224,8 @@
       avgRef[i]=roll[i];
       hA[i]=(hT[i]&&roll[i])?Math.round(hT[i]/(1+roll[i]/100)):null;
     }
-    if(hView) hView=buildHistView(); /* reconstruir vista con nuevo hA */
-    /* update chart if visible */
-    if(chart){
-      if(mode==='brecha'){
-        chart.data.datasets[1].data=avgRef;
-        chart.update('none');
-      } else if(mode==='hist'){
-        chart.data.datasets[2].data=hView?hView.A:hA;
-        chart.update('none');
-      }
-    }
-    /* highlight button */
-    var btns=document.querySelectorAll('#winRow .pbtn');
-    btns.forEach(function(b){ b.classList.remove('pon'); });
-    if(btn) btn.classList.add('pon');
-  };
-
-  /* Inicializar hA y avgRef dinámicamente al cargar (6M por defecto) */
-  (function initRolling(){
-    var roll=computeRolling(126);
-    for(var i=0;i<NH;i++){
-      avgRef[i]=roll[i];
-      hA[i]=(hT[i]&&roll[i])?Math.round(hT[i]/(1+roll[i]/100)):null;
-    }
-  })();
-
-
+    /* current value for card */
+  
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
   var FUT_REM   = {
     'JUN 26':1422,'JUL 26':1482,'AGO 26':1513,'SEP 26':1548,
@@ -1379,7 +1233,7 @@
   ,'ENE 27':1699,'FEB 27':1725,'MAR 27':1752,'ABR 27':1779,'MAY 27':1807};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1881.77,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.36,'MAR 27':2129.96,'ABR 27':2166.17,'MAY 27':2203.0,'JUN 27':2240.45};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
-  // Datos ROFEX cierre 7/7/2026 — actualizá con el formulario cuando cambien
+  // Datos ROFEX cierre [fecha a confirmar, actualizado 7-jul-2026] — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {'JUL 26':1502.5,'AGO 26':1528.5,'SEP 26':1556.0,'OCT 26':1584.5,'NOV 26':1613.5,'DIC 26':1643.0,'ENE 27':1675.0,'FEB 27':1704.0,'MAR 27':1736.5,'ABR 27':1766.5,'MAY 27':1801.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
@@ -1407,6 +1261,35 @@
     msg.style.display='inline'; setTimeout(function(){msg.style.display='none';},2000);
   };
 
+  lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+    var curR=roll[lri];
+    var wl=win===126?'6M':win===63?'90d':'30d';
+    var el=document.getElementById('cardProm');
+    if(el) el.textContent='+'+(curR||'—')+'%';
+    var wlEl=document.getElementById('winLabel');
+    if(wlEl) wlEl.textContent=wl;
+    /* update buttons */
+    document.querySelectorAll('#winRow .pbtn').forEach(function(b){b.classList.remove('pon');});
+    if(btn) btn.classList.add('pon');
+    /* Update pA for proj mode based on current rolling avg */
+    if(curR){
+      for(var j=0;j<pT.length;j++){
+        pA[j]=pT[j]?Math.round(pT[j]/(1+curR/100)):null;
+      }
+    }
+    if(typeof chart!=='undefined'){
+      chart.data.datasets.forEach(function(ds){
+        if(!ds.label) return;
+        if(ds.label.indexOf('Prom')!==-1||ds.label.indexOf('rolling')!==-1){
+          if(mode==='brecha') ds.data=avgRef;
+          else if(mode==='proj') ds.data=pA;
+          else ds.data=hA;
+          ds.label='Prom. '+wl+' ('+curR+'%)';
+        }
+      });
+      chart.update('none');
+    }
+  };
 
 
   /* ── SIMULATED SIOPEL (zona sin datos) ── */
@@ -1518,8 +1401,7 @@
       var xs=chart.scales.x;
       var range=_ad.x0max-_ad.x0min;
       if(range<=0) return;
-      var xMax=(mode==='proj')?50:(mode==='hist'?(hView?hView.raw.length-1:IDX_HIST_MAX):IDX_HIST_MAX);
-      var xMinBound=(mode==='hist')?0:0;
+      var xMax=(mode==='proj')?50:IDX_END;
       var delta=Math.round(-dx*range/xs.width);
       var updated=false;
       if(_ad.mode==='xpan'){
@@ -1527,7 +1409,7 @@
         var factor=Math.pow(1.003,-dx);  /* right→smaller range, left→bigger */
         var center=(_ad.x0min+_ad.x0max)/2;
         var half=range/2*factor;
-        var nmin=Math.max(xMinBound,Math.round(center-half));
+        var nmin=Math.max(0,Math.round(center-half));
         var nmax=Math.min(xMax,Math.round(center+half));
         if(nmax-nmin>=5){
           chart.options.scales.x.min=nmin;
@@ -1537,7 +1419,7 @@
       } else if(_ad.mode==='chartpan'){
         /* chart-area drag: pan only — keep range width FIXED, just slide */
         var nmin=_ad.x0min+delta, nmax=_ad.x0max+delta;
-        if(nmin<xMinBound){ nmin=xMinBound; nmax=xMinBound+range; }
+        if(nmin<0){ nmin=0; nmax=range; }
         if(nmax>xMax){ nmax=xMax; nmin=xMax-range; }
         chart.options.scales.x.min=Math.round(nmin);
         chart.options.scales.x.max=Math.round(nmax);
@@ -1735,7 +1617,7 @@
   ,'ENE 27':1699,'FEB 27':1725,'MAR 27':1752,'ABR 27':1779,'MAY 27':1807};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1881.77,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.36,'MAR 27':2129.96,'ABR 27':2166.17,'MAY 27':2203.0,'JUN 27':2240.45};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
-  // Datos ROFEX cierre 7/7/2026 — actualizá con el formulario cuando cambien
+  // Datos ROFEX cierre [fecha a confirmar, actualizado 7-jul-2026] — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {'JUL 26':1502.5,'AGO 26':1528.5,'SEP 26':1556.0,'OCT 26':1584.5,'NOV 26':1613.5,'DIC 26':1643.0,'ENE 27':1675.0,'FEB 27':1704.0,'MAR 27':1736.5,'ABR 27':1766.5,'MAY 27':1801.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
