@@ -589,7 +589,7 @@
       }
       /* proj: no tocar el Y (escala fija para que se vean los escenarios) */
     })();
-    chart.update({duration:350, easing:'easeInOutQuart'});
+    chart.update();
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   }
   /* Period buttons — addEventListener (no onclick attributes) */
@@ -1652,10 +1652,12 @@
   };
 
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+  chart.options.animation={duration:0};
   sw('hist');
   setAvgWindow(curWindow, document.querySelector('#winRow [data-w="'+curWindow+'"]'));
-  updatePercentil();   /* recompute hA+avgRef on every load */
+  updatePercentil();
   applyPeriod();
+  chart.options.animation={duration:350,easing:'easeInOutQuart'};
 })();
 </script>
 </div><!-- /container -->
