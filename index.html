@@ -298,9 +298,9 @@
 
 <div id="winRow" class="period-row" style="padding-top:12px;margin-bottom:0;">
   <span class="win-label">Promedio:</span>
-  <button class="pbtn" data-w="30"  onclick="setAvgWindow(30,this)">30d</button>
+  <button class="pbtn pon" data-w="30"  onclick="setAvgWindow(30,this)">30d</button>
   <button class="pbtn" data-w="63"  onclick="setAvgWindow(63,this)">90d</button>
-  <button class="pbtn pon" data-w="126" onclick="setAvgWindow(126,this)">6M</button>
+  <button class="pbtn" data-w="126" onclick="setAvgWindow(126,this)">6M</button>
   <button id="resetZoomBtn" onclick="window.resetZoom()" style="display:none;margin-left:10px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#ddd;font-size:11px;cursor:pointer;">↺ Reset zoom</button>
 </div>
 <div class="legend">
@@ -1199,7 +1199,7 @@
 
 
   /* ── ROLLING AVERAGE WINDOW ── */
-  var curWindow=126;
+  var curWindow=30;
 
   function computeRolling(win){
     var result=new Array(NH).fill(null), buf=[];
