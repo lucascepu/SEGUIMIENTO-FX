@@ -1125,10 +1125,13 @@
         {label:'Nivel actual ('+curBr+'%)',data:curRef,borderColor:TECH,borderWidth:1.5,
          borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
       ];
-      chart.options.scales.y.min=undefined;
-      chart.options.scales.y.max=undefined;
-      delete chart.options.scales.y.min;
-      delete chart.options.scales.y.max;
+      /* Calcular autofit Y sobre brechaVals reales */
+      var bVals=brechaVals.filter(function(v){return v!=null;});
+      var bMn=bVals.length?Math.min.apply(null,bVals):0;
+      var bMx=bVals.length?Math.max.apply(null,bVals):30;
+      var bPad=(bMx-bMn)*0.15||1;
+      chart.options.scales.y.min=Math.floor(bMn-bPad);
+      chart.options.scales.y.max=Math.ceil(bMx+bPad);
     }else{
       chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
@@ -1391,15 +1394,13 @@
     } else if(mx<ca.left-2){
       /* y-axis area → zoom prices */
       _ad.mode='yzoom'; _ad.on=true; _ad.sy=e.clientY;
-      _ad.y0min=chart.scales.y.min!=null?chart.scales.y.min:chart.scales.y.ticks[0].value;
-      _ad.y0max=chart.scales.y.max!=null?chart.scales.y.max:chart.scales.y.ticks[chart.scales.y.ticks.length-1].value;
+      _ad.y0min=chart.scales.y.min; _ad.y0max=chart.scales.y.max;
       e.preventDefault(); _cvs.style.cursor='ns-resize';
     } else if(mx>=ca.left&&mx<=ca.right&&my>=ca.top&&my<=ca.bottom){
       /* chart area → pan (useful after zoom) */
       _ad.mode='chartpan'; _ad.on=true; _ad.sx=e.clientX; _ad.sy=e.clientY;
       _ad.x0min=chart.scales.x.min||0; _ad.x0max=chart.scales.x.max||IDX_END;
-      _ad.y0min=chart.scales.y.min!=null?chart.scales.y.min:chart.scales.y.ticks[0].value;
-      _ad.y0max=chart.scales.y.max!=null?chart.scales.y.max:chart.scales.y.ticks[chart.scales.y.ticks.length-1].value;
+      _ad.y0min=chart.scales.y.min; _ad.y0max=chart.scales.y.max;
       _cvs.style.cursor='grabbing';
       /* don't preventDefault here so tooltips still work */
     }
