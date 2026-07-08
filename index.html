@@ -589,7 +589,7 @@
       }
       /* proj: no tocar el Y (escala fija para que se vean los escenarios) */
     })();
-    chart.update('none');
+    chart.update(mode==='brecha'?{duration:300,easing:'easeInOutQuart'}:'none');
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   }
   /* Period buttons — addEventListener (no onclick attributes) */
@@ -1005,7 +1005,7 @@
             var idx=dp.dataIndex;
             var v=dp.raw; if(v===null||v===undefined){ bar.style.display='none'; return; }
             /* Date */
-            var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
+            var raw=mode==='hist'?(hView?hView.Lbl[idx]:hLbl[idx]):pLbl[idx];
             var dateLbl=MFMT[raw]||LM[raw]||raw||'';
             var sep=' <span style="color:rgba(255,255,255,.18)">·</span> ';
             var dsLabel=dp.dataset.label||'';
@@ -1014,7 +1014,7 @@
             /* Contextual: qué dataset estoy mirando */
             if(dsLabel.indexOf('SIOPEL')>-1){
               /* SIOPEL: precio + brecha */
-              var tArr=mode==='hist'?hT:pT;
+              var tArr=mode==='hist'?(hView?hView.T:hT):pT;
               var tVal=tArr[idx];
               var brecha=(tVal&&Math.abs(v-tVal)>0.5)?Math.round((tVal-v)/v*100):null;
               out+='<span style="color:var(--txt);font-weight:600">$'+fmt(v)+'</span>';
@@ -1051,38 +1051,30 @@
             callback:function(val){
               var range=(this.max!=null?this.max:IDX_END)-(this.min!=null?this.min:0);
 
-              /* ── PROYECCIÓN: labels adaptativos por densidad ── */
+              /* ── PROYECCIÓN ── */
               if(mode==='proj'){
                 var lbl=pLbl[val]||'';
                 if(!lbl) return null;
-                /* Etiquetas de mes (Ago, Sep, Oct...): siempre mostrar */
                 if(lbl.indexOf('/')<0) return lbl;
-                /* Etiquetas de fecha (D/M): filtrar por rango visible */
                 var d=parseInt(lbl.split('/')[0]);
-                if(range>25){
-                  /* Vista completa: solo día 1 y 15 de cada mes */
-                  return (d===1||d===15)?lbl:null;
-                } else if(range>12){
-                  /* Vista media: cada semana aprox */
-                  return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null;
-                }
-                return lbl; /* Vista zoom: todos los días */
+                if(range>25){ return (d===1||d===15)?lbl:null; }
+                else if(range>12){ return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null; }
+                return lbl;
               }
 
-              /* ── SIOPEL / BRECHA: adaptativo por rango visible ── */
-              var dl=hDispLbl[val]||'';
-              var sl=hLbl[val]||'';
-              if(range>150){
-                return /^[A-Z]/.test(dl)?dl:null;
-              } else if(range>40){
-                /* filtro semanal: evita bunching de fechas consecutivas */
-                if(!dl) return null;
-                if(/^[A-Z]/.test(dl)) return dl;
-                var dn=parseInt(dl.split('/')[0]);
-                return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
-              } else {
-                return sl||null;
+              /* ── SIOPEL / BRECHA: usa hView (indices reindexados 0..N) ── */
+              var dl=(hView&&hView.Disp[val]!=null)?hView.Disp[val]:'';
+              var sl=(hView&&hView.Lbl[val]!=null)?hView.Lbl[val]:'';
+              if(!dl&&!sl) return null;
+              /* Siempre mostrar labels de mes */
+              if(/^[A-Z]/.test(dl)) return dl;
+              /* Filtro: mostrar solo algunos dias para no saturar */
+              var dn=dl?parseInt(dl.split('/')[0]):(sl?parseInt(sl.split('/')[0]):0);
+              var totalPts=hView?hView.raw.length:39;
+              if(totalPts>20){
+                return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl||sl:null;
               }
+              return sl||null;
             }
           }
         },
@@ -1109,39 +1101,85 @@
     if(icon) icon.style.transform = isOpen ? '' : 'rotate(180deg)';
   };
 
+
+  /* ── VISTA COMPRIMIDA: M-1+actual(2/3) / sin SIOPEL+M+1(1/3) ──
+     ACTUALIZAR IDX_HIST_MIN/MAX cada mes. Jul-2026: jun=271, ago=332 */
+  var IDX_HIST_MIN=271, IDX_HIST_MAX=332;
+  function buildCompressedView(){
+    var ri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+    var raw=[];
+    for(var i=IDX_HIST_MIN;i<=ri;i++) raw.push(i);
+    var denseLen=raw.length;
+    var sLo=ri+1,sHi=IDX_HIST_MAX;
+    var sparse=[];
+    if(sHi>=sLo){
+      var sc=Math.max(1,Math.round(denseLen/2));
+      if(sc===1||sHi===sLo){ sparse=[sHi]; }
+      else {
+        for(var k=0;k<sc;k++) sparse.push(Math.round(sLo+k*(sHi-sLo)/(sc-1)));
+        sparse=sparse.filter(function(v,j){return sparse.indexOf(v)===j;});
+        for(var mIdx=sLo;mIdx<=sHi;mIdx++){
+          if(hDispLbl[mIdx]&&sparse.indexOf(mIdx)===-1&&sparse.length>2){
+            var cl=-1,cd=1e9;
+            for(var q=1;q<sparse.length-1;q++){var dd=Math.abs(sparse[q]-mIdx);if(dd<cd){cd=dd;cl=q;}}
+            if(cl>=0) sparse[cl]=mIdx;
+          }
+        }
+        sparse=sparse.filter(function(v,j){return sparse.indexOf(v)===j;}).sort(function(a,b){return a-b;});
+      }
+    }
+    raw=raw.concat(sparse);
+    var vT=[],vS=[],vA=[],vBr=[],vAvg=[],vLbl=[],vDisp=[],vPt=[];
+    for(var j=0;j<raw.length;j++){
+      var r=raw[j];
+      vT.push(hT[r]!=null?hT[r]:null);
+      vS.push(hS[r]!=null?hS[r]:null);
+      vA.push(hA[r]!=null?hA[r]:null);
+      vBr.push(brechaVals[r]!=null?brechaVals[r]:null);
+      vAvg.push(avgRef[r]!=null?avgRef[r]:null);
+      vLbl.push(hLbl[r]||'');
+      vDisp.push(hDispLbl[r]||'');
+      vPt.push(0);
+    }
+    if(denseLen>0) vPt[denseLen-1]=7;
+    return {raw:raw,T:vT,S:vS,A:vA,Br:vBr,Avg:vAvg,Lbl:vLbl,Disp:vDisp,Pt:vPt,denseLen:denseLen};
+  }
+  var hView=null;
+
   window.sw=function(m){
     mode=m;
     var isH=(m==='hist'),isP=(m==='proj'),isB=(m==='brecha'),isF=(m==='fut');
 
+    if(isH||isB){ hView=buildCompressedView(); }
+    var hLen=hView?hView.raw.length:NH;
     if(isB){
-      chart.data.labels=hDispLbl;
+      chart.data.labels=hView.Lbl;
       chart.data.datasets=[
-        {label:'Brecha %',data:brechaVals,borderColor:DOLAR,borderWidth:2,
-         pointRadius:bPt,pointBackgroundColor:DOLAR,
+        {label:'Brecha %',data:hView.Br,borderColor:DOLAR,borderWidth:2,
+         pointRadius:hView.Pt,pointBackgroundColor:DOLAR,
          fill:true,backgroundColor:'rgba(55,138,221,.1)',tension:.3,spanGaps:false},
-        {label:'Prom. 6M',data:avgRef,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. 6M',data:hView.Avg,borderColor:AVGC,borderWidth:1.5,
          borderDash:[3,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
-        {label:'Nivel actual ('+curBr+'%)',data:curRef,borderColor:TECH,borderWidth:1.5,
+        {label:'Nivel actual ('+curBr+'%)',data:new Array(hLen).fill(curBr),borderColor:TECH,borderWidth:1.5,
          borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
       ];
       chart.options.scales.y.min=0;
       chart.options.scales.y.max=30;
     }else{
-      chart.data.labels=isH?hDispLbl:pDispLbl;
+      chart.data.labels=isH?hView.Lbl:pDispLbl;
       chart.data.datasets=[
-        {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
+        {label:'Techo',data:isH?hView.T:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
          pointRadius:isP?tPtSc:0,pointBackgroundColor:TECH,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
-        {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
-         pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
+        {label:'SIOPEL',data:isH?hView.S:pS,borderColor:DOLAR,borderWidth:2.5,
+         pointRadius:isH?hView.Pt:pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-        {label:'Prom. 6M (rolling)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. 6M (rolling)',data:isH?hView.A:pA,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
-        {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
+        {label:'REM',data:isH?N(hLen):pREM,borderColor:REMC,borderWidth:1.5,
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
-        {label:'Mantiene brecha ~23%',data:isH?N(NH):pSCA,borderColor:SCA,borderWidth:1.5,
+        {label:'Mantiene brecha ~23%',data:isH?N(hLen):pSCA,borderColor:SCA,borderWidth:1.5,
          borderDash:[7,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
-        
-        {label:'Brecha 5%',data:isH?N(NH):pSCC,borderColor:SCC,borderWidth:1.5,
+        {label:'Brecha 5%',data:isH?N(hLen):pSCC,borderColor:SCC,borderWidth:1.5,
          borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false}
       ];
       chart.options.scales.y.min=isB?-5:isH?1000:1300;
