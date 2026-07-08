@@ -656,8 +656,13 @@
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
-  // localStorage sobreescribe defaults si el usuario cargó algo
-  try {
+  // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
+  var ROFEX_VERSION = '20260707';
+  try{
+    if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
+      localStorage.removeItem('futPrices');
+      localStorage.setItem('futPricesVersion', ROFEX_VERSION);
+    }
     var saved = localStorage.getItem('futPrices');
     if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
   } catch(e){}
@@ -1229,8 +1234,13 @@
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
-  // localStorage sobreescribe defaults si el usuario cargó algo
-  try {
+  // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
+  var ROFEX_VERSION = '20260707';
+  try{
+    if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
+      localStorage.removeItem('futPrices');
+      localStorage.setItem('futPricesVersion', ROFEX_VERSION);
+    }
     var saved = localStorage.getItem('futPrices');
     if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
   } catch(e){}
@@ -1613,8 +1623,13 @@
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
-  // localStorage sobreescribe defaults si el usuario cargó algo
-  try {
+  // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
+  var ROFEX_VERSION = '20260707';
+  try{
+    if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
+      localStorage.removeItem('futPrices');
+      localStorage.setItem('futPricesVersion', ROFEX_VERSION);
+    }
     var saved = localStorage.getItem('futPrices');
     if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
   } catch(e){}
