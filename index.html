@@ -546,49 +546,52 @@
   function applyPeriod(){
     if(!chart) return;
     var s=0;
-    if(curPeriod==='m1td')     s=IDX_M1TD;      /* May 1 → hoy (M-1 TD) */
-    else if(curPeriod==='12m') s=IDX_12M;        /* 1 año atrás */
-    else if(curPeriod==='2026') s=IDX_2026;      /* Ene 2 2026 */
-    else if(curPeriod==='all')  s=0;             /* Serie completa */
+    if(curPeriod==='m1td')     s=IDX_M1TD;
+    else if(curPeriod==='12m') s=IDX_12M;
+    else if(curPeriod==='2026') s=IDX_2026;
+    else if(curPeriod==='all')  s=0;
     else if(curPeriod==='custom'){
       var v=document.getElementById('desdeFecha').value;
       s=v?findDateIdx(v):0;
     }
-    chart.data.labels=(mode==='proj')?pDispLbl:hDispLbl;
-    if(s > 0){
-      chart.options.scales.x.min = s;
-    } else {
-      delete chart.options.scales.x.min;
-    }
-    chart.options.scales.x.max = IDX_END;
-    /* Auto-fit Y al rango X visible — según el modo activo */
-    (function(){
-      var xMn=s>0?s:0, xMx=IDX_END;
-      var vals=[];
-      if(mode==='brecha'){
-        /* Brecha: usar porcentajes */
-        for(var i=xMn;i<=xMx;i++){
-          if(brechaVals[i]!=null) vals.push(brechaVals[i]);
-        }
-        if(!vals.length) return;
-        var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
-        var pad=(mx-mn)*0.15;
-        chart.options.scales.y.min=Math.floor(mn-pad);
-        chart.options.scales.y.max=Math.ceil(mx+pad);
-      } else if(mode==='hist'){
-        /* SIOPEL: usar hS + hT */
-        for(var i=xMn;i<=xMx;i++){
-          if(hS[i]!=null) vals.push(hS[i]);
-          if(hT[i]!=null) vals.push(hT[i]);
-        }
-        if(!vals.length) return;
-        var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
-        var pad=(mx-mn)*0.10;
-        chart.options.scales.y.min=Math.floor((mn-pad)/50)*50;
-        chart.options.scales.y.max=Math.ceil((mx+pad)/50)*50;
+
+    if(mode==='hist'||mode==='brecha'){
+      /* Vista comprimida: labels y datos ya están en hView, no tocar el eje X */
+      chart.data.labels=hView?hView.Lbl:hDispLbl;
+      if(hView){
+        chart.options.scales.x.min=undefined;
+        chart.options.scales.x.max=hView.raw.length-1;
+        delete chart.options.scales.x.min;
       }
-      /* proj: no tocar el Y (escala fija para que se vean los escenarios) */
-    })();
+      /* Autofit Y sobre los datos reales de hView */
+      if(hView){
+        var vals=[];
+        if(mode==='brecha'){
+          hView.Br.forEach(function(v){ if(v!=null) vals.push(v); });
+          if(vals.length){
+            var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+            var pad=(mx-mn)*0.15||1;
+            chart.options.scales.y.min=Math.floor(mn-pad);
+            chart.options.scales.y.max=Math.ceil(mx+pad);
+          }
+        } else {
+          hView.S.forEach(function(v){ if(v!=null) vals.push(v); });
+          hView.T.forEach(function(v){ if(v!=null) vals.push(v); });
+          if(vals.length){
+            var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+            var pad=(mx-mn)*0.10||50;
+            chart.options.scales.y.min=Math.floor((mn-pad)/50)*50;
+            chart.options.scales.y.max=Math.ceil((mx+pad)/50)*50;
+          }
+        }
+      }
+    } else {
+      /* proj */
+      chart.data.labels=pDispLbl;
+      if(s > 0){ chart.options.scales.x.min=s; } else { delete chart.options.scales.x.min; }
+      chart.options.scales.x.max=IDX_END;
+    }
+
     chart.update(mode==='brecha'?{duration:300,easing:'easeInOutQuart'}:'none');
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   }
