@@ -1125,8 +1125,10 @@
         {label:'Nivel actual ('+curBr+'%)',data:curRef,borderColor:TECH,borderWidth:1.5,
          borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
       ];
-      chart.options.scales.y.min=0;
-      chart.options.scales.y.max=30;
+      chart.options.scales.y.min=undefined;
+      chart.options.scales.y.max=undefined;
+      delete chart.options.scales.y.min;
+      delete chart.options.scales.y.max;
     }else{
       chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
@@ -1145,8 +1147,8 @@
         {label:'Brecha 5%',data:isH?N(NH):pSCC,borderColor:SCC,borderWidth:1.5,
          borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false}
       ];
-      chart.options.scales.y.min=isB?-5:isH?1000:1300;
-      chart.options.scales.y.max=isB?35:isH?1900:2100;
+      chart.options.scales.y.min=isB?undefined:isH?1000:1300;
+      chart.options.scales.y.max=isB?undefined:isH?1900:2100;
     }
 
     /* reset x range before render */
@@ -1364,8 +1366,8 @@
   window.setPeriod=function(btn){
     if(chart){
       var isP=(mode==='proj'),isB=(mode==='brecha');
-      chart.options.scales.y.min=isB?-5:isP?1300:1000;
-      chart.options.scales.y.max=isB?55:isP?2200:1950;
+      chart.options.scales.y.min=isB?undefined:isP?1300:1000;
+      chart.options.scales.y.max=isB?undefined:isP?2200:1950;
     document.querySelector('.chart-wrap').style.display=isF?'none':'block';
     }
     _origSP(btn);
