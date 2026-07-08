@@ -523,21 +523,22 @@
     return 4; /* fallback */
   })();
 
-  var IDX_M1TD = (function(){
-    if(!hDates[lri]) return IDX_MAY1;
-    var p=hDates[lri].split('-');
+  function getIDX_M1TD(){
+    var ri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+    if(ri<0||!hDates[ri]) return IDX_MAY1;
+    var p=hDates[ri].split('-');
     var pm=parseInt(p[1])-1,py=parseInt(p[0]);
     if(pm<1){pm=12;py--;}
     var prefix=py+'-'+String(pm).padStart(2,'0');
     for(var i=0;i<hDates.length;i++){if(hDates[i]&&hDates[i].startsWith(prefix))return i;}
     return IDX_MAY1;
-  })();
-  var IDX_12M  = (function(){
-    if(!hDates[lri]) return 50;
-    var d=new Date(hDates[lri]); d.setFullYear(d.getFullYear()-1);
-    var iso=d.toISOString().slice(0,10);
-    return findDateIdx(iso);
-  })();
+  }
+  function getIDX_12M(){
+    var ri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+    if(ri<0||!hDates[ri]) return 50;
+    var d=new Date(hDates[ri]); d.setFullYear(d.getFullYear()-1);
+    return findDateIdx(d.toISOString().slice(0,10));
+  }
   var curPeriod='m1td';
 
   function findDateIdx(iso){
@@ -552,8 +553,8 @@
   function applyPeriod(){
     if(!chart) return;
     var s=0;
-    if(curPeriod==='m1td')     s=IDX_M1TD;      /* May 1 → hoy (M-1 TD) */
-    else if(curPeriod==='12m') s=IDX_12M;        /* 1 año atrás */
+    if(curPeriod==='m1td')     s=getIDX_M1TD();
+    else if(curPeriod==='12m') s=getIDX_12M();
     else if(curPeriod==='2026') s=IDX_2026;      /* Ene 2 2026 */
     else if(curPeriod==='all')  s=0;             /* Serie completa */
     else if(curPeriod==='custom'){
@@ -607,7 +608,7 @@
       btn.addEventListener('click', function(){
         var p=this.getAttribute('data-p');
         curPeriod=p;
-        document.querySelectorAll('.pbtn').forEach(function(b){ b.classList.remove('pon'); });
+        document.querySelectorAll('#periodRow .pbtn').forEach(function(b){ b.classList.remove('pon'); });
         this.classList.add('pon');
         var df=document.getElementById('desdeFecha'); if(df) df.value='';
         applyPeriod();
@@ -618,7 +619,7 @@
     if(df) df.addEventListener('change',function(){
       if(!this.value) return;
       curPeriod='custom';
-      document.querySelectorAll('.pbtn').forEach(function(b){ b.classList.remove('pon'); });
+      document.querySelectorAll('#periodRow .pbtn').forEach(function(b){ b.classList.remove('pon'); });
       applyPeriod();
     });
   })();
@@ -1352,9 +1353,9 @@
       }
     }
     /* highlight button */
-    var btns=document.querySelectorAll('.avg-btn');
-    btns.forEach(function(b){ b.classList.remove('active'); });
-    if(btn) btn.classList.add('active');
+    var btns=document.querySelectorAll('#winRow .pbtn');
+    btns.forEach(function(b){ b.classList.remove('pon'); });
+    if(btn) btn.classList.add('pon');
   };
 
   /* Inicializar hA y avgRef dinámicamente al cargar (6M por defecto) */
