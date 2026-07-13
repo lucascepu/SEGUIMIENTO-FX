@@ -1037,44 +1037,43 @@
             font:{size:10, weight:'600'},
             maxRotation:45,
             minRotation:0,
-            autoSkip:true,
-            maxTicksLimit:10,
+            autoSkip:false,
+            maxRotation:0,
             padding:4,
             callback:function(val){
-              var range=(this.max!=null?this.max:IDX_END)-(this.min!=null?this.min:0);
+              var mn=this.min!=null?this.min:0;
+              var mx=this.max!=null?this.max:IDX_END;
+              var range=mx-mn;
 
-              /* ── PROYECCIÓN: labels adaptativos por densidad ── */
+              /* ── PROYECCIÓN ── */
               if(mode==='proj'){
                 var lbl=pLbl[val]||'';
                 if(!lbl) return null;
-                /* Etiquetas de mes (Ago, Sep, Oct...): siempre mostrar */
                 if(lbl.indexOf('/')<0) return lbl;
-                /* Etiquetas de fecha (D/M): filtrar por rango visible */
                 var d=parseInt(lbl.split('/')[0]);
-                if(range>25){
-                  /* Vista completa: solo día 1 y 15 de cada mes */
-                  return (d===1||d===15)?lbl:null;
-                } else if(range>12){
-                  /* Vista media: cada semana aprox */
-                  return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null;
-                }
-                return lbl; /* Vista zoom: todos los días */
+                if(range>25) return (d===1||d===15)?lbl:null;
+                if(range>12) return (d===1||d===8||d===15||d===22||d===29||d===30||d===31)?lbl:null;
+                return lbl;
               }
 
-              /* ── SIOPEL / BRECHA: adaptativo por rango visible ── */
+              /* ── SIOPEL / BRECHA: por granularidad de rango ── */
               var dl=hDispLbl[val]||'';
               var sl=hLbl[val]||'';
-              if(range>150){
-                return /^[A-Z]/.test(dl)?dl:null;
-              } else if(range>40){
-                /* filtro semanal: evita bunching de fechas consecutivas */
+              if(!dl&&!sl) return null;
+              var isMonth=/^[A-Z]/.test(dl);
+              if(range>200) return isMonth?dl:null;
+              if(range>80){
+                if(isMonth) return dl;
                 if(!dl) return null;
-                if(/^[A-Z]/.test(dl)) return dl;
+                return parseInt(dl.split('/')[0])===1?dl:null;
+              }
+              if(range>40){
+                if(isMonth) return dl;
+                if(!dl) return null;
                 var dn=parseInt(dl.split('/')[0]);
                 return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
-              } else {
-                return sl||null;
               }
+              return sl||dl||null;
             }
           }
         },
