@@ -606,9 +606,9 @@
     });
   })();
 
-  var sJunActual=[1426,1427,1438.5,1436.5,1440.5,1446.5,1441,1432.5,1432.5,1428,1436.5,1441.5,1451.0,1461,1461.5,1471.5,1479.0,1477.0,1477.0,1481.5,1482.0,1489.0,1488.0,1488.5,1486.5,1492.00,1488.0,1482.0];
+  var sSiopelActual=[1426,1427,1438.5,1436.5,1440.5,1446.5,1441,1432.5,1432.5,1428,1436.5,1441.5,1451.0,1461,1461.5,1471.5,1479.0,1477.0,1477.0,1481.5,1482.0,1489.0,1488.0,1488.5,1486.5,1492.00,1488.0,1482.0];
   var pT=[1718,1731,1744,1757,1762.64,1764.15,1765.66,1767.17,1768.68,1773.23,1774.75,1776.27,1777.79,1779.31,1785.41,1786.94,1788.47,1790.0,1794.6,1796.13,1797.67,1799.21,1800.75,1805.38,1806.92,1808.13,1809.35,1810.56,1814.21,1815.42,1816.64,1822.74,1823.96,1825.19,1826.41,1827.63,1831.31,1832.54,1833.77,1835.0,1836.23,1839.93,1841.16,1842.4,1843.63,1844.87,1900.22,1953.43,2004.22,2052.32,2097.47];
-  var pS=[1398,1394.5,1403,1408].concat(sJunActual, N(23));
+  var pS=[1398,1394.5,1403,1408].concat(sSiopelActual, N(23));
   var pA=pT.map(function(t){ return Math.round(t/1.157); });
   var pREM=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1447,1476,1516,1553,1597,1658];
   var pSCA=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1469,1470,1471,1474,1475,1476,1481,1482,1483,1484,1485,1488,1489,1490,1491,1492,1495,1496,1497,1498,1499,1544,1587,1628,1667,1704];
@@ -827,8 +827,8 @@
     if(lri<0||brechaVals[lri]==null) return;
     var bf=1+brechaVals[lri]/100;   /* factor: e.g. 1.2143 para 21.43% */
     /* Proj ia = 25 (primer índice de hoy en el chart de proyección) */
-    /* projIa dinámico: pMay(4) + sJunActual — siempre apunta al día de hoy */
-    var projIa=3+sJunActual.length;
+    /* projIa dinámico: pMay(4) + sSiopelActual (jun-2026 en adelante) — apunta al día de hoy */
+    var projIa=3+sSiopelActual.length;
 
     /* Prom. 6M actual para pA ("prom. 6M rolling") */
     var roll6M=computeRolling(126);

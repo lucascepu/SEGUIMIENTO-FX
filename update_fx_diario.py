@@ -96,17 +96,17 @@ replace_one(
     f"hS[{LRI_NEW}]={NUEVO_SIOPEL}"
 )
 
-# ── 2. sJunActual ────────────────────────────────────────────────────────────
-m_sJun = re.search(r'var sJunActual=\[(.*?)\];', content)
+# ── 2. sSiopelActual ────────────────────────────────────────────────────────────
+m_sJun = re.search(r'var sSiopelActual=\[(.*?)\];', content)
 if m_sJun:
-    old_sJun = f"var sJunActual=[{m_sJun.group(1)}];"
-    new_sJun = f"var sJunActual=[{m_sJun.group(1)},{NUEVO_SIOPEL}];"
-    replace_one(old_sJun, new_sJun, "sJunActual append")
+    old_sJun = f"var sSiopelActual=[{m_sJun.group(1)}];"
+    new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL}];"
+    replace_one(old_sJun, new_sJun, "sSiopelActual append")
 
 # ── 3. hPt ─────────────────────────────────────────────────────────────────
 replace_one(f'hPt[{LRI_PREV}]=7', f'hPt[{LRI_NEW}]=7', f"hPt {LRI_PREV}→{LRI_NEW}")
 
-# ── 4. pPt (proj: 3 + len(sJunActual)) ────────────────────────────────────
+# ── 4. pPt (proj: 3 + len(sSiopelActual)) ────────────────────────────────────
 m_pPt = re.search(r'var pPt=N\(51\); pPt\[(\d+)\]=7;', content)
 if m_pPt:
     old_pPt_idx = int(m_pPt.group(1))
