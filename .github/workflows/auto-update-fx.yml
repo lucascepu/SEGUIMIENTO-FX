@@ -71,20 +71,22 @@ jobs:
       - name: Verificar sintaxis JS
         if: steps.habil.outputs.habil == 'true'
         run: |
-          node --version
-          python3 - <<'PYEOF'
+          python3 -c "
           import re, subprocess, sys
           content = open('index.html', encoding='utf-8').read()
           scripts = re.findall(r'<script[^>]*>(.*?)</script>', content, re.S)
+          ok = True
           for i, s in enumerate(scripts):
               with open(f'/tmp/check_{i}.js', 'w') as f:
                   f.write(s)
               r = subprocess.run(['node', '--check', f'/tmp/check_{i}.js'], capture_output=True)
               if r.returncode != 0:
-                  print(f"ERROR sintaxis en script {i}:", r.stderr.decode())
-                  sys.exit(1)
-          print(f"Sintaxis OK ({len(scripts)} scripts)")
-          PYEOF
+                  print(f'ERROR sintaxis script {i}:', r.stderr.decode())
+                  ok = False
+          if not ok:
+              sys.exit(1)
+          print(f'Sintaxis OK ({len(scripts)} scripts)')
+          "
 
       - name: Commit y push si hubo cambios
         if: steps.habil.outputs.habil == 'true'
