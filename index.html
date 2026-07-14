@@ -1717,9 +1717,15 @@
     }
 
     function positionBadge(){
-      if(!heroWrap) return;
       var priceDiv=document.getElementById('siopelVal');
-      if(priceDiv) badge.style.left=(priceDiv.offsetWidth+24)+'px';
+      if(priceDiv&&badge) badge.style.left=(priceDiv.offsetWidth+24)+'px';
+    }
+
+    function showBadge(){
+      requestAnimationFrame(function(){
+        positionBadge();
+        badge.classList.add('visible');
+      });
     }
 
     function fetchLive(){
@@ -1743,7 +1749,8 @@
             priceEl.textContent=fmt(price);
             var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
             timeEl.textContent='Últ. '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0')+' AR';
-            positionBadge();
+            labelEl.innerHTML='<span class="live-dot"></span>MERCADO CERRADO';
+            showBadge();
           })
           .catch(function(){});
         return;
@@ -1761,13 +1768,13 @@
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
           timeEl.textContent='Últ. '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0')+' AR';
           labelEl.innerHTML='<span class="live-dot"></span>EN VIVO';
-          badge.classList.add('visible');
-          positionBadge();
+          showBadge();
         })
         .catch(function(){timeEl.textContent='sin señal';});
     }
 
     fetchLive();
+    setTimeout(positionBadge, 50);
     setInterval(fetchLive, 60000);
     window.addEventListener('resize', positionBadge);
   })();
