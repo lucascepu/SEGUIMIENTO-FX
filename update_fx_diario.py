@@ -18,7 +18,11 @@ if len(sys.argv) < 2:
 
 NUEVO_SIOPEL = round(float(sys.argv[1]), 2)
 if len(sys.argv) >= 3:
-    HOY = sys.argv[2]
+    raw = sys.argv[2].strip()
+    # Aceptar tanto YYYY-MM-DD como YYYYMMDD
+    if len(raw) == 8 and '-' not in raw:
+        raw = f"{raw[:4]}-{raw[4:6]}-{raw[6:]}"
+    HOY = raw
     datetime.datetime.strptime(HOY, "%Y-%m-%d")  # validar formato
 else:
     HOY = datetime.date.today().isoformat()

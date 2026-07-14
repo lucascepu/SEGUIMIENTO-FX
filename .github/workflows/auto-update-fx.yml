@@ -36,8 +36,7 @@ jobs:
           if [ -n "${{ github.event.inputs.fecha }}" ]; then
             FECHA="${{ github.event.inputs.fecha }}"
           else
-            FECHA=$(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d)
-          fi
+            FECHA=$(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d)          fi
           echo "fecha=$FECHA" >> $GITHUB_OUTPUT
           echo "Fecha objetivo: $FECHA"
 
