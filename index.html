@@ -1700,7 +1700,7 @@
     function isMarketOpen(){
       var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
       var d=ar.getDay(), m=ar.getHours()*60+ar.getMinutes();
-      return d>=1&&d<=5&&m>=660&&m<900;
+      return d>=1&&d<=5&&m>=660&&m<960;
     }
 
     function fmt(v){
