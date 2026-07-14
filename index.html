@@ -1710,11 +1710,9 @@
     function marketState(){
       var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
       var d=ar.getDay(), m=ar.getHours()*60+ar.getMinutes();
-      if(d===0||d===6) return 'hidden';    /* fin de semana: oculto */
-      if(m>=480&&m<600)  return 'closed';  /* 08:00-09:59 → cerrado */
-      if(m>=600&&m<900)  return 'open';    /* 10:00-14:59 → en vivo */
-      if(m>=900&&m<1200) return 'closed';  /* 15:00-19:59 → cerrado */
-      return 'hidden';                     /* 20:00-07:59 → oculto  */
+      if(d===0||d===6) return 'hidden';
+      if(m>=600&&m<900) return 'open';   /* 10:00-14:59 */
+      return 'hidden';
     }
 
     function fmt(v){
@@ -1734,34 +1732,10 @@
     }
 
     function fetchLive(){
-      var state=marketState();
-      if(state==='hidden'){
+      if(marketState()!=='open'){
         badge.classList.remove('visible','closed');
         return;
       }
-      if(state==='closed'){
-        badge.classList.add('visible','closed');
-        badge.classList.remove('open');
-        labelEl.innerHTML='<span class="live-dot"></span>MERCADO CERRADO';
-        /* igual traer el último precio conocido */
-        fetch('/api/dolar')
-          .then(function(r){return r.json();})
-          .then(function(data){
-            var m=data.mayorista;
-            if(!m) return;
-            var price=typeof m==='object'?m.price:m;
-            if(!price) return;
-            priceEl.textContent=fmt(price);
-            var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
-            timeEl.textContent='Últ. '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0')+' AR';
-            labelEl.innerHTML='<span class="live-dot"></span>MERCADO CERRADO';
-            showBadge();
-          })
-          .catch(function(){});
-        return;
-      }
-      /* state === 'open' */
-      badge.classList.remove('closed');
       fetch('/api/dolar')
         .then(function(r){return r.json();})
         .then(function(data){
@@ -1769,13 +1743,13 @@
           if(!m) return;
           var price=typeof m==='object'?m.price:m;
           if(!price) return;
-          priceEl.textContent=fmt(price);
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
-          timeEl.textContent='Últ. '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0')+' AR';
+          timeEl.textContent='Últ. tick '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
           labelEl.innerHTML='<span class="live-dot"></span>EN VIVO';
+          badge.classList.remove('closed');
           showBadge();
         })
-        .catch(function(){timeEl.textContent='sin señal';});
+        .catch(function(){});
     }
 
     fetchLive();
