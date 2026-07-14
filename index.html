@@ -62,8 +62,8 @@
   .live-time{font-size:10px;color:var(--txt3);}
   .live-badge.closed .live-label{color:var(--red);}
   .live-badge.closed .live-dot{background:var(--red);animation:none;}
-  .live-badge.closed .live-price{display:none;}
-  .live-badge.closed .live-time{display:none;}
+  .live-badge.closed .live-price{display:block;}
+  .live-badge.closed .live-time{display:block;}
   .bb-hero-wrap{position:relative;display:inline-block;}
   .bb-dot{color:rgba(255,255,255,.2);font-size:10px;}
   /* ── Separator ── */
@@ -1729,9 +1729,23 @@
         return;
       }
       if(state==='closed'){
-        badge.classList.remove('open');
         badge.classList.add('visible','closed');
+        badge.classList.remove('open');
         labelEl.innerHTML='<span class="live-dot"></span>MERCADO CERRADO';
+        /* igual traer el último precio conocido */
+        fetch('/api/dolar')
+          .then(function(r){return r.json();})
+          .then(function(data){
+            var m=data.mayorista;
+            if(!m) return;
+            var price=typeof m==='object'?m.price:m;
+            if(!price) return;
+            priceEl.textContent=fmt(price);
+            var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+            timeEl.textContent='Últ. '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0')+' AR';
+            positionBadge();
+          })
+          .catch(function(){});
         return;
       }
       /* state === 'open' */
