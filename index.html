@@ -1692,8 +1692,13 @@
   applyPeriod();
   chart.options.animation={duration:350,easing:'easeInOutQuart'};
 
-  /* ── LIVE INTRADAY — criptoya via /api/dolar ──────────────────────────────
-     Visible lun-vie 11:00-15:00 AR. Refresh cada 60s. No toca hS[]. */
+  /* ── LIVE INTRADAY — criptoya via /api/dolar ─────────────────────────────
+     FUENTES:
+       - Mercado ABIERTO (lun-vie 10:00-15:00 AR): criptoya.com → badge EN VIVO verde
+       - Mercado CERRADO (08:00-10:00 y 15:00-20:00 AR): criptoya.com → badge MERCADO CERRADO rojo
+       - Fuera de horario (20:00-08:00 AR): badge oculto
+       - Cierre oficial diario (16:00 AR): GitHub Actions → API MAE → persiste en hS[]
+     NO usar criptoya para el cierre oficial — usar solo para display en tiempo real. */
   (function(){
     var badge   = document.getElementById('liveBadge');
     var priceEl = document.getElementById('liveVal');
