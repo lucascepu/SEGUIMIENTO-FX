@@ -16,7 +16,7 @@ if len(sys.argv) < 2:
     print("Uso: python3 update_fx_diario.py <valor_siopel> [fecha YYYY-MM-DD]")
     sys.exit(1)
 
-NUEVO_SIOPEL = float(sys.argv[1])
+NUEVO_SIOPEL = round(float(sys.argv[1]), 2)
 if len(sys.argv) >= 3:
     HOY = sys.argv[2]
     datetime.datetime.strptime(HOY, "%Y-%m-%d")  # validar formato
@@ -119,15 +119,15 @@ if prev_val_str is None:
 else:
     replace_one(
         f"{prev_val_str},null",
-        f"{prev_val_str},{NUEVO_SIOPEL}",
-        f"hS[{LRI_NEW}]={NUEVO_SIOPEL}"
+        f"{prev_val_str},{NUEVO_SIOPEL:.2f}",
+        f"hS[{LRI_NEW}]={NUEVO_SIOPEL:.2f}"
     )
 
 # ── 2. sSiopelActual ────────────────────────────────────────────────────────────
 m_sJun = re.search(r'var sSiopelActual=\[(.*?)\];', content)
 if m_sJun:
     old_sJun = f"var sSiopelActual=[{m_sJun.group(1)}];"
-    new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL}];"
+    new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL:.2f}];"
     replace_one(old_sJun, new_sJun, "sSiopelActual append")
 
 # ── 3. hPt ─────────────────────────────────────────────────────────────────

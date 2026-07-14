@@ -76,7 +76,7 @@ else:
             if (det.get("ticker") == "UST$T"
                     and det.get("codigoSegmento") == "M"
                     and det.get("plazo") == "000"):
-                siopel = det.get("precioCierre")
+                siopel = round(float(det.get("precioCierre")), 2)
                 break
         if siopel is not None:
             break
@@ -89,7 +89,7 @@ else:
                 if (det.get("ticker") == "USMEP"
                         and det.get("codigoSegmento") == "M"
                         and det.get("plazo") == "000"):
-                    siopel = det.get("precioCierre")
+                    siopel = round(float(det.get("precioCierre")), 2)
                     break
             if siopel is not None:
                 break
