@@ -2,7 +2,7 @@ name: Auto-actualizar FX diario
 
 on:
   schedule:
-    - cron: '0 19 * * 1-5'
+    - cron: '0 19 * * 1-5'   # 19:00 UTC = 16:00 AR (lun-vie)
   workflow_dispatch:
     inputs:
       fecha:
@@ -10,7 +10,7 @@ on:
         required: false
         default: ''
       valor_manual:
-        description: 'Valor FX manual (omitir para usar API)'
+        description: 'Valor FX manual (omitir para usar criptoya.com)'
         required: false
         default: ''
 
@@ -31,11 +31,9 @@ jobs:
 
       - name: Ejecutar update
         env:
-          MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
           INPUT_FECHA: ${{ github.event.inputs.fecha }}
           INPUT_VALOR: ${{ github.event.inputs.valor_manual }}
-        run: |
-          python3 scripts/run_workflow.py
+        run: python3 scripts/run_workflow.py
 
       - name: Commit y push
         run: |
@@ -45,6 +43,6 @@ jobs:
             echo "Sin cambios — ya actualizado o no hubo rueda hoy."
           else
             git add index.html
-            git commit -m "auto: FX $(date -u +%Y-%m-%d) (bot)"
+            git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (criptoya.com)"
             git push
           fi
