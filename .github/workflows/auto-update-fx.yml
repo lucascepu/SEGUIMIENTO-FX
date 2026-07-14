@@ -33,6 +33,7 @@ jobs:
         env:
           INPUT_FECHA: ${{ github.event.inputs.fecha }}
           INPUT_VALOR: ${{ github.event.inputs.valor_manual }}
+          MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
         run: python3 scripts/run_workflow.py
 
       - name: Commit y push
