@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
 update_fx_diario.py — Actualización diaria del SIOPEL en index.html
-Uso: python3 update_fx_diario.py <valor> [--html path/to/index.html]
+Uso: python3 update_fx_diario.py <valor> [fecha YYYY-MM-DD]
 
 Ejemplo: python3 update_fx_diario.py 1482.0
+         python3 update_fx_diario.py 1482.0 2026-07-14
 
 Verifica todo antes de escribir y muestra un resumen de todos los cambios.
 """
@@ -12,11 +13,15 @@ import sys, re, datetime
 
 HTML = 'index.html'
 if len(sys.argv) < 2:
-    print("Uso: python3 update_fx_diario.py <valor_siopel>")
+    print("Uso: python3 update_fx_diario.py <valor_siopel> [fecha YYYY-MM-DD]")
     sys.exit(1)
 
-NUEVO_SIOPEL = float(sys.argv[1])
-HOY = datetime.date.today().isoformat()
+NUEVO_SIOPEL = round(float(sys.argv[1]), 2)
+if len(sys.argv) >= 3:
+    HOY = sys.argv[2]
+    datetime.datetime.strptime(HOY, "%Y-%m-%d")  # validar formato
+else:
+    HOY = datetime.date.today().isoformat()
 
 content = open(HTML, encoding='utf-8').read()
 
@@ -90,17 +95,39 @@ def replace_one(old, new, label):
 # Encontrar el string exacto en el array y reemplazar el primer null tras lri_prev
 hS_vals = hS_str.split(',')
 # encontrar posición del null en LRI_NEW dentro de la lista
-replace_one(
-    f"{str(hS[LRI_PREV]).rstrip('0').rstrip('.')},null",
-    f"{str(hS[LRI_PREV]).rstrip('0').rstrip('.')},{NUEVO_SIOPEL}",
-    f"hS[{LRI_NEW}]={NUEVO_SIOPEL}"
-)
+# Buscar el valor del lri tal como aparece en el array hS (puede ser "1482.0", "1482", "1482.00", etc.)
+# Usar regex para matchear cualquier representación numérica del valor
+def find_prev_val_str():
+    """Encuentra la representación exacta del valor hS[LRI_PREV] en el string del array."""
+    target = hS[LRI_PREV]
+    # Buscar en la cola del array hS el patrón: <número>,null
+    tail_match = re.search(r'((?:\d+\.?\d*)),null(?:,null)+\]', hS_str)
+    if tail_match:
+        # Verificar que el número encontrado sea el valor esperado
+        found = float(tail_match.group(1))
+        if abs(found - target) < 0.01:
+            return tail_match.group(1)
+    # Fallback: buscar el número exacto en cualquier representación
+    for fmt in [str(target), f"{target:.1f}", f"{target:.2f}", str(int(target))]:
+        if f"{fmt},null" in hS_str:
+            return fmt
+    return None
+
+prev_val_str = find_prev_val_str()
+if prev_val_str is None:
+    errors.append(f"NO ENCONTRADO: hS[{LRI_NEW}]={NUEVO_SIOPEL}\n  No pude localizar hS[{LRI_PREV}]={hS[LRI_PREV]} en el array")
+else:
+    replace_one(
+        f"{prev_val_str},null",
+        f"{prev_val_str},{NUEVO_SIOPEL:.2f}",
+        f"hS[{LRI_NEW}]={NUEVO_SIOPEL:.2f}"
+    )
 
 # ── 2. sSiopelActual ────────────────────────────────────────────────────────────
 m_sJun = re.search(r'var sSiopelActual=\[(.*?)\];', content)
 if m_sJun:
     old_sJun = f"var sSiopelActual=[{m_sJun.group(1)}];"
-    new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL}];"
+    new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL:.2f}];"
     replace_one(old_sJun, new_sJun, "sSiopelActual append")
 
 # ── 3. hPt ─────────────────────────────────────────────────────────────────

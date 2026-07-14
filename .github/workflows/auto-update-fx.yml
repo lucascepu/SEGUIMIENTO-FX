@@ -1,0 +1,102 @@
+name: Auto-actualizar FX diario
+
+on:
+  schedule:
+    # 21:30 UTC = 18:30 Argentina (UTC-3). Lunes a viernes.
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      fecha:
+        description: 'Fecha (YYYY-MM-DD). Vacío = hoy AR'
+        required: false
+        default: ''
+      valor_manual:
+        description: 'Valor FX manual (override, omitir para usar API)'
+        required: false
+        default: ''
+
+jobs:
+  update-fx:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Determinar fecha (hora AR)
+        id: fecha
+        run: |
+          if [ -n "${{ github.event.inputs.fecha }}" ]; then
+            FECHA="${{ github.event.inputs.fecha }}"
+          else
+            FECHA=$(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d)
+          fi
+          echo "fecha=$FECHA" >> $GITHUB_OUTPUT
+          echo "Fecha objetivo: $FECHA"
+
+      - name: Verificar día hábil
+        id: habil
+        run: |
+          DIA=$(date -d "${{ steps.fecha.outputs.fecha }}" +%u)
+          if [ "$DIA" -ge 6 ]; then
+            echo "habil=false" >> $GITHUB_OUTPUT
+            echo "Es fin de semana, no se actualiza."
+          else
+            echo "habil=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Ejecutar auto_update_fx.py
+        if: steps.habil.outputs.habil == 'true'
+        env:
+          MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
+        run: |
+          FECHA="${{ steps.fecha.outputs.fecha }}"
+          VALOR="${{ github.event.inputs.valor_manual }}"
+
+          if [ -n "$VALOR" ]; then
+            # Override manual: saltar la API
+            echo "Usando valor manual: $VALOR"
+            python3 update_fx_diario.py "$VALOR" "$FECHA"
+          else
+            # Modo automático: API MAE
+            python3 scripts/auto_update_fx.py "$FECHA"
+          fi
+
+      - name: Verificar sintaxis JS
+        if: steps.habil.outputs.habil == 'true'
+        run: |
+          node --version
+          python3 - <<'PYEOF'
+          import re, subprocess, sys
+          content = open('index.html', encoding='utf-8').read()
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', content, re.S)
+          for i, s in enumerate(scripts):
+              with open(f'/tmp/check_{i}.js', 'w') as f:
+                  f.write(s)
+              r = subprocess.run(['node', '--check', f'/tmp/check_{i}.js'], capture_output=True)
+              if r.returncode != 0:
+                  print(f"ERROR sintaxis en script {i}:", r.stderr.decode())
+                  sys.exit(1)
+          print(f"Sintaxis OK ({len(scripts)} scripts)")
+          PYEOF
+
+      - name: Commit y push si hubo cambios
+        if: steps.habil.outputs.habil == 'true'
+        run: |
+          git config user.name  "fx-bot[auto]"
+          git config user.email "fx-bot@seguimiento-fx.local"
+          if git diff --quiet index.html; then
+            echo "Sin cambios — posiblemente ya actualizado o no hubo rueda hoy."
+          else
+            FECHA="${{ steps.fecha.outputs.fecha }}"
+            git add index.html
+            git commit -m "auto: FX $FECHA (API MAE)"
+            git push
+          fi
