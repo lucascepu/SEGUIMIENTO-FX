@@ -52,6 +52,15 @@
   .bb-price{font-size:62px;font-weight:700;color:var(--txt);line-height:1;letter-spacing:-.03em;margin-bottom:7px;}
   .bb-delta{font-size:15px;font-weight:500;margin-bottom:9px;}
   .bb-meta{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  /* ── Badge EN VIVO ── */
+  .live-badge{display:none;position:absolute;left:calc(var(--liveLeft, 0px) + 16px);bottom:0;flex-direction:column;gap:3px;}
+  .live-badge.visible{display:flex;}
+  .live-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--accent);display:flex;align-items:center;gap:5px;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0;}
+  @keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.65);}}
+  .live-price{font-size:42px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.03em;}
+  .live-time{font-size:10px;color:var(--txt3);}
+  .bb-hero-wrap{position:relative;display:inline-block;}
   .bb-dot{color:rgba(255,255,255,.2);font-size:10px;}
   /* ── Separator ── */
   .bb-sep{border:none;border-top:1px solid rgba(255,255,255,.07);margin:0;}
@@ -238,8 +247,15 @@
   <div class="bb-hero">
     <div class="bb-page-title">Mercado Cambiario</div>
     <div class="bb-ticker">SIOPEL</div>
-    <div class="bb-price" id="siopelVal">$1.482,00</div>
-    <div class="bb-delta" id="deltaSiopelSub">—</div>
+    <div class="bb-hero-wrap">
+      <div class="bb-price" id="siopelVal">$1.482,00</div>
+      <div class="bb-delta" id="deltaSiopelSub">—</div>
+      <div class="live-badge" id="liveBadge">
+        <div class="live-label"><span class="live-dot"></span>EN VIVO</div>
+        <div class="live-price" id="liveVal">—</div>
+        <div class="live-time" id="liveTime">actualizando...</div>
+      </div>
+    </div>
     <div class="bb-meta">
       <span id="siopelDate">13 Jul 2026</span>
       <span class="bb-dot">·</span>
@@ -1671,6 +1687,55 @@
   updatePercentil();
   applyPeriod();
   chart.options.animation={duration:350,easing:'easeInOutQuart'};
+
+  /* ── LIVE INTRADAY — criptoya via /api/dolar ──────────────────────────────
+     Visible lun-vie 11:00-15:00 AR. Refresh cada 60s. No toca hS[]. */
+  (function(){
+    var badge   = document.getElementById('liveBadge');
+    var priceEl = document.getElementById('liveVal');
+    var timeEl  = document.getElementById('liveTime');
+    var heroWrap= document.querySelector('.bb-hero-wrap');
+    if(!badge) return;
+
+    function isMarketOpen(){
+      var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+      var d=ar.getDay(), m=ar.getHours()*60+ar.getMinutes();
+      return d>=1&&d<=5&&m>=660&&m<900;
+    }
+
+    function fmt(v){
+      return '$'+parseFloat(v).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+
+    function positionBadge(){
+      if(!heroWrap) return;
+      var priceDiv=document.getElementById('siopelVal');
+      if(priceDiv) badge.style.left=(priceDiv.offsetWidth+24)+'px';
+    }
+
+    function fetchLive(){
+      if(!isMarketOpen()){ badge.classList.remove('visible'); return; }
+      fetch('/api/dolar')
+        .then(function(r){return r.json();})
+        .then(function(data){
+          var m=data.mayorista;
+          if(!m) return;
+          var price=typeof m==='object'?m.price:m;
+          if(!price) return;
+          priceEl.textContent=fmt(price);
+          var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+          timeEl.textContent='Últ. '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0')+' AR';
+          badge.classList.add('visible');
+          positionBadge();
+        })
+        .catch(function(){timeEl.textContent='sin señal';});
+    }
+
+    fetchLive();
+    setInterval(fetchLive, 60000);
+    window.addEventListener('resize', positionBadge);
+  })();
+
 })();
 </script>
 </div><!-- /container -->
