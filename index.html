@@ -47,15 +47,6 @@
   .cards{margin-bottom:0;}
   /* ── Bloomberg-style hero ── */
   .bb-hero{padding:10px 0 12px;}
-  .bb-hero-prices{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;}
-  /* Indicador live */
-  .live-badge{display:none;flex-direction:column;gap:4px;padding-bottom:10px;}
-  .live-badge.visible{display:flex;}
-  .live-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:5px;}
-  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:livePulse 1.4s ease-in-out infinite;}
-  @keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
-  .live-price{font-size:42px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.03em;}
-  .live-time{font-size:10px;color:var(--txt3);}
   .bb-page-title{font-size:13px;color:var(--txt3);margin-bottom:8px;letter-spacing:.01em;}
   .bb-ticker{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);opacity:.8;margin-bottom:6px;}
   .bb-price{font-size:62px;font-weight:700;color:var(--txt);line-height:1;letter-spacing:-.03em;margin-bottom:7px;}
@@ -247,17 +238,8 @@
   <div class="bb-hero">
     <div class="bb-page-title">Mercado Cambiario</div>
     <div class="bb-ticker">SIOPEL</div>
-    <div class="bb-hero-prices">
-      <div>
-        <div class="bb-price" id="siopelVal">$1.482,00</div>
-        <div class="bb-delta" id="deltaSiopelSub">—</div>
-      </div>
-      <div class="live-badge" id="liveBadge">
-        <div class="live-label"><span class="live-dot"></span>EN VIVO</div>
-        <div class="live-price" id="liveVal">—</div>
-        <div class="live-time" id="liveTime">actualizando...</div>
-      </div>
-    </div>
+    <div class="bb-price" id="siopelVal">$1.482,00</div>
+    <div class="bb-delta" id="deltaSiopelSub">—</div>
     <div class="bb-meta">
       <span id="siopelDate">13 Jul 2026</span>
       <span class="bb-dot">·</span>
@@ -1689,57 +1671,8 @@
   updatePercentil();
   applyPeriod();
   chart.options.animation={duration:350,easing:'easeInOutQuart'};
-  /* ── LIVE INTRADAY (criptoya via proxy /api/dolar) ─────────────────────
-     Visible solo lun-vie 11:00-15:00 AR. Refresh cada 60 segundos. */
-  (function(){
-    var badge   = document.getElementById('liveBadge');
-    var liveVal = document.getElementById('liveVal');
-    var liveTime= document.getElementById('liveTime');
-    if(!badge) return;
-
-    function isMarketOpen(){
-      var now = new Date();
-      // Convertir a hora AR (UTC-3)
-      var ar = new Date(now.toLocaleString('en-US', {timeZone:'America/Argentina/Buenos_Aires'}));
-      var day = ar.getDay();  // 0=dom, 6=sab
-      var h = ar.getHours(), m = ar.getMinutes();
-      var mins = h*60+m;
-      return day>=1 && day<=5 && mins>=660 && mins<900; // 11:00-15:00
-    }
-
-    function fmt(v){
-      return '$'+v.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
-    }
-
-    function fetchLive(){
-      if(!isMarketOpen()){
-        badge.classList.remove('visible');
-        return;
-      }
-      fetch('/api/dolar')
-        .then(function(r){ return r.json(); })
-        .then(function(data){
-          var mayorista = data.mayorista;
-          if(!mayorista) return;
-          var price = typeof mayorista==='object' ? mayorista.price : mayorista;
-          if(!price) return;
-          liveVal.textContent = fmt(parseFloat(price));
-          var now = new Date();
-          var ar = new Date(now.toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
-          liveTime.textContent = 'Últ. actualiz. ' +
-            String(ar.getHours()).padStart(2,'0')+':'+
-            String(ar.getMinutes()).padStart(2,'0')+':'+
-            String(ar.getSeconds()).padStart(2,'0')+' AR';
-          badge.classList.add('visible');
-        })
-        .catch(function(){ liveTime.textContent = 'sin datos'; });
-    }
-
-    fetchLive();
-    setInterval(fetchLive, 60000);
-  })();
-
-
+})();
+</script>
 </div><!-- /container -->
 </body>
 </html>
