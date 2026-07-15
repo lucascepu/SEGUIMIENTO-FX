@@ -1740,17 +1740,20 @@
       fetch('/api/dolar')
         .then(function(r){return r.json();})
         .then(function(data){
+          console.log('[live] mayorista:', JSON.stringify(data.mayorista));
           var m=data.mayorista;
           if(!m) return;
           var price=typeof m==='object'?m.price:m;
-          if(!price) return;
+          if(!price||isNaN(parseFloat(price))) return;
+          /* solo actualizar si el precio es válido */
+          priceEl.textContent=fmt(price);
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
           timeEl.textContent='Últ. tick '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
           labelEl.innerHTML='<span class="live-dot"></span>EN VIVO';
           badge.classList.remove('closed');
           showBadge();
         })
-        .catch(function(){});
+        .catch(function(e){ console.warn('[live] fetch error:', e); });
     }
 
     fetchLive();
