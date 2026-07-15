@@ -195,6 +195,12 @@
   .stamp    { font-size:10px; }
   .footnote { font-size:10px; }
 
+  /* Badge EN VIVO: pasa debajo del precio en mobile */
+  .bb-hero-wrap { display:block; position:static; }
+  .live-badge   { position:static; margin-top:6px; }
+  .live-price   { font-size:32px; }
+  .live-time    { font-size:10px; }
+
   /* FUTUROS */
   .fut-cards      { grid-template-columns:repeat(2,1fr); gap:8px; }
   #futMainGrid    { grid-template-columns:1fr !important; }
@@ -1721,6 +1727,7 @@
     }
 
     function positionBadge(){
+      if(window.innerWidth<=768) return; /* mobile: flujo normal, no posicionamiento absoluto */
       var priceDiv=document.getElementById('siopelVal');
       if(priceDiv&&badge) badge.style.left=(priceDiv.offsetWidth+24)+'px';
     }
