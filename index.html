@@ -659,11 +659,11 @@
 
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
   var FUT_REM   = {
-    'JUN 26':1422,'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
-    'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
-  ,'ENE 27':1678,'FEB 27':1698,'MAR 27':1718,'ABR 27':1739,'MAY 27':1760};
-  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96};
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
+    'JUN 26':1422,'JUL 26':1482,'AGO 26':1513,'SEP 26':1548,
+    'OCT 26':1589,'NOV 26':1621,'DIC 26':1673
+  ,'ENE 27':1694,'FEB 27':1716,'MAR 27':1738,'ABR 27':1760,'MAY 27':1782,'JUN 27':1805};
+  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
+  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {'JUL 26':1478.0,'AGO 26':1508.5,'SEP 26':1536.0,'OCT 26':1564.5,'NOV 26':1595.0,'DIC 26':1625.0,'ENE 27':1656.0,'FEB 27':1687.5,'MAR 27':1718.0,'ABR 27':1748.0,'MAY 27':1770.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
@@ -685,7 +685,7 @@
 
   function renderFut(){
     var siopel = hS[lri];
-    var KEYS   = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
+    var KEYS   = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
     var futs   = KEYS.map(function(k){ return futPrices[k]||null; });
     var rems   = KEYS.map(function(k){ return FUT_REM[k]; });
     var techos = KEYS.map(function(k){ return FUT_TECHO[k]; });
@@ -1245,11 +1245,11 @@
   
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
   var FUT_REM   = {
-    'JUN 26':1422,'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
-    'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
-  ,'ENE 27':1678,'FEB 27':1698,'MAR 27':1718,'ABR 27':1739,'MAY 27':1760};
-  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96};
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
+    'JUN 26':1422,'JUL 26':1482,'AGO 26':1513,'SEP 26':1548,
+    'OCT 26':1589,'NOV 26':1621,'DIC 26':1673
+  ,'ENE 27':1694,'FEB 27':1716,'MAR 27':1738,'ABR 27':1760,'MAY 27':1782,'JUN 27':1805};
+  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
+  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {'JUL 26':1478.0,'AGO 26':1508.5,'SEP 26':1536.0,'OCT 26':1564.5,'NOV 26':1595.0,'DIC 26':1625.0,'ENE 27':1656.0,'FEB 27':1687.5,'MAR 27':1718.0,'ABR 27':1748.0,'MAY 27':1770.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
@@ -1639,11 +1639,11 @@
 
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
   var FUT_REM   = {
-    'JUN 26':1422,'JUL 26':1447,'AGO 26':1476,'SEP 26':1516,
-    'OCT 26':1553,'NOV 26':1597,'DIC 26':1658
-  ,'ENE 27':1678,'FEB 27':1698,'MAR 27':1718,'ABR 27':1739,'MAY 27':1760};
-  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96};
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
+    'JUN 26':1422,'JUL 26':1482,'AGO 26':1513,'SEP 26':1548,
+    'OCT 26':1589,'NOV 26':1621,'DIC 26':1673
+  ,'ENE 27':1694,'FEB 27':1716,'MAR 27':1738,'ABR 27':1760,'MAY 27':1782,'JUN 27':1805};
+  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
+  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
   var FUT_DEFAULT = {'JUL 26':1478.0,'AGO 26':1508.5,'SEP 26':1536.0,'OCT 26':1564.5,'NOV 26':1595.0,'DIC 26':1625.0,'ENE 27':1656.0,'FEB 27':1687.5,'MAR 27':1718.0,'ABR 27':1748.0,'MAY 27':1770.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
