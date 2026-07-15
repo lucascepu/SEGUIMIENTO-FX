@@ -398,7 +398,7 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 7/7/2026<br>
+        Cierre ROFEX 14/7/2026<br>
         REM ene–may 27: interpolado ($1.658→$1.760)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)
       </div>
@@ -665,12 +665,12 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1502.5,'AGO 26':1528.5,'SEP 26':1556.0,'OCT 26':1584.5,'NOV 26':1613.5,'DIC 26':1643.0,'ENE 27':1675.0,'FEB 27':1704.0,'MAR 27':1736.5,'ABR 27':1766.5,'MAY 27':1801.5};
+  var FUT_DEFAULT = {'JUL 26':1478.0,'AGO 26':1508.5,'SEP 26':1536.0,'OCT 26':1564.5,'NOV 26':1595.0,'DIC 26':1625.0,'ENE 27':1656.0,'FEB 27':1687.5,'MAR 27':1718.0,'ABR 27':1748.0,'MAY 27':1770.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260707';
+  var ROFEX_VERSION = '20260714';
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
@@ -1251,12 +1251,12 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1502.5,'AGO 26':1528.5,'SEP 26':1556.0,'OCT 26':1584.5,'NOV 26':1613.5,'DIC 26':1643.0,'ENE 27':1675.0,'FEB 27':1704.0,'MAR 27':1736.5,'ABR 27':1766.5,'MAY 27':1801.5};
+  var FUT_DEFAULT = {'JUL 26':1478.0,'AGO 26':1508.5,'SEP 26':1536.0,'OCT 26':1564.5,'NOV 26':1595.0,'DIC 26':1625.0,'ENE 27':1656.0,'FEB 27':1687.5,'MAR 27':1718.0,'ABR 27':1748.0,'MAY 27':1770.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260707';
+  var ROFEX_VERSION = '20260714';
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
@@ -1645,12 +1645,12 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1502.5,'AGO 26':1528.5,'SEP 26':1556.0,'OCT 26':1584.5,'NOV 26':1613.5,'DIC 26':1643.0,'ENE 27':1675.0,'FEB 27':1704.0,'MAR 27':1736.5,'ABR 27':1766.5,'MAY 27':1801.5};
+  var FUT_DEFAULT = {'JUL 26':1478.0,'AGO 26':1508.5,'SEP 26':1536.0,'OCT 26':1564.5,'NOV 26':1595.0,'DIC 26':1625.0,'ENE 27':1656.0,'FEB 27':1687.5,'MAR 27':1718.0,'ABR 27':1748.0,'MAY 27':1770.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260707';
+  var ROFEX_VERSION = '20260714';
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
