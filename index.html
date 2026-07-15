@@ -1740,7 +1740,6 @@
       fetch('/api/dolar')
         .then(function(r){return r.json();})
         .then(function(data){
-          console.log('[live] mayorista:', JSON.stringify(data.mayorista));
           var m=data.mayorista;
           if(!m) return;
           var price=typeof m==='object'?m.price:m;
