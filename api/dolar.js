@@ -1,7 +1,7 @@
 // Vercel Serverless Function — proxy para criptoya.com/api/dolar
 export default async function handler(req, res) {
   try {
-    const response = await fetch('https://criptoya.com/api/dolar', {
+    const response = await fetch('https://criptoya.com/api/dolar/mayorista', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; seguimiento-fx/1.0)',
         'Accept': 'application/json'

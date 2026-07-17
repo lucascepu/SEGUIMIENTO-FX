@@ -1747,9 +1747,8 @@
       fetch('/api/dolar')
         .then(function(r){return r.json();})
         .then(function(data){
-          var m=data.mayorista;
-          if(!m) return;
-          var price=typeof m==='object'?m.price:m;
+          /* /api/dolar/mayorista devuelve {price, variation, timestamp} directo */
+          var price = data.price || (data.mayorista && (typeof data.mayorista==='object' ? data.mayorista.price : data.mayorista));
           if(!price||isNaN(parseFloat(price))) return;
           /* solo actualizar si el precio es válido */
           priceEl.textContent=fmt(price);
