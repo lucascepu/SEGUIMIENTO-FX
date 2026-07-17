@@ -2,7 +2,7 @@ name: Auto-actualizar FX diario
 
 on:
   schedule:
-    - cron: '15 18 * * 1-5'   # 18:15 UTC = 15:15 AR (lun-vie)
+    - cron: '0 18 * * 1-5'   # 18:00 UTC = 15:00 AR (lun-vie), con delay GitHub ~15:10-15:15 AR
   workflow_dispatch:
     inputs:
       fecha:
