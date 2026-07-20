@@ -36,6 +36,17 @@ jobs:
           MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
         run: python3 scripts/run_workflow.py
 
+      - name: Actualizar futuros ROFEX
+        env:
+          MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
+          INPUT_FECHA: ${{ github.event.inputs.fecha }}
+        run: |
+          FECHA="${INPUT_FECHA}"
+          if [ -z "$FECHA" ]; then
+            FECHA=$(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d)
+          fi
+          python3 scripts/update_futuros.py "$FECHA" || echo "Futuros: sin datos para hoy (puede ser normal)"
+
       - name: Commit y push
         run: |
           git config user.name "fx-bot[auto]"
