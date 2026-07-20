@@ -17,8 +17,10 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 NUEVO_SIOPEL = round(float(sys.argv[1]), 2)
-if len(sys.argv) >= 3:
-    raw = sys.argv[2].strip()
+FORCE = '--force' in sys.argv  # permite sobreescribir si ya hay valor
+args = [a for a in sys.argv[2:] if a != '--force']
+if args:
+    raw = args[0].strip()
     # Aceptar tanto YYYY-MM-DD como YYYYMMDD
     if len(raw) == 8 and '-' not in raw:
         raw = f"{raw[:4]}-{raw[4:6]}-{raw[6:]}"
@@ -56,8 +58,13 @@ if LRI_NEW != LRI_PREV + 1:
     print("¿Faltó alguna rueda intermedia? Verificar manualmente.")
 
 if hS[LRI_NEW] is not None:
-    print(f"ADVERTENCIA: hS[{LRI_NEW}]={hS[LRI_NEW]} ya tiene valor. ¿Ya se actualizó hoy?")
-    sys.exit(1)
+    if FORCE:
+        print(f"[force] Sobreescribiendo hS[{LRI_NEW}]={hS[LRI_NEW]} → {NUEVO_SIOPEL}")
+        # Ajustar LRI_PREV para que el delta se calcule bien
+        LRI_PREV = LRI_NEW
+    else:
+        print(f"ADVERTENCIA: hS[{LRI_NEW}]={hS[LRI_NEW]} ya tiene valor. ¿Ya se actualizó hoy?")
+        sys.exit(1)
 
 TECHO_HOY = hT[LRI_NEW]
 SIOPEL_ANT = hS[LRI_PREV]
@@ -104,10 +111,18 @@ hS_vals = hS_str.split(',')
 def find_prev_val_str():
     """Encuentra la representación exacta del valor hS[LRI_PREV] en el string del array."""
     target = hS[LRI_PREV]
+    if FORCE and LRI_PREV == LRI_NEW:
+        # En modo force: sobreescribir usando índice exacto en el array
+        # Reconstruir el array con el valor corregido
+        vals = hS_str.split(',')
+        if LRI_NEW < len(vals):
+            old_v = vals[LRI_NEW].strip()
+            new_v = f"{NUEVO_SIOPEL:.2f}"
+            return ('__force_idx__', LRI_NEW, old_v, new_v)
+        return None
     # Buscar en la cola del array hS el patrón: <número>,null
     tail_match = re.search(r'((?:\d+\.?\d*)),null(?:,null)+\]', hS_str)
     if tail_match:
-        # Verificar que el número encontrado sea el valor esperado
         found = float(tail_match.group(1))
         if abs(found - target) < 0.01:
             return tail_match.group(1)
@@ -120,7 +135,18 @@ def find_prev_val_str():
 prev_val_str = find_prev_val_str()
 if prev_val_str is None:
     errors.append(f"NO ENCONTRADO: hS[{LRI_NEW}]={NUEVO_SIOPEL}\n  No pude localizar hS[{LRI_PREV}]={hS[LRI_PREV]} en el array")
-else:
+elif FORCE and isinstance(prev_val_str, tuple) and prev_val_str[0] == '__force_idx__':
+    _, idx, old_v, new_v = prev_val_str
+    # Reemplazar usando reconstrucción del array completo
+    vals = hS_str.split(',')
+    vals[idx] = new_v
+    new_hS_str = ','.join(vals)
+    old_full = f"var hS=[{hS_str}];"
+    new_full = f"var hS=[{new_hS_str}];"
+    if old_full in content:
+        content = content.replace(old_full, new_full, 1)
+        print(f"  ✓ hS[{idx}] force {old_v}→{new_v}")
+elif not FORCE:
     replace_one(
         f"{prev_val_str},null",
         f"{prev_val_str},{NUEVO_SIOPEL:.2f}",
@@ -130,40 +156,53 @@ else:
 # ── 2. sSiopelActual ────────────────────────────────────────────────────────────
 m_sJun = re.search(r'var sSiopelActual=\[(.*?)\];', content)
 if m_sJun:
-    old_sJun = f"var sSiopelActual=[{m_sJun.group(1)}];"
-    new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL:.2f}];"
-    replace_one(old_sJun, new_sJun, "sSiopelActual append")
+    if FORCE:
+        # Reemplazar el último valor en sSiopelActual
+        vals = m_sJun.group(1).split(',')
+        old_last = vals[-1].strip()
+        old_sJun = f"var sSiopelActual=[{m_sJun.group(1)}];"
+        new_inner = ','.join(vals[:-1] + [f"{NUEVO_SIOPEL:.2f}"])
+        new_sJun = f"var sSiopelActual=[{new_inner}];"
+        replace_one(old_sJun, new_sJun, f"sSiopelActual force {old_last}→{NUEVO_SIOPEL:.2f}")
+    else:
+        old_sJun = f"var sSiopelActual=[{m_sJun.group(1)}];"
+        new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL:.2f}];"
+        replace_one(old_sJun, new_sJun, "sSiopelActual append")
 
 # ── 3. hPt ─────────────────────────────────────────────────────────────────
-replace_one(f'hPt[{LRI_PREV}]=7', f'hPt[{LRI_NEW}]=7', f"hPt {LRI_PREV}→{LRI_NEW}")
+if not FORCE:
+    replace_one(f'hPt[{LRI_PREV}]=7', f'hPt[{LRI_NEW}]=7', f"hPt {LRI_PREV}→{LRI_NEW}")
 
 # ── 4. pPt (proj: 3 + len(sSiopelActual)) ────────────────────────────────────
-m_pPt = re.search(r'var pPt=N\(51\); pPt\[(\d+)\]=7;', content)
-if m_pPt:
-    old_pPt_idx = int(m_pPt.group(1))
-    new_pPt_idx = old_pPt_idx + 1
-    replace_one(f'pPt[{old_pPt_idx}]=7', f'pPt[{new_pPt_idx}]=7', f"pPt {old_pPt_idx}→{new_pPt_idx}")
+if not FORCE:
+    m_pPt = re.search(r'var pPt=N\(51\); pPt\[(\d+)\]=7;', content)
+    if m_pPt:
+        old_pPt_idx = int(m_pPt.group(1))
+        new_pPt_idx = old_pPt_idx + 1
+        replace_one(f'pPt[{old_pPt_idx}]=7', f'pPt[{new_pPt_idx}]=7', f"pPt {old_pPt_idx}→{new_pPt_idx}")
 
 # ── 5. ia (zona sombreada) ─────────────────────────────────────────────────
-m_ia = re.search(r"var ia=mode==='proj'\?(\d+):(\d+), ib=ia;", content)
-if m_ia:
-    old_ia_proj, old_ia_hist = m_ia.group(1), m_ia.group(2)
-    new_ia_proj = str(int(old_ia_proj) + 1)
-    new_ia_hist = str(LRI_NEW)
-    replace_one(
-        f"var ia=mode==='proj'?{old_ia_proj}:{old_ia_hist}, ib=ia;",
-        f"var ia=mode==='proj'?{new_ia_proj}:{new_ia_hist}, ib=ia;",
-        f"ia hist {old_ia_hist}→{new_ia_hist}, proj {old_ia_proj}→{new_ia_proj}"
-    )
+if not FORCE:
+    m_ia = re.search(r"var ia=mode==='proj'\?(\d+):(\d+), ib=ia;", content)
+    if m_ia:
+        old_ia_proj, old_ia_hist = m_ia.group(1), m_ia.group(2)
+        new_ia_proj = str(int(old_ia_proj) + 1)
+        new_ia_hist = str(LRI_NEW)
+        replace_one(
+            f"var ia=mode==='proj'?{old_ia_proj}:{old_ia_hist}, ib=ia;",
+            f"var ia=mode==='proj'?{new_ia_proj}:{new_ia_hist}, ib=ia;",
+            f"ia hist {old_ia_hist}→{new_ia_hist}, proj {old_ia_proj}→{new_ia_proj}"
+        )
 
 # ── 6. Label chart ─────────────────────────────────────────────────────────
-m_lbl = re.search(r"ctx\.fillText\('(\d+-\w+) ←'", content)
-if m_lbl:
-    replace_one(
-        f"ctx.fillText('{m_lbl.group(1)} ←',xA-3,ca.top+13);",
-        f"ctx.fillText('{HOY_CHART} ←',xA-3,ca.top+13);",
-        f"label chart {m_lbl.group(1)}→{HOY_CHART}"
-    )
+if not FORCE:
+    m_lbl = re.search(r"ctx\.fillText\('(\d+-\w+) ←'", content)
+    if m_lbl:
+        replace_one(
+            f"ctx.fillText('{m_lbl.group(1)} ←',xA-3,ca.top+13);",
+            f"ctx.fillText('{HOY_CHART} ←',xA-3,ca.top+13);",
+            f"label chart {m_lbl.group(1)}→{HOY_CHART}"
+        )
 
 # ── 7. Hero HTML ────────────────────────────────────────────────────────────
 # siopelVal
