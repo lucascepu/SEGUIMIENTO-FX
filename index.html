@@ -1199,16 +1199,38 @@
     if(isF){
       (function(){
         var box=document.getElementById('futChartBox');
-        if(!box){ renderFut(); return; }
-        /* Use ResizeObserver to render chart exactly when container has real dimensions */
-        if(typeof ResizeObserver !== 'undefined'){
-          var obs=new ResizeObserver(function(entries){
-            obs.disconnect();
-            if(entries[0].contentRect.width > 0){ renderFut(); }
-          });
-          obs.observe(box);
+        /* Intentar traer precios live de MAE si estamos en horario de mercado */
+        function isMarketOpen(){
+          var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+          var d=ar.getDay(), m=ar.getHours()*60+ar.getMinutes();
+          return d>=1&&d<=5&&m>=600&&m<900;
+        }
+        function doRender(){
+          if(!box){ renderFut(); return; }
+          if(typeof ResizeObserver !== 'undefined'){
+            var obs=new ResizeObserver(function(entries){
+              obs.disconnect();
+              if(entries[0].contentRect.width > 0){ renderFut(); }
+            });
+            obs.observe(box);
+          } else {
+            setTimeout(renderFut, 200);
+          }
+        }
+        if(isMarketOpen()){
+          fetch('/api/futuros')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+              /* Actualizar futPrices con precios live, manteniendo FUT_DEFAULT como fallback */
+              Object.keys(data).forEach(function(k){
+                var precio = data[k].ultimo || data[k].ajuste;
+                if(precio) futPrices[k] = precio;
+              });
+              doRender();
+            })
+            .catch(function(){ doRender(); }); /* si falla, usar FUT_DEFAULT */
         } else {
-          setTimeout(renderFut, 200); /* fallback for old browsers */
+          doRender();
         }
       })();
       return;
