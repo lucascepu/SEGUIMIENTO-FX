@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     fecha = ar.toISOString().slice(0, 10);
   }
 
-  const payload = JSON.stringify({ fechaDesde: fecha, fechaHasta: fecha, contratosSinVolumen: false });
+  const payload = JSON.stringify({ fechaDesde: fecha, fechaHasta: fecha, contratosSinVolumen: true });
   const url = `https://api.marketdata.mae.com.ar/api/cem/monedas/fut?oData=${encodeURIComponent(payload)}`;
 
   try {
