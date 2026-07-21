@@ -1223,7 +1223,7 @@
             .then(function(data){
               /* Actualizar futPrices con precios live, manteniendo FUT_DEFAULT como fallback */
               Object.keys(data).forEach(function(k){
-                var precio = data[k].ultimo || data[k].ajuste;
+                var precio = (data[k].ultimo && data[k].ultimo > 0) ? data[k].ultimo : data[k].ajuste;
                 if(precio) futPrices[k] = precio;
               });
               doRender();
