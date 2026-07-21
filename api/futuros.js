@@ -6,10 +6,16 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Fecha de hoy AR (UTC-3)
-  const now = new Date();
-  const ar = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-  const fecha = ar.toISOString().slice(0, 10);
+  // Fecha: del parámetro ?fecha= o hoy AR
+  let fecha;
+  const fechaParam = new URL(req.url, 'http://localhost').searchParams.get('fecha');
+  if (fechaParam) {
+    fecha = fechaParam;
+  } else {
+    const now = new Date();
+    const ar = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+    fecha = ar.toISOString().slice(0, 10);
+  }
 
   const payload = JSON.stringify({ fechaDesde: fecha, fechaHasta: fecha, contratosSinVolumen: false });
   const url = `https://api.marketdata.mae.com.ar/api/cem/monedas/fut?oData=${encodeURIComponent(payload)}`;
