@@ -1221,14 +1221,16 @@
           fetch('/api/futuros')
             .then(function(r){ return r.json(); })
             .then(function(data){
-              /* Actualizar futPrices con precios live, manteniendo FUT_DEFAULT como fallback */
+              if(data.open===false){ doRender(); return; }
+              /* Actualizar futPrices con precios live de Primary/ROFEX */
               Object.keys(data).forEach(function(k){
-                var precio = (data[k].ultimo && data[k].ultimo > 0) ? data[k].ultimo : data[k].ajuste;
+                if(k==='open') return;
+                var precio = data[k].ultimo && data[k].ultimo > 0 ? data[k].ultimo : null;
                 if(precio) futPrices[k] = precio;
               });
               doRender();
             })
-            .catch(function(){ doRender(); }); /* si falla, usar FUT_DEFAULT */
+            .catch(function(){ doRender(); });
         } else {
           doRender();
         }
