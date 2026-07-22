@@ -1726,9 +1726,9 @@
   /* ── LIVE INTRADAY — criptoya via /api/dolar ─────────────────────────────
      FUENTES:
        - Mercado ABIERTO (lun-vie 10:00-15:00 AR): criptoya.com → badge EN VIVO verde
-       - Mercado CERRADO (08:00-10:00 y 15:00-20:00 AR): criptoya.com → badge MERCADO CERRADO rojo
-       - Fuera de horario (20:00-08:00 AR): badge oculto
-       - Cierre oficial diario (16:00 AR): GitHub Actions → API MAE → persiste en hS[]
+       - CIERRE PROV. (15:00-16:30 AR): último precio de criptoya → badge naranja + pasa al hero
+       - Fuera de horario (16:30-10:00 AR): badge oculto
+       - Cierre oficial diario (~15:15 AR): GitHub Actions → API MAE → persiste en hS[]
      NO usar criptoya para el cierre oficial — usar solo para display en tiempo real. */
   (function(){
     var badge   = document.getElementById('liveBadge');
@@ -1738,12 +1738,15 @@
     var heroWrap= document.querySelector('.bb-hero-wrap');
     if(!badge||!labelEl) return;
 
+    var lastLivePrice = null; /* último precio válido de criptoya */
+
     function marketState(){
       var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
       var d=ar.getDay(), m=ar.getHours()*60+ar.getMinutes();
       if(d===0||d===6) return 'hidden';
-      if(m>=600&&m<900) return 'open';   /* 10:00-14:59 */
-      return 'hidden';
+      if(m>=600&&m<900)  return 'open';    /* 10:00-14:59 */
+      if(m>=900&&m<990)  return 'prov';    /* 15:00-16:29 */
+      return 'hidden';                     /* 16:30+ → oculto */
     }
 
     function fmt(v){
@@ -1751,7 +1754,7 @@
     }
 
     function positionBadge(){
-      if(window.innerWidth<=768) return; /* mobile: flujo normal, no posicionamiento absoluto */
+      if(window.innerWidth<=768) return;
       var priceDiv=document.getElementById('siopelVal');
       if(priceDiv&&badge) badge.style.left=(priceDiv.offsetWidth+24)+'px';
     }
@@ -1763,11 +1766,34 @@
       });
     }
 
+    function showProv(){
+      if(!lastLivePrice) return;
+      /* Pasar precio provisorio al hero principal */
+      var heroPrice = document.getElementById('siopelVal');
+      if(heroPrice) heroPrice.textContent = fmt(lastLivePrice);
+      /* Mostrar badge CIERRE PROV. en naranja */
+      priceEl.textContent = fmt(lastLivePrice);
+      timeEl.textContent = 'Cierre provisorio';
+      labelEl.innerHTML = '<span class="live-dot" style="background:var(--accent);animation:none"></span>CIERRE PROV.';
+      badge.classList.add('visible');
+      badge.classList.remove('closed');
+      positionBadge();
+    }
+
     function fetchLive(){
-      if(marketState()!=='open'){
+      var state = marketState();
+
+      if(state==='hidden'){
         badge.classList.remove('visible','closed');
         return;
       }
+
+      if(state==='prov'){
+        showProv();
+        return;
+      }
+
+      /* state === 'open' */
       fetch('/api/dolar')
         .then(function(r){return r.json();})
         .then(function(data){
@@ -1775,7 +1801,7 @@
           if(!m) return;
           var price=typeof m==='object'?m.price:m;
           if(!price||isNaN(parseFloat(price))) return;
-          /* solo actualizar si el precio es válido */
+          lastLivePrice = parseFloat(price); /* guardar para uso en estado prov */
           priceEl.textContent=fmt(price);
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
           timeEl.textContent='Últ. tick '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
