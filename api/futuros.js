@@ -48,7 +48,7 @@ export default async function handler(req, res) {
   const now = new Date();
   const ar = new Date(now.getTime() - 3 * 60 * 60 * 1000);
   const d = ar.getDay(), m = ar.getHours() * 60 + ar.getMinutes();
-  const marketOpen = d >= 1 && d <= 5 && m >= 600 && m < 900;
+  const marketOpen = d >= 1 && d <= 5 && m >= 600 && m < 1020; // 10:00-17:00 AR
 
   if (!marketOpen) {
     res.setHeader('Access-Control-Allow-Origin', '*');
