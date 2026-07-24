@@ -61,12 +61,15 @@ export default async function handler(req, res) {
     const token = await getToken();
     const result = {};
 
-    // Traer un contrato de prueba para ver la estructura
-    let debugSample = null;
-    try {
-      const testData = await getMarketData(token, 'DLR/JUL26');
-      debugSample = testData;
-    } catch(e) { debugSample = { error: e.message }; }
+    // Probar formatos de ticker
+    let debugSample = {};
+    const testTickers = ['DLR/JUL26', 'DLR/Jul26', 'DLR072026', 'ROFEX-DLR-JUL26'];
+    for (const t of testTickers) {
+      try {
+        const testData = await getMarketData(token, t);
+        debugSample[t] = testData?.status || testData?.marketData ? 'OK' : testData;
+      } catch(e) { debugSample[t] = e.message; }
+    }
 
     // Traer todos los contratos en paralelo
     const promises = CONTRACTS.map(async (ticker) => {
