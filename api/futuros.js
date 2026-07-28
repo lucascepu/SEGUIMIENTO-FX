@@ -6,18 +6,18 @@ const PRIMARY_URL = process.env.PRIMARY_URL || 'https://api.primary.com.ar';
 const PRIMARY_USER = process.env.PRIMARY_USER || '';
 const PRIMARY_PASS = process.env.PRIMARY_PASS || '';
 
-// Contratos DLR estándar (sin M — mayor volumen)
+// Contratos DLR Mayorista (con M al final)
 const CONTRACTS = [
-  'DLR/JUL26', 'DLR/AGO26', 'DLR/SEP26', 'DLR/OCT26',
-  'DLR/NOV26', 'DLR/DIC26', 'DLR/ENE27', 'DLR/FEB27',
-  'DLR/MAR27', 'DLR/ABR27', 'DLR/MAY27', 'DLR/JUN27'
+  'DLR/JUL26M', 'DLR/AGO26M', 'DLR/SEP26M', 'DLR/OCT26M',
+  'DLR/NOV26M', 'DLR/DIC26M', 'DLR/ENE27M', 'DLR/FEB27M',
+  'DLR/MAR27M', 'DLR/ABR27M', 'DLR/MAY27M', 'DLR/JUN27M'
 ];
 
 const TICKER_TO_KEY = {
-  'DLR/JUL26':'JUL 26', 'DLR/AGO26':'AGO 26', 'DLR/SEP26':'SEP 26',
-  'DLR/OCT26':'OCT 26', 'DLR/NOV26':'NOV 26', 'DLR/DIC26':'DIC 26',
-  'DLR/ENE27':'ENE 27', 'DLR/FEB27':'FEB 27', 'DLR/MAR27':'MAR 27',
-  'DLR/ABR27':'ABR 27', 'DLR/MAY27':'MAY 27', 'DLR/JUN27':'JUN 27'
+  'DLR/JUL26M':'JUL 26', 'DLR/AGO26M':'AGO 26', 'DLR/SEP26M':'SEP 26',
+  'DLR/OCT26M':'OCT 26', 'DLR/NOV26M':'NOV 26', 'DLR/DIC26M':'DIC 26',
+  'DLR/ENE27M':'ENE 27', 'DLR/FEB27M':'FEB 27', 'DLR/MAR27M':'MAR 27',
+  'DLR/ABR27M':'ABR 27', 'DLR/MAY27M':'MAY 27', 'DLR/JUN27M':'JUN 27'
 };
 
 async function getToken() {
@@ -66,8 +66,10 @@ export default async function handler(req, res) {
         const data = await getMarketData(token, ticker);
         if (!data || data.status !== 'OK' || !data.marketData) return;
         const md = data.marketData;
-        /* LA = último operado, CL = cierre, SE = settlement — todos son objetos {price, size, date} */
-        const ultimo = (md.LA && md.LA.price) || (md.CL && md.CL.price) || (md.SE && md.SE.price);
+        /* LA = último operado, SE = settlement. En contratos M suelen tener SE aunque no operen */
+        const ultimo = (md.LA && md.LA.price > 0 ? md.LA.price : null) ||
+                       (md.SE && md.SE.price > 0 ? md.SE.price : null) ||
+                       (md.CL && md.CL.price > 0 ? md.CL.price : null);
         const key = TICKER_TO_KEY[ticker];
         if (key && ultimo) {
           result[key] = { ultimo, variacion: 0 };
