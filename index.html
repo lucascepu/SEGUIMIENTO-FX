@@ -411,7 +411,7 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 22/7/2026<br>
+        Cierre ROFEX 28/7/2026<br>
         REM ene–may 27: interpolado ($1.658→$1.760)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)
       </div>
@@ -678,12 +678,12 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1496.0,'AGO 26':1522.0,'SEP 26':1550.0,'OCT 26':1572.5,'NOV 26':1602.5,'DIC 26':1640.0,'ENE 27':1663.5,'FEB 27':1693.5,'MAR 27':1730.0,'ABR 27':1755.0,'MAY 27':1786.0,'JUN 27':1818.0};
+  var FUT_DEFAULT = {'JUL 26':1499.0,'AGO 26':1525.0,'SEP 26':1551.0,'OCT 26':1584.0,'NOV 26':1611.0,'DIC 26':1641.0,'ENE 27':1720.0,'FEB 27':1704.0,'MAR 27':1737.0,'ABR 27':1767.0,'MAY 27':1798.0,'JUN 27':1828.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260722';
+  var ROFEX_VERSION = '20260728';
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
@@ -1332,12 +1332,12 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1496.0,'AGO 26':1522.0,'SEP 26':1550.0,'OCT 26':1572.5,'NOV 26':1602.5,'DIC 26':1640.0,'ENE 27':1663.5,'FEB 27':1693.5,'MAR 27':1730.0,'ABR 27':1755.0,'MAY 27':1786.0,'JUN 27':1818.0};
+  var FUT_DEFAULT = {'JUL 26':1499.0,'AGO 26':1525.0,'SEP 26':1551.0,'OCT 26':1584.0,'NOV 26':1611.0,'DIC 26':1641.0,'ENE 27':1720.0,'FEB 27':1704.0,'MAR 27':1737.0,'ABR 27':1767.0,'MAY 27':1798.0,'JUN 27':1828.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260722';
+  var ROFEX_VERSION = '20260728';
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
@@ -1726,12 +1726,12 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1496.0,'AGO 26':1522.0,'SEP 26':1550.0,'OCT 26':1572.5,'NOV 26':1602.5,'DIC 26':1640.0,'ENE 27':1663.5,'FEB 27':1693.5,'MAR 27':1730.0,'ABR 27':1755.0,'MAY 27':1786.0,'JUN 27':1818.0};
+  var FUT_DEFAULT = {'JUL 26':1499.0,'AGO 26':1525.0,'SEP 26':1551.0,'OCT 26':1584.0,'NOV 26':1611.0,'DIC 26':1641.0,'ENE 27':1720.0,'FEB 27':1704.0,'MAR 27':1737.0,'ABR 27':1767.0,'MAY 27':1798.0,'JUN 27':1828.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260722';
+  var ROFEX_VERSION = '20260728';
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
