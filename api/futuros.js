@@ -61,12 +61,13 @@ export default async function handler(req, res) {
     const token = await getToken();
     const result = {};
 
-    // Probar formato con M al final
+    // Listar instrumentos DLR disponibles
     let debugSample = {};
     try {
-      const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFEX&symbol=${encodeURIComponent('DLR/JUL26M')}&entries=LA`;
+      const url = `${PRIMARY_URL}/rest/instruments/details?marketId=ROFEX&symbol=DLR`;
       const res = await fetch(url, { headers: { 'X-Auth-Token': token } });
-      debugSample = await res.json();
+      const data = await res.json();
+      debugSample = data;
     } catch(e) { debugSample = { error: e.message }; }
 
     // Traer todos los contratos en paralelo
