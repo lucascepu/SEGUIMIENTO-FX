@@ -61,14 +61,6 @@ export default async function handler(req, res) {
     const token = await getToken();
     const result = {};
 
-    // Testear con marketId y formato correctos
-    let debugSample = {};
-    try {
-      const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFX&symbol=${encodeURIComponent('DLR/JUL26M')}&entries=LA,CL,SE`;
-      const res = await fetch(url, { headers: { 'X-Auth-Token': token } });
-      debugSample = await res.json();
-    } catch(e) { debugSample = { error: e.message }; }
-
     // Traer todos los contratos en paralelo
     const promises = CONTRACTS.map(async (ticker) => {
       try {
@@ -88,7 +80,7 @@ export default async function handler(req, res) {
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Cache-Control', 'no-store');
-    res.status(200).json({ open: true, debug: Object.keys(result).length, sample: debugSample, ...result });
+    res.status(200).json({ open: true, ...result });
 
   } catch (e) {
     res.status(500).json({ error: e.message });
