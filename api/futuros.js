@@ -6,19 +6,19 @@ const PRIMARY_URL = process.env.PRIMARY_URL || 'https://api.primary.com.ar';
 const PRIMARY_USER = process.env.PRIMARY_USER || '';
 const PRIMARY_PASS = process.env.PRIMARY_PASS || '';
 
-// Contratos DLR a consultar
+// Contratos DLR a consultar (formato Primary: DLR/MMMYYM)
 const CONTRACTS = [
-  'DLR/JUL26', 'DLR/AGO26', 'DLR/SEP26', 'DLR/OCT26',
-  'DLR/NOV26', 'DLR/DIC26', 'DLR/ENE27', 'DLR/FEB27',
-  'DLR/MAR27', 'DLR/ABR27', 'DLR/MAY27', 'DLR/JUN27'
+  'DLR/JUL26M', 'DLR/AGO26M', 'DLR/SEP26M', 'DLR/OCT26M',
+  'DLR/NOV26M', 'DLR/DIC26M', 'DLR/ENE27M', 'DLR/FEB27M',
+  'DLR/MAR27M', 'DLR/ABR27M', 'DLR/MAY27M', 'DLR/JUN27M'
 ];
 
 // Mapeo ticker → key de FUT_DEFAULT
 const TICKER_TO_KEY = {
-  'DLR/JUL26':'JUL 26', 'DLR/AGO26':'AGO 26', 'DLR/SEP26':'SEP 26',
-  'DLR/OCT26':'OCT 26', 'DLR/NOV26':'NOV 26', 'DLR/DIC26':'DIC 26',
-  'DLR/ENE27':'ENE 27', 'DLR/FEB27':'FEB 27', 'DLR/MAR27':'MAR 27',
-  'DLR/ABR27':'ABR 27', 'DLR/MAY27':'MAY 27', 'DLR/JUN27':'JUN 27'
+  'DLR/JUL26M':'JUL 26', 'DLR/AGO26M':'AGO 26', 'DLR/SEP26M':'SEP 26',
+  'DLR/OCT26M':'OCT 26', 'DLR/NOV26M':'NOV 26', 'DLR/DIC26M':'DIC 26',
+  'DLR/ENE27M':'ENE 27', 'DLR/FEB27M':'FEB 27', 'DLR/MAR27M':'MAR 27',
+  'DLR/ABR27M':'ABR 27', 'DLR/MAY27M':'MAY 27', 'DLR/JUN27M':'JUN 27'
 };
 
 async function getToken() {
@@ -61,21 +61,13 @@ export default async function handler(req, res) {
     const token = await getToken();
     const result = {};
 
-    // Probar formatos reales del ticker según documentación
+    // Probar formato con M al final
     let debugSample = {};
-    const testTickers = [
-      'DLR/JUL26', 'DLR/Jul26', 'DLR/AGO26', 'DLR/Ago26',
-      'DLR072026', 'DLR082026',
-      'DLR/JUL2026', 'DLR/AGO2026'
-    ];
-    for (const t of testTickers) {
-      try {
-        const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFEX&symbol=${encodeURIComponent(t)}&entries=LA`;
-        const res = await fetch(url, { headers: { 'X-Auth-Token': token } });
-        const data = await res.json();
-        debugSample[t] = data.status === 'OK' ? 'OK ✓' : data.description || data.status;
-      } catch(e) { debugSample[t] = e.message; }
-    }
+    try {
+      const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFEX&symbol=${encodeURIComponent('DLR/JUL26M')}&entries=LA`;
+      const res = await fetch(url, { headers: { 'X-Auth-Token': token } });
+      debugSample = await res.json();
+    } catch(e) { debugSample = { error: e.message }; }
 
     // Traer todos los contratos en paralelo
     const promises = CONTRACTS.map(async (ticker) => {
