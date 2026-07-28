@@ -1199,12 +1199,14 @@
     if(isF){
       (function(){
         var box=document.getElementById('futChartBox');
-        /* Intentar traer precios live de MAE si estamos en horario de mercado */
+        var futInterval=null;
+
         function isMarketOpen(){
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
           var d=ar.getDay(), m=ar.getHours()*60+ar.getMinutes();
-          return d>=1&&d<=5&&m>=600&&m<900;
+          return d>=1&&d<=5&&m>=600&&m<1020; /* 10:00-17:00 AR */
         }
+
         function doRender(){
           if(!box){ renderFut(); return; }
           if(typeof ResizeObserver !== 'undefined'){
@@ -1217,26 +1219,52 @@
             setTimeout(renderFut, 200);
           }
         }
+
+        function fetchFuturos(){
+          if(!isMarketOpen()) return;
+          fetch('/api/futuros')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+              if(data.open===false) return;
+              var changed=false;
+              Object.keys(data).forEach(function(k){
+                if(k==='open') return;
+                var precio=data[k].ultimo&&data[k].ultimo>0?data[k].ultimo:null;
+                if(precio&&futPrices[k]!==precio){ futPrices[k]=precio; changed=true; }
+              });
+              if(changed) renderFut();
+            })
+            .catch(function(){});
+        }
+
+        /* Primer render */
         if(isMarketOpen()){
           fetch('/api/futuros')
             .then(function(r){ return r.json(); })
             .then(function(data){
-              if(data.open===false){ doRender(); return; }
-              /* Actualizar futPrices con precios live de Primary/ROFEX */
-              Object.keys(data).forEach(function(k){
-                if(k==='open') return;
-                var precio = data[k].ultimo && data[k].ultimo > 0 ? data[k].ultimo : null;
-                if(precio) futPrices[k] = precio;
-              });
+              if(data.open!==false){
+                Object.keys(data).forEach(function(k){
+                  if(k==='open') return;
+                  var precio=data[k].ultimo&&data[k].ultimo>0?data[k].ultimo:null;
+                  if(precio) futPrices[k]=precio;
+                });
+              }
               doRender();
+              /* Iniciar polling cada 60s */
+              futInterval=setInterval(fetchFuturos,60000);
             })
             .catch(function(){ doRender(); });
         } else {
           doRender();
         }
+
+        /* Limpiar intervalo al salir del tab */
+        window._futCleanup=function(){ if(futInterval){ clearInterval(futInterval); futInterval=null; } };
       })();
       return;
     }
+    /* Limpiar polling de futuros al cambiar de tab */
+    if(typeof window._futCleanup==='function'){ window._futCleanup(); }
     document.getElementById('legH').style.display=isH?'flex':'none';
     document.getElementById('legP').style.display=isP?'flex':'none';
     document.getElementById('legB').style.display=isB?'flex':'none';
