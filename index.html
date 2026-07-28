@@ -387,7 +387,14 @@
 
     <!-- TABLA (columna izquierda) -->
     <div>
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;margin-bottom:8px;text-transform:uppercase;height:22px;display:flex;align-items:center">Curva de futuros ROFEX</div>
+      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;margin-bottom:8px;text-transform:uppercase;height:22px;display:flex;align-items:center;gap:10px">
+        Curva de futuros ROFEX
+        <span id="futLiveBadge" style="display:none;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 1.4s ease-in-out infinite;display:inline-block"></span>
+          EN VIVO
+        </span>
+        <span id="futLiveTime" style="font-size:9px;color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0"></span>
+      </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden">
         <table id="futTableEl" style="border-collapse:collapse;font-size:12px;width:100%">
           <thead>
@@ -1220,6 +1227,20 @@
           }
         }
 
+        function updateFutBadge(){
+          var badge = document.getElementById('futLiveBadge');
+          var timeEl = document.getElementById('futLiveTime');
+          if(!badge||!timeEl) return;
+          if(isMarketOpen()){
+            badge.style.display='inline-flex';
+            var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+            timeEl.textContent='Últ. act. '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
+          } else {
+            badge.style.display='none';
+            timeEl.textContent='';
+          }
+        }
+
         function fetchFuturos(){
           if(!isMarketOpen()) return;
           fetch('/api/futuros')
@@ -1232,6 +1253,7 @@
                 var precio=data[k].ultimo&&data[k].ultimo>0?data[k].ultimo:null;
                 if(precio&&futPrices[k]!==precio){ futPrices[k]=precio; changed=true; }
               });
+              updateFutBadge();
               if(changed) renderFut();
             })
             .catch(function(){});
@@ -1249,6 +1271,7 @@
                   if(precio) futPrices[k]=precio;
                 });
               }
+              updateFutBadge();
               doRender();
               /* Iniciar polling cada 60s */
               futInterval=setInterval(fetchFuturos,60000);
