@@ -548,7 +548,7 @@
   /* ── PERIOD SELECTOR ── */
   var hDates=['2025-04-01','2025-04-03','2025-04-04','2025-04-07','2025-04-08','2025-04-09','2025-04-10','2025-04-11','2025-04-14','2025-04-15','2025-04-16','2025-04-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25','2025-04-28','2025-04-29','2025-04-30','2025-05-05','2025-05-06','2025-05-07','2025-05-08','2025-05-09','2025-05-12','2025-05-13','2025-05-14','2025-05-15','2025-05-16','2025-05-19','2025-05-20','2025-05-21','2025-05-22','2025-05-23','2025-05-27','2025-05-28','2025-05-29','2025-05-30','2025-06-02','2025-06-03','2025-06-04','2025-06-05','2025-06-06','2025-06-09','2025-06-10','2025-06-11','2025-06-12','2025-06-13','2025-06-17','2025-06-18','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-07','2025-07-08','2025-07-10','2025-07-11','2025-07-14','2025-07-15','2025-07-16','2025-07-17','2025-07-18','2025-07-21','2025-07-22','2025-07-23','2025-07-24','2025-07-25','2025-07-28','2025-07-29','2025-07-30','2025-07-31','2025-08-01','2025-08-04','2025-08-05','2025-08-06','2025-08-07','2025-08-08','2025-08-11','2025-08-12','2025-08-13','2025-08-14','2025-08-18','2025-08-19','2025-08-20','2025-08-21','2025-08-22','2025-08-25','2025-08-26','2025-08-27','2025-08-28','2025-08-29','2025-09-02','2025-09-03','2025-09-04','2025-09-05','2025-09-08','2025-09-09','2025-09-10','2025-09-11','2025-09-12','2025-09-15','2025-09-16','2025-09-17','2025-09-18','2025-09-19','2025-09-22','2025-09-23','2025-09-24','2025-09-25','2025-09-26','2025-09-29','2025-09-30','2025-10-01','2025-10-02','2025-10-03','2025-10-06','2025-10-07','2025-10-08','2025-10-09','2025-10-14','2025-10-15','2025-10-16','2025-10-17','2025-10-20','2025-10-21','2025-10-22','2025-10-23','2025-10-24','2025-10-27','2025-10-28','2025-10-29','2025-10-30','2025-10-31','2025-11-03','2025-11-04','2025-11-05','2025-11-07','2025-11-10','2025-11-12','2025-11-13','2025-11-14','2025-11-17','2025-11-18','2025-11-19','2025-11-20','2025-11-25','2025-11-26','2025-11-28','2025-12-01','2025-12-02','2025-12-03','2025-12-04','2025-12-05','2025-12-09','2025-12-10','2025-12-11','2025-12-12','2025-12-15','2025-12-16','2025-12-17','2025-12-18','2025-12-19','2025-12-22','2025-12-23','2025-12-26','2025-12-29','2025-12-30','2026-01-02','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-09','2026-01-12','2026-01-13','2026-01-14','2026-01-15','2026-01-16','2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-18','2026-02-19','2026-02-20','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-25','2026-03-26','2026-03-27','2026-03-30','2026-03-31','2026-04-01','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-06','2026-07-07','2026-07-08','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-27','2026-07-28','2026-07-29','2026-07-30','2026-07-31','2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07','2026-08-10','2026-08-11','2026-08-12','2026-08-13','2026-08-14','2026-08-18','2026-08-19','2026-08-20','2026-08-21','2026-08-24','2026-08-25','2026-08-26','2026-08-27','2026-08-28','2026-08-31','2026-09-01','2026-09-02','2026-09-03','2026-09-04','2026-09-07','2026-09-08','2026-09-09','2026-09-10','2026-09-11','2026-09-14','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-09-21','2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02','2026-10-05','2026-10-06','2026-10-07','2026-10-08','2026-10-09','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-19','2026-10-20','2026-10-21','2026-10-22','2026-10-23','2026-10-26','2026-10-27','2026-10-28','2026-10-29','2026-10-30','2026-11-02','2026-11-03','2026-11-04','2026-11-05','2026-11-06','2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13','2026-11-16','2026-11-17','2026-11-18','2026-11-19','2026-11-24','2026-11-25','2026-11-26','2026-11-27','2026-11-30','2026-12-01','2026-12-02','2026-12-03','2026-12-04','2026-12-09','2026-12-10','2026-12-11','2026-12-14','2026-12-15','2026-12-16','2026-12-17','2026-12-18','2026-12-21','2026-12-22','2026-12-23','2026-12-24','2026-12-28','2026-12-29','2026-12-30','2026-12-31'];
   var IDX_DEC1=154, IDX_MAY1=251, IDX_END=414; /* fin de hT (dic-26) — usado solo por PROYECCIÓN */
-  var IDX_HIST_END=312; /* fin de la zona histórica visible en SIOPEL y BRECHA (jul-31-2026) */
+  var IDX_HIST_END=332; /* fin zona visible SIOPEL/BRECHA = ago-31-2026 (M+1) — actualizar cada mes */
   /* Period indices — computed from hDates array */
   var IDX_2026 = (function(){ for(var i=0;i<hDates.length;i++){ if(hDates[i]==='2026-01-02') return i; } return 173; })();
   /* projM1Start: primer índice del mes anterior en pLbl (para chart PROJ) */
@@ -563,15 +563,16 @@
     return 4; /* fallback */
   })();
 
-  var IDX_M1TD = (function(){
-    if(!hDates[lri]) return IDX_MAY1;
-    var p=hDates[lri].split('-');
+  function getIDX_M1TD(){
+    var ri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+    if(ri<0||!hDates[ri]) return IDX_MAY1;
+    var p=hDates[ri].split('-');
     var pm=parseInt(p[1])-1,py=parseInt(p[0]);
     if(pm<1){pm=12;py--;}
     var prefix=py+'-'+String(pm).padStart(2,'0');
     for(var i=0;i<hDates.length;i++){if(hDates[i]&&hDates[i].startsWith(prefix))return i;}
     return IDX_MAY1;
-  })();
+  }
   var IDX_12M  = (function(){
     if(!hDates[lri]) return 50;
     var d=new Date(hDates[lri]); d.setFullYear(d.getFullYear()-1);
@@ -589,10 +590,78 @@
     return best;
   }
 
+  /* Vista comprimida: (M-1 + mes actual con datos) = 3/4 / (sin datos + mes siguiente) = 1/4 */
+  function buildCompressedView(){
+    var ri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
+    /* Inicio: primer día hábil del mes anterior a lri */
+    var p=hDates[ri].split('-');
+    var pm=parseInt(p[1])-1,py=parseInt(p[0]);
+    if(pm<1){pm=12;py--;}
+    var prevPrefix=py+'-'+String(pm).padStart(2,'0');
+    var denseStart=0;
+    for(var i=0;i<hDates.length;i++){if(hDates[i]&&hDates[i].startsWith(prevPrefix)){denseStart=i;break;}}
+    var denseEnd=ri;
+    var dense=[];
+    for(var i=denseStart;i<=denseEnd;i++) dense.push(i);
+    var denseLen=dense.length;
+    /* Fin sparse: último día del mes siguiente a lri */
+    var nm=parseInt(p[1])+2,ny=parseInt(p[0]);
+    if(nm>12){nm-=12;ny++;}
+    var nm2=parseInt(p[1])+1,ny2=parseInt(p[0]);
+    if(nm2>12){nm2-=12;ny2++;}
+    var nextPrefix=ny+'-'+String(nm).padStart(2,'0');
+    var sparseEnd=ri+30;
+    for(var i=ri+1;i<hDates.length;i++){
+      if(hDates[i]&&hDates[i].startsWith(nextPrefix)){sparseEnd=i-1;break;}
+    }
+    sparseEnd=Math.min(sparseEnd,hDates.length-1);
+    /* Sparse: round(denseLen/3) puntos para lograr 3/4:1/4 */
+    var sparseAll=[];
+    for(var i=ri+1;i<=sparseEnd;i++) sparseAll.push(i);
+    var sparseCount=Math.round(denseLen/3);
+    var sparse=[];
+    if(sparseAll.length>0){
+      for(var k=0;k<sparseCount&&k<sparseAll.length;k++){
+        var idx=Math.round(k*(sparseAll.length-1)/Math.max(sparseCount-1,1));
+        sparse.push(sparseAll[idx]);
+      }
+      sparse=sparse.filter(function(v,i){return sparse.indexOf(v)===i;});
+      /* Preservar primer día hábil del mes siguiente */
+      var nextMPrefix=ny2+'-'+String(nm2).padStart(2,'0');
+      for(var i=ri+1;i<=sparseEnd;i++){
+        if(hDates[i]&&hDates[i].startsWith(nextMPrefix)){
+          if(sparse.indexOf(i)<0){
+            var cl=-1,cd=1e9;
+            for(var q=1;q<sparse.length-1;q++){var dd=Math.abs(sparse[q]-i);if(dd<cd){cd=dd;cl=q;}}
+            if(cl>=0) sparse[cl]=i;
+          }
+          break;
+        }
+      }
+      sparse=sparse.filter(function(v,i){return sparse.indexOf(v)===i;}).sort(function(a,b){return a-b;});
+    }
+    var raw=dense.concat(sparse);
+    var vT=[],vS=[],vA=[],vBr=[],vAvg=[],vLbl=[],vDisp=[],vPt=[];
+    for(var j=0;j<raw.length;j++){
+      var r=raw[j];
+      vT.push(hT[r]!=null?hT[r]:null);
+      vS.push(r<hS.length&&hS[r]!=null?hS[r]:null);
+      vA.push(r<hA.length&&hA[r]!=null?hA[r]:null);
+      vBr.push(r<brechaVals.length&&brechaVals[r]!=null?brechaVals[r]:null);
+      vAvg.push(r<avgRef.length&&avgRef[r]!=null?avgRef[r]:null);
+      vLbl.push(hLbl[r]||'');
+      vDisp.push(hDispLbl[r]||'');
+      vPt.push(0);
+    }
+    if(denseLen>0) vPt[denseLen-1]=7;
+    return {raw:raw,T:vT,S:vS,A:vA,Br:vBr,Avg:vAvg,Lbl:vLbl,Disp:vDisp,Pt:vPt,denseLen:denseLen};
+  }
+  var hView=null;
+
   function applyPeriod(){
     if(!chart) return;
     var s=0;
-    if(curPeriod==='m1td')     s=IDX_M1TD;      /* May 1 → hoy (M-1 TD) */
+    if(curPeriod==='m1td')     s=getIDX_M1TD();
     else if(curPeriod==='12m') s=IDX_12M;        /* 1 año atrás */
     else if(curPeriod==='2026') s=IDX_2026;      /* Ene 2 2026 */
     else if(curPeriod==='all')  s=0;             /* Serie completa */
@@ -1203,44 +1272,52 @@
     mode=m;
     var isH=(m==='hist'),isP=(m==='proj'),isB=(m==='brecha'),isF=(m==='fut');
 
+    /* Construir vista comprimida para SIOPEL y BRECHA */
+    if(isH||isB){ hView=buildCompressedView(); }
+    var hLen=hView?hView.raw.length:NH;
+
     if(isB){
-      chart.data.labels=hDispLbl;
+      chart.data.labels=hView?hView.Lbl:hDispLbl;
       chart.data.datasets=[
-        {label:'Brecha %',data:brechaVals,borderColor:DOLAR,borderWidth:2,
-         pointRadius:bPt,pointBackgroundColor:DOLAR,
+        {label:'Brecha %',data:hView?hView.Br:brechaVals,borderColor:DOLAR,borderWidth:2,
+         pointRadius:hView?hView.Pt:bPt,pointBackgroundColor:DOLAR,
          fill:true,backgroundColor:'rgba(55,138,221,.1)',tension:.3,spanGaps:false},
-        {label:'Prom. 6M',data:avgRef,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:hView?hView.Avg:avgRef,borderColor:AVGC,borderWidth:1.5,
          borderDash:[3,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
-        {label:'Nivel actual ('+curBr+'%)',data:curRef,borderColor:TECH,borderWidth:1.5,
+        {label:'Nivel actual ('+curBr+'%)',data:new Array(hLen).fill(curBr),borderColor:TECH,borderWidth:1.5,
          borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
       ];
-      /* Calcular autofit Y sobre brechaVals reales */
-      var bVals=brechaVals.filter(function(v){return v!=null;});
+      var bVals=(hView?hView.Br:brechaVals).filter(function(v){return v!=null;});
       var bMn=bVals.length?Math.min.apply(null,bVals):0;
       var bMx=bVals.length?Math.max.apply(null,bVals):30;
       var bPad=(bMx-bMn)*0.15||1;
       chart.options.scales.y.min=Math.floor(bMn-bPad);
       chart.options.scales.y.max=Math.ceil(bMx+bPad);
+      chart.options.scales.x.min=undefined; delete chart.options.scales.x.min;
+      chart.options.scales.x.max=hLen-1;
     }else{
-      chart.data.labels=isH?hDispLbl:pDispLbl;
+      chart.data.labels=isH?(hView?hView.Lbl:hDispLbl):pDispLbl;
       chart.data.datasets=[
-        {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
+        {label:'Techo',data:isH?(hView?hView.T:hT):pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
          pointRadius:isP?tPtSc:0,pointBackgroundColor:TECH,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
-        {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
-         pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
+        {label:'SIOPEL',data:isH?(hView?hView.S:hS):pS,borderColor:DOLAR,borderWidth:2.5,
+         pointRadius:isH?(hView?hView.Pt:hPt):pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-        {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:isH?(hView?hView.A:hA):pA,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
-        {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
+        {label:'REM',data:isH?N(hLen):pREM,borderColor:REMC,borderWidth:1.5,
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
-        {label:'Mantiene brecha ~23%',data:isH?N(NH):pSCA,borderColor:SCA,borderWidth:1.5,
+        {label:'Mantiene brecha ~23%',data:isH?N(hLen):pSCA,borderColor:SCA,borderWidth:1.5,
          borderDash:[7,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
-        
-        {label:'Brecha 5%',data:isH?N(NH):pSCC,borderColor:SCC,borderWidth:1.5,
+        {label:'Brecha 5%',data:isH?N(hLen):pSCC,borderColor:SCC,borderWidth:1.5,
          borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false}
       ];
       chart.options.scales.y.min=isB?undefined:isH?1000:1300;
       chart.options.scales.y.max=isB?undefined:isH?1900:2100;
+      if(isH){
+        chart.options.scales.x.min=undefined; delete chart.options.scales.x.min;
+        chart.options.scales.x.max=hLen-1;
+      }
     }
 
     /* reset x range before render */
