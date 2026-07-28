@@ -37,7 +37,7 @@ async function getToken() {
 
 async function getMarketData(token, ticker) {
   const entries = 'LA,CL,SE';
-  const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFEX&symbol=${encodeURIComponent(ticker)}&entries=${entries}`;
+  const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFX&symbol=${encodeURIComponent(ticker)}&entries=${entries}`;
   const res = await fetch(url, { headers: { 'X-Auth-Token': token } });
   if (!res.ok) return null;
   return res.json();
@@ -61,13 +61,12 @@ export default async function handler(req, res) {
     const token = await getToken();
     const result = {};
 
-    // Listar instrumentos DLR disponibles
+    // Testear con marketId y formato correctos
     let debugSample = {};
     try {
-      const url = `${PRIMARY_URL}/rest/instruments/details?marketId=ROFEX&symbol=DLR`;
+      const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFX&symbol=${encodeURIComponent('DLR/JUL26M')}&entries=LA,CL,SE`;
       const res = await fetch(url, { headers: { 'X-Auth-Token': token } });
-      const data = await res.json();
-      debugSample = data;
+      debugSample = await res.json();
     } catch(e) { debugSample = { error: e.message }; }
 
     // Traer todos los contratos en paralelo
