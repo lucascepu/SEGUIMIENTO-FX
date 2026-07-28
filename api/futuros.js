@@ -61,12 +61,21 @@ export default async function handler(req, res) {
     const token = await getToken();
     const result = {};
 
-    // Ver estructura completa de un ticker
+    // Probar formatos reales del ticker según documentación
     let debugSample = {};
-    try {
-      const testData = await getMarketData(token, 'DLR/JUL26');
-      debugSample = testData;
-    } catch(e) { debugSample = { error: e.message }; }
+    const testTickers = [
+      'DLR/JUL26', 'DLR/Jul26', 'DLR/AGO26', 'DLR/Ago26',
+      'DLR072026', 'DLR082026',
+      'DLR/JUL2026', 'DLR/AGO2026'
+    ];
+    for (const t of testTickers) {
+      try {
+        const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFEX&symbol=${encodeURIComponent(t)}&entries=LA`;
+        const res = await fetch(url, { headers: { 'X-Auth-Token': token } });
+        const data = await res.json();
+        debugSample[t] = data.status === 'OK' ? 'OK ✓' : data.description || data.status;
+      } catch(e) { debugSample[t] = e.message; }
+    }
 
     // Traer todos los contratos en paralelo
     const promises = CONTRACTS.map(async (ticker) => {
