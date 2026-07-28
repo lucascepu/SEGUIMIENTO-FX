@@ -36,7 +36,7 @@ async function getToken() {
 }
 
 async function getMarketData(token, ticker) {
-  const entries = 'LA,BI,OF,OP,CL,SE,OI';
+  const entries = 'LA,CL,SE';
   const url = `${PRIMARY_URL}/rest/marketdata/get?marketId=ROFEX&symbol=${encodeURIComponent(ticker)}&entries=${entries}`;
   const res = await fetch(url, { headers: { 'X-Auth-Token': token } });
   if (!res.ok) return null;
@@ -72,12 +72,13 @@ export default async function handler(req, res) {
     const promises = CONTRACTS.map(async (ticker) => {
       try {
         const data = await getMarketData(token, ticker);
-        if (!data || !data.marketData) return;
+        if (!data || data.status !== 'OK' || !data.marketData) return;
         const md = data.marketData;
-        const ultimo = md.LA && md.LA[0] ? md.LA[0].price : null;
+        /* LA = último operado, CL = cierre, SE = settlement — todos son objetos {price, size, date} */
+        const ultimo = (md.LA && md.LA.price) || (md.CL && md.CL.price) || (md.SE && md.SE.price);
         const key = TICKER_TO_KEY[ticker];
         if (key && ultimo) {
-          result[key] = { ultimo, variacion: md.LA[0].change || 0 };
+          result[key] = { ultimo, variacion: 0 };
         }
       } catch (e) {}
     });
