@@ -415,6 +415,26 @@
         REM ene–may 27: interpolado ($1.658→$1.760)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)
       </div>
+
+      <!-- Bloque Tasas Implícitas -->
+      <div style="margin-top:20px">
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;margin-bottom:8px;text-transform:uppercase">Tasas implícitas (ROFEX vs SIOPEL)</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <table id="futTasasEl" style="border-collapse:collapse;font-size:12px;width:100%">
+            <thead>
+              <tr style="background:rgba(255,255,255,.03)">
+                <th style="text-align:left;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">MES</th>
+                <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">FUTURO</th>
+                <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">DÍAS</th>
+                <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">TNA</th>
+                <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--blue);font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">TEM</th>
+              </tr>
+            </thead>
+            <tbody id="futTasasTbody"></tbody>
+          </table>
+        </div>
+        <div style="font-size:10px;color:var(--txt3);margin-top:6px">TNA = ((Futuro/Spot)−1) × 365/días · TEM = ((Futuro/Spot)^(30/días)−1)</div>
+      </div>
     </div>
 
     <!-- GRÁFICO (columna derecha) -->
@@ -841,7 +861,52 @@
       }
       ins.textContent=msg;
     }
-  }
+    /* ── Tasas implícitas ── */
+    (function renderTasas(){
+      var tbody2 = document.getElementById('futTasasTbody');
+      if(!tbody2) return;
+      var spot = hS[lri];
+      if(!spot) return;
+
+      /* Fechas de vencimiento (último día hábil de cada mes) */
+      var VENC = {
+        'JUL 26':'2026-07-31','AGO 26':'2026-08-31','SEP 26':'2026-09-30',
+        'OCT 26':'2026-10-30','NOV 26':'2026-11-30','DIC 26':'2026-12-31',
+        'ENE 27':'2027-01-29','FEB 27':'2027-02-26','MAR 27':'2027-03-31',
+        'ABR 27':'2027-04-30','MAY 27':'2027-05-30','JUN 27':'2027-06-30'
+      };
+
+      var hoy = new Date();
+      hoy.setHours(0,0,0,0);
+
+      tbody2.innerHTML = '';
+      KEYS.forEach(function(k){
+        var fut = futPrices[k];
+        if(!fut) return;
+        var vencDate = new Date(VENC[k]);
+        var dias = Math.round((vencDate - hoy) / 86400000);
+        if(dias <= 0) return;
+
+        var tna = ((fut/spot) - 1) * (365/dias) * 100;
+        var tem = (Math.pow(fut/spot, 30/dias) - 1) * 100;
+
+        var tnaColor = tna >= 0 ? 'var(--green)' : 'var(--red)';
+        var temColor = tem >= 0 ? 'var(--blue)' : 'var(--red)';
+        var tnaStr = (tna >= 0 ? '+' : '') + tna.toFixed(2) + '%';
+        var temStr = (tem >= 0 ? '+' : '') + tem.toFixed(2) + '%';
+
+        var tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--border)';
+        tr.innerHTML = '<td style="padding:7px 12px;color:var(--txt);font-weight:600">'+k+'</td>'+
+          '<td style="padding:7px 12px;text-align:right;color:var(--txt2)">$'+Math.round(fut).toLocaleString('es-AR')+'</td>'+
+          '<td style="padding:7px 12px;text-align:right;color:var(--txt3)">'+dias+'</td>'+
+          '<td style="padding:7px 12px;text-align:right;color:'+tnaColor+';font-weight:700">'+tnaStr+'</td>'+
+          '<td style="padding:7px 12px;text-align:right;color:'+temColor+';font-weight:700">'+temStr+'</td>';
+        tbody2.appendChild(tr);
+      });
+    })();
+  } /* fin renderFut */
+
   window.cargarFuturo = function(){
     var mes  = document.getElementById('futSelMes').value;
     var val  = parseFloat(document.getElementById('futPrecio').value);
