@@ -1840,7 +1840,23 @@
       }
 
       if(state==='prov'){
-        showProv();
+        if(lastLivePrice){
+          showProv();
+        } else {
+          /* No tuvimos precio durante la rueda — intentar traer de criptoya igual */
+          fetch('/api/dolar')
+            .then(function(r){return r.json();})
+            .then(function(data){
+              var m=data.mayorista;
+              if(!m) return;
+              var price=typeof m==='object'?m.price:m;
+              if(price&&!isNaN(parseFloat(price))){
+                lastLivePrice=parseFloat(price);
+                showProv();
+              }
+            })
+            .catch(function(){});
+        }
         return;
       }
 
