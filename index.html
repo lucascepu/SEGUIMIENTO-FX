@@ -408,19 +408,21 @@
 
     <!-- TABLA (columna izquierda) -->
     <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;height:22px;gap:10px">
-        <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center;gap:10px;white-space:nowrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;gap:10px">
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap">
           Curva de futuros ROFEX
-          <span id="futLiveBadge" style="display:none;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em">
-            <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 1.4s ease-in-out infinite;display:inline-block"></span>
-            EN VIVO
-          </span>
-          <span id="futLiveTime" style="font-size:9px;color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0"></span>
         </div>
         <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
           <button id="btnColA" onclick="setFutColGroup('a')" style="padding:4px 8px;font-size:9px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117;white-space:nowrap">REM · SPREAD · TECHO</button>
           <button id="btnColB" onclick="setFutColGroup('b')" style="padding:4px 8px;font-size:9px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3);white-space:nowrap">DÍAS · TNA · TEM</button>
         </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;min-height:14px;margin-bottom:6px">
+        <span id="futLiveBadge" style="display:none;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 1.4s ease-in-out infinite;display:inline-block"></span>
+          EN VIVO
+        </span>
+        <span id="futLiveTime" style="font-size:9px;color:var(--txt3);font-weight:400"></span>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden" id="futTableBox">
         <table id="futTableEl" style="border-collapse:collapse;font-size:12px;width:100%;table-layout:fixed">
