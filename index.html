@@ -408,26 +408,29 @@
 
     <!-- TABLA (columna izquierda) -->
     <div>
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;margin-bottom:8px;text-transform:uppercase;height:22px;display:flex;align-items:center;gap:10px">
-        Curva de futuros ROFEX
-        <span id="futLiveBadge" style="display:none;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em">
-          <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 1.4s ease-in-out infinite;display:inline-block"></span>
-          EN VIVO
-        </span>
-        <span id="futLiveTime" style="font-size:9px;color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0"></span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;height:22px;gap:10px">
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center;gap:10px;white-space:nowrap">
+          Curva de futuros ROFEX
+          <span id="futLiveBadge" style="display:none;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 1.4s ease-in-out infinite;display:inline-block"></span>
+            EN VIVO
+          </span>
+          <span id="futLiveTime" style="font-size:9px;color:var(--txt3);font-weight:400;text-transform:none;letter-spacing:0"></span>
+        </div>
+        <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
+          <button id="btnColA" onclick="setFutColGroup('a')" style="padding:4px 8px;font-size:9px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117;white-space:nowrap">REM · SPREAD · TECHO</button>
+          <button id="btnColB" onclick="setFutColGroup('b')" style="padding:4px 8px;font-size:9px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3);white-space:nowrap">DÍAS · TNA · TEM</button>
+        </div>
       </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow-y:auto;overflow-x:hidden;height:340px" id="futTableBox">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden" id="futTableBox">
         <table id="futTableEl" style="border-collapse:collapse;font-size:12px;width:100%">
           <thead>
-            <tr style="background:rgba(255,255,255,.03);position:sticky;top:0;z-index:1">
-              <th style="text-align:left;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg-card)">MES</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg-card)">FUTURO</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--amber);font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg-card)">REM</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg-card)">SPREAD</th>
-              <th class="col-techo" style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg-card)">TECHO</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg-card)">DÍAS</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg-card)">TNA</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--blue);font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg-card)">TEM</th>
+            <tr style="background:rgba(255,255,255,.03)">
+              <th style="text-align:left;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">MES</th>
+              <th style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">FUTURO</th>
+              <th id="thCol1" style="text-align:right;padding:8px 12px;font-size:10px;color:var(--amber);font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">REM</th>
+              <th id="thCol2" style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">SPREAD</th>
+              <th id="thCol3" class="col-techo" style="text-align:right;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">TECHO</th>
             </tr>
           </thead>
           <tbody id="futTbody"></tbody>
@@ -699,6 +702,16 @@
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
   var futView = 'precio'; /* 'precio' | 'tasa' — toggle del grafico de FUTUROS */
+  var futColGroup = 'a'; /* 'a' = REM/Spread/Techo | 'b' = Dias/TNA/TEM — columnas opcionales de la tabla */
+  window.setFutColGroup = function(g){
+    futColGroup = g;
+    var bA=document.getElementById('btnColA'), bB=document.getElementById('btnColB');
+    if(bA) bA.style.background = g==='a' ? 'var(--accent)' : 'var(--bg-card)';
+    if(bA) bA.style.color = g==='a' ? '#0d1117' : 'var(--txt3)';
+    if(bB) bB.style.background = g==='b' ? 'var(--accent)' : 'var(--bg-card)';
+    if(bB) bB.style.color = g==='b' ? '#0d1117' : 'var(--txt3)';
+    renderFutTable();
+  };
   window.setFutView = function(v){
     futView = v;
     var bP=document.getElementById('btnFutPrecio'), bT=document.getElementById('btnFutTasa');
@@ -728,6 +741,8 @@
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
   function pct(a,b){ return b&&a? ((a/b-1)*100).toFixed(1)+'%' : '—'; }
 
+  var _fs = {}; /* estado compartido de FUTUROS: se llena en renderFut(), lo usa renderFutTable() */
+
   function renderFut(){
     var siopel = hS[lri];
     var KEYS   = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
@@ -736,7 +751,7 @@
     var techos = KEYS.map(function(k){ return FUT_TECHO[k]; });
     function fmt$(v){ return v!=null?'$'+Math.round(v).toLocaleString('es-AR'):'—'; }
 
-    /* ── Tasas implícitas: se calculan primero (alimentan tabla, KPIs y gráfico modo tasa) ── */
+    /* ── Tasas implícitas (futuro y REM) — alimentan tabla, tira de métricas y gráfico modo tasa ── */
     var VENC = {
       'JUL 26':'2026-07-31','AGO 26':'2026-08-31','SEP 26':'2026-09-30',
       'OCT 26':'2026-10-30','NOV 26':'2026-11-30','DIC 26':'2026-12-31',
@@ -744,17 +759,25 @@
       'ABR 27':'2027-04-30','MAY 27':'2027-05-30','JUN 27':'2027-06-30'
     };
     var hoy = new Date(); hoy.setHours(0,0,0,0);
+    function diasAlVenc(k){
+      var vencDate = new Date(VENC[k]);
+      var d = Math.round((vencDate - hoy) / 86400000);
+      return d>0 ? d : null;
+    }
     var tasas = KEYS.map(function(k){
       var fut = futPrices[k];
-      if(!fut || !siopel) return null;
-      var vencDate = new Date(VENC[k]);
-      var dias = Math.round((vencDate - hoy) / 86400000);
-      if(dias<=0) return null;
+      var dias = diasAlVenc(k);
+      if(!fut || !siopel || !dias) return null;
       var tna = ((fut/siopel) - 1) * (365/dias) * 100;
       var tem = (Math.pow(fut/siopel, 30/dias) - 1) * 100;
       return {key:k, fut:fut, dias:dias, tna:tna, tem:tem};
     });
     var tasasValid = tasas.filter(function(t){ return t!=null; });
+    var remTna = KEYS.map(function(k,i){
+      var rem = rems[i], dias = diasAlVenc(k);
+      if(!rem || !siopel || !dias) return null;
+      return ((rem/siopel) - 1) * (365/dias) * 100;
+    });
 
     /* ── Gráfico con zoom/pan (modo Precio o modo Tasa implícita) ── */
     var ctx = document.getElementById('futCanvas');
@@ -763,10 +786,16 @@
       var isTasa = (futView==='tasa');
       var chartData = isTasa
         ? { labels: KEYS, datasets:[
-            {label:'TNA implícita', data:tasas.map(function(t){return t?t.tna:null;}),
-             borderColor:'#E8914A', backgroundColor:'rgba(232,145,74,.10)', fill:true,
-             pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#E8914A',
-             borderWidth:2.5, tension:.3, spanGaps:false}
+            {label:'Futuros ROFEX', data:tasas.map(function(t){return t?t.tna:null;}),
+             borderColor:'#78AEDE', backgroundColor:'rgba(120,174,222,.10)', fill:true,
+             pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#78AEDE',
+             borderWidth:2.5, tension:.3, spanGaps:false},
+            {label:'REM (implícita)', data:remTna, borderColor:'#F5C36B',
+             borderDash:[6,4], borderWidth:2, pointRadius:4, pointBackgroundColor:'#F5C36B',
+             backgroundColor:'transparent', fill:false, tension:.3},
+            {label:'Spot (SIOPEL)', data:KEYS.map(function(){return 0;}), borderColor:'#3fb950',
+             borderDash:[2,5], borderWidth:1.5, pointRadius:0,
+             backgroundColor:'transparent', fill:false, tension:0}
           ]}
         : { labels: KEYS, datasets:[
             {label:'Futuro ROFEX', data:futs, borderColor:'#78AEDE',
@@ -824,51 +853,9 @@
       /* Y-zoom handled by zoom plugin mode:y */
     }
 
-    /* ── Tabla única: MES / FUTURO / REM / SPREAD / TECHO / DÍAS / TNA / TEM ── */
-    var tbody = document.getElementById('futTbody');
-    if(!tbody) return;
-    tbody.innerHTML='';
-    var spreads=[], crossoverIdx=-1;
-    KEYS.forEach(function(k,i){
-      var fut=futs[i], rem=rems[i], techo=techos[i];
-      var spPct = fut!=null ? ((fut/rem-1)*100).toFixed(1) : null;
-      var dist  = fut!=null ? ((techo/fut-1)*100).toFixed(1) : null;
-      if(spPct!=null) spreads.push(parseFloat(spPct));
-      if(i>0 && spPct!=null && spreads.length>=2){
-        var prev=spreads[spreads.length-2];
-        if(prev>0 && parseFloat(spPct)<=0) crossoverIdx=i;
-      }
-      var spVal = spPct!=null ? parseFloat(spPct) : 0;
-      var spCol = spPct==null?'var(--txt3)': spVal<0?'var(--teal)':'var(--coral)';
-      var rowBg = (i===crossoverIdx) ? 'rgba(120,174,222,.08)' : '';
-      var t = tasas[i]; /* {key,fut,dias,tna,tem} o null si no hay dato/vencido */
-      var tnaStr='—', temStr='—', tnaColor='var(--txt3)', temColor='var(--txt3)';
-      if(t){
-        tnaColor = t.tna >= 0 ? 'var(--green)' : 'var(--red)';
-        temColor = t.tem >= 0 ? 'var(--blue)' : 'var(--red)';
-        tnaStr = (t.tna >= 0 ? '+' : '') + t.tna.toFixed(2) + '%';
-        temStr = (t.tem >= 0 ? '+' : '') + t.tem.toFixed(2) + '%';
-      }
-      var tr=document.createElement('tr');
-      tr.style.borderBottom='1px solid var(--border)';
-      if(rowBg) tr.style.background=rowBg;
-      tr.onmouseover=function(){this.style.background='var(--bg-hover)';};
-      tr.onmouseout=function(){this.style.background=rowBg;};
-      var isMob=window.innerWidth<600, cp=isMob?'6px 8px':'8px 12px';
-      tr.innerHTML=
-        '<td style="padding:'+cp+';color:var(--txt);font-weight:600;white-space:nowrap">'+
-          k+(i===crossoverIdx?'  <span style="font-size:9px;color:var(--blue);vertical-align:middle">↕</span>':'')+'</td>'+
-        '<td style="padding:'+cp+';text-align:right;color:var(--txt);font-weight:500;white-space:nowrap">'+fmt$(fut)+'</td>'+
-        '<td style="padding:'+cp+';text-align:right;color:var(--txt2);white-space:nowrap;">'+fmt$(rem)+'</td>'+
-        '<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+spCol+';white-space:nowrap">'+
-          (spPct!=null?(spVal>0?'+':'')+spPct+'%':'—')+'</td>'+
-        '<td class="col-techo" style="padding:'+cp+';text-align:right;color:var(--txt2);white-space:nowrap">'+
-          (dist!=null?'+'+dist+'%':'—')+'</td>'+
-        '<td style="padding:'+cp+';text-align:right;color:var(--txt3);white-space:nowrap">'+(t?t.dias:'—')+'</td>'+
-        '<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+tnaColor+';white-space:nowrap">'+tnaStr+'</td>'+
-        '<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+temColor+';white-space:nowrap">'+temStr+'</td>';
-      tbody.appendChild(tr);
-    });
+    /* ── Guardar estado para renderFutTable() y para la tira de métricas ── */
+    _fs = { KEYS:KEYS, futs:futs, rems:rems, techos:techos, tasas:tasas, fmt$:fmt$ };
+    renderFutTable();
 
     /* ── Tira de métricas FUTUROS: Último futuro / Forward / TNA implícita — fijos a DIC 26 ── */
     (function renderMetricsFut(){
@@ -893,12 +880,18 @@
 
     /* ── Insight cuantitativo ── */
     var ins=document.getElementById('futInsight');
-    if(ins && spreads.length>=2){
-      var first=spreads[0], last2=spreads[spreads.length-1];
+    var spreadsAll=[];
+    KEYS.forEach(function(k,i){
+      if(futs[i]!=null) spreadsAll.push(((futs[i]/rems[i]-1)*100));
+    });
+    if(ins && spreadsAll.length>=2){
+      var first=spreadsAll[0].toFixed(1), last2=spreadsAll[spreadsAll.length-1].toFixed(1);
       var diff=(last2-first).toFixed(1);
-      var avg=(spreads.reduce(function(a,b){return a+b;},0)/spreads.length).toFixed(1);
-      var maxSp=Math.max.apply(null,spreads).toFixed(1);
-      var maxMes=KEYS[spreads.indexOf(parseFloat(maxSp))];
+      var avg=(spreadsAll.reduce(function(a,b){return a+b;},0)/spreadsAll.length).toFixed(1);
+      var maxSp=Math.max.apply(null,spreadsAll).toFixed(1);
+      var maxMes=KEYS[spreadsAll.indexOf(parseFloat(maxSp))];
+      var crossoverIdx=-1;
+      for(var i=1;i<spreadsAll.length;i++){ if(spreadsAll[i-1]>0 && spreadsAll[i]<=0){ crossoverIdx=i; break; } }
       var msg='';
       if(crossoverIdx>=0){
         var crossMes=KEYS[crossoverIdx];
@@ -918,6 +911,71 @@
       ins.textContent=msg;
     }
   } /* fin renderFut */
+
+  function renderFutTable(){
+    var KEYS=_fs.KEYS, futs=_fs.futs, rems=_fs.rems, techos=_fs.techos, tasas=_fs.tasas, fmt$=_fs.fmt$;
+    if(!KEYS) return;
+    var tbody = document.getElementById('futTbody');
+    if(!tbody) return;
+
+    /* Encabezados según el grupo elegido */
+    var thead1=document.getElementById('thCol1'), thead2=document.getElementById('thCol2'), thead3=document.getElementById('thCol3');
+    if(futColGroup==='a'){
+      if(thead1){ thead1.textContent='REM'; thead1.style.color='var(--amber)'; }
+      if(thead2){ thead2.textContent='SPREAD'; thead2.style.color='var(--txt3)'; }
+      if(thead3){ thead3.textContent='TECHO'; thead3.style.color='var(--txt3)'; thead3.className='col-techo'; }
+    } else {
+      if(thead1){ thead1.textContent='DÍAS'; thead1.style.color='var(--txt3)'; }
+      if(thead2){ thead2.textContent='TNA'; thead2.style.color='var(--accent)'; }
+      if(thead3){ thead3.textContent='TEM'; thead3.style.color='var(--blue)'; thead3.className=''; }
+    }
+
+    tbody.innerHTML='';
+    KEYS.forEach(function(k,i){
+      var fut=futs[i], rem=rems[i], techo=techos[i];
+      var t = tasas[i];
+      var isMob=window.innerWidth<600, cp=isMob?'6px 8px':'8px 12px';
+      var tr=document.createElement('tr');
+      tr.style.borderBottom='1px solid var(--border)';
+      tr.onmouseover=function(){this.style.background='var(--bg-hover)';};
+      tr.onmouseout=function(){this.style.background='';};
+      var col1,col2,col3;
+      if(futColGroup==='a'){
+        var spPct = fut!=null ? ((fut/rem-1)*100).toFixed(1) : null;
+        var dist  = fut!=null ? ((techo/fut-1)*100).toFixed(1) : null;
+        var spVal = spPct!=null ? parseFloat(spPct) : 0;
+        var spCol = spPct==null?'var(--txt3)': spVal<0?'var(--teal)':'var(--coral)';
+        col1='<td style="padding:'+cp+';text-align:right;color:var(--txt2);white-space:nowrap;">'+fmt$(rem)+'</td>';
+        col2='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+spCol+';white-space:nowrap">'+
+              (spPct!=null?(spVal>0?'+':'')+spPct+'%':'—')+'</td>';
+        col3='<td class="col-techo" style="padding:'+cp+';text-align:right;color:var(--txt2);white-space:nowrap">'+
+              (dist!=null?'+'+dist+'%':'—')+'</td>';
+      } else {
+        var tnaStr='—', temStr='—', tnaColor='var(--txt3)', temColor='var(--txt3)';
+        if(t){
+          tnaColor = t.tna >= 0 ? 'var(--green)' : 'var(--red)';
+          temColor = t.tem >= 0 ? 'var(--blue)' : 'var(--red)';
+          tnaStr = (t.tna >= 0 ? '+' : '') + t.tna.toFixed(2) + '%';
+          temStr = (t.tem >= 0 ? '+' : '') + t.tem.toFixed(2) + '%';
+        }
+        col1='<td style="padding:'+cp+';text-align:right;color:var(--txt3);white-space:nowrap">'+(t?t.dias:'—')+'</td>';
+        col2='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+tnaColor+';white-space:nowrap">'+tnaStr+'</td>';
+        col3='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+temColor+';white-space:nowrap">'+temStr+'</td>';
+      }
+      tr.innerHTML=
+        '<td style="padding:'+cp+';color:var(--txt);font-weight:600;white-space:nowrap">'+k+'</td>'+
+        '<td style="padding:'+cp+';text-align:right;color:var(--txt);font-weight:500;white-space:nowrap">'+fmt$(fut)+'</td>'+
+        col1+col2+col3;
+      tbody.appendChild(tr);
+    });
+
+    /* Agrandar el gráfico para igualar el alto natural de la tabla (sin scroll en la tabla) */
+    requestAnimationFrame(function(){
+      var tBox=document.getElementById('futTableBox'), cBox=document.getElementById('futChartBox');
+      if(tBox && cBox && tBox.scrollHeight>0){ cBox.style.height = tBox.scrollHeight+'px'; }
+    });
+  }
+
 
 
 
