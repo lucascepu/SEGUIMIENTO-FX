@@ -382,6 +382,40 @@
   <!-- Insight oculto (reservado) -->
   <div id="futInsight" style="display:none"></div>
 
+  <!-- KPI row: reemplaza a Techo/Brecha/Prom cuando se está en FUTUROS -->
+  <div id="futKpiRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px">
+    <div class="card" style="padding:10px 12px">
+      <div class="card-label" style="font-size:9px">SPOT SIOPEL (HOY)</div>
+      <div class="card-val" id="kpiSpotHoy" style="font-size:17px;color:var(--blue)">—</div>
+      <div class="card-label" id="kpiSpotDelta" style="font-size:10px;margin-top:2px">—</div>
+    </div>
+    <div class="card" style="padding:10px 12px">
+      <div class="card-label" id="kpiUltFutLabel" style="font-size:9px">ÚLTIMO FUTURO</div>
+      <div class="card-val" id="kpiUltFutVal" style="font-size:17px">—</div>
+      <div class="card-label" id="kpiUltFutDelta" style="font-size:10px;margin-top:2px">—</div>
+    </div>
+    <div class="card" style="padding:10px 12px">
+      <div class="card-label" id="kpiForwardLabel" style="font-size:9px">FORWARD</div>
+      <div class="card-val" id="kpiForwardVal" style="font-size:17px;color:var(--green)">—</div>
+      <div class="card-label" style="font-size:10px;margin-top:2px">vs spot</div>
+    </div>
+    <div class="card" style="padding:10px 12px">
+      <div class="card-label" style="font-size:9px">TNA IMPLÍCITA PROM.</div>
+      <div class="card-val" id="kpiTnaProm" style="font-size:17px;color:var(--accent)">—</div>
+      <div class="card-label" style="font-size:10px;margin-top:2px">ponderado</div>
+    </div>
+    <div class="card" style="padding:10px 12px">
+      <div class="card-label" style="font-size:9px">PENDIENTE CURVA</div>
+      <div class="card-val" id="kpiPendiente" style="font-size:15px">—</div>
+      <div class="card-label" style="font-size:10px;margin-top:2px">vs cierre ant.</div>
+    </div>
+    <div class="card" style="padding:10px 12px">
+      <div class="card-label" style="font-size:9px">DATOS</div>
+      <div class="card-val" id="kpiEstadoDatos" style="font-size:13px">—</div>
+      <div class="card-label" style="font-size:10px;margin-top:2px">ROFEX</div>
+    </div>
+  </div>
+
   <!-- Layout: tabla 1/3 izquierda | gráfico 2/3 derecha -->
   <div id="futMainGrid" style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start;overflow:hidden;min-width:0">
 
@@ -439,25 +473,12 @@
 
     <!-- GRÁFICO (columna derecha) -->
     <div>
-      <!-- Label matching left column -->
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;margin-bottom:8px;text-transform:uppercase;height:22px;display:flex;align-items:center">Expectativas DIC-26</div>
-      <!-- KPI DIC-26 -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;margin-top:0">
-        <div class="card" style="padding:8px 10px">
-          <div class="card-label" style="font-size:9px">ROFEX DIC-26</div>
-          <div class="card-val" id="kpiFutDic" style="color:var(--blue);font-size:16px">$1.635</div>
-        </div>
-        <div class="card" style="padding:8px 10px">
-          <div class="card-label" style="font-size:9px">REM DIC-26</div>
-          <div class="card-val amber" style="font-size:16px">$1.658</div>
-        </div>
-        <div class="card" style="padding:8px 10px">
-          <div class="card-label" style="font-size:9px">SPREAD DIC</div>
-          <div class="card-val" id="kpiSpreadDic" style="font-size:16px">—</div>
-        </div>
-        <div class="card" style="padding:8px 10px">
-          <div class="card-label" style="font-size:9px">AL TECHO DIC</div>
-          <div class="card-val amber" id="kpiTechoDic" style="font-size:16px">—</div>
+      <!-- Label + toggle Precio/Tasa implícita -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;height:22px">
+        <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase" id="futChartTitle">Curva de futuros: precio</div>
+        <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden">
+          <button id="btnFutPrecio" onclick="setFutView('precio')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117">PRECIO</button>
+          <button id="btnFutTasa" onclick="setFutView('tasa')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">TASA IMPLÍCITA</button>
         </div>
       </div>
       <!-- Gráfico -->
@@ -465,15 +486,20 @@
         <canvas id="futCanvas"></canvas>
       </div>
       <!-- Leyenda -->
-      <div style="display:flex;gap:16px;padding-left:4px">
+      <div id="futLegendPrecio" style="display:flex;gap:16px;padding-left:4px">
         <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
           <span style="width:20px;height:2px;background:#78AEDE;display:inline-block;border-radius:1px"></span>Futuro ROFEX
         </span>
         <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
-          <span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,#F5C36B 0,#F5C36B 5px,transparent 5px,transparent 9px)"></span>REM may-26
+          <span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,#F5C36B 0,#F5C36B 5px,transparent 5px,transparent 9px)"></span>REM jun-26
         </span>
         <span style="font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:6px">
           <span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,rgba(245,195,107,.4) 0,rgba(245,195,107,.4) 3px,transparent 3px,transparent 7px)"></span>Techo BCRA
+        </span>
+      </div>
+      <div id="futLegendTasa" style="display:none;gap:16px;padding-left:4px">
+        <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+          <span style="width:20px;height:2px;background:var(--accent);display:inline-block;border-radius:1px"></span>TNA implícita (ROFEX vs SIOPEL)
         </span>
       </div>
     </div>
@@ -701,6 +727,21 @@
   var FUT_DEFAULT = {'JUL 26':1499.0,'AGO 26':1524.0,'SEP 26':1551.0,'OCT 26':1579.5,'NOV 26':1611.0,'DIC 26':1641.0,'ENE 27':1673.5,'FEB 27':1704.0,'MAR 27':1736.5,'ABR 27':1766.5,'MAY 27':1797.5,'JUN 27':1827.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
+  var futView = 'precio'; /* 'precio' | 'tasa' — toggle del grafico de FUTUROS */
+  window.setFutView = function(v){
+    futView = v;
+    var bP=document.getElementById('btnFutPrecio'), bT=document.getElementById('btnFutTasa');
+    if(bP) bP.style.background = v==='precio' ? 'var(--accent)' : 'var(--bg-card)';
+    if(bP) bP.style.color = v==='precio' ? '#0d1117' : 'var(--txt3)';
+    if(bT) bT.style.background = v==='tasa' ? 'var(--accent)' : 'var(--bg-card)';
+    if(bT) bT.style.color = v==='tasa' ? '#0d1117' : 'var(--txt3)';
+    var lp=document.getElementById('futLegendPrecio'), lt=document.getElementById('futLegendTasa');
+    if(lp) lp.style.display = v==='precio' ? 'flex' : 'none';
+    if(lt) lt.style.display = v==='tasa' ? 'flex' : 'none';
+    var ti=document.getElementById('futChartTitle');
+    if(ti) ti.textContent = v==='precio' ? 'Curva de futuros: precio' : 'Curva de futuros: tasa implicita (TNA)';
+    renderFut();
+  };
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
   var ROFEX_VERSION = '20260728';
@@ -724,15 +765,39 @@
     var techos = KEYS.map(function(k){ return FUT_TECHO[k]; });
     function fmt$(v){ return v!=null?'$'+Math.round(v).toLocaleString('es-AR'):'—'; }
 
-    /* ── Gráfico con zoom/pan ── */
+    /* ── Tasas implícitas: se calculan primero (alimentan tabla, KPIs y gráfico modo tasa) ── */
+    var VENC = {
+      'JUL 26':'2026-07-31','AGO 26':'2026-08-31','SEP 26':'2026-09-30',
+      'OCT 26':'2026-10-30','NOV 26':'2026-11-30','DIC 26':'2026-12-31',
+      'ENE 27':'2027-01-29','FEB 27':'2027-02-26','MAR 27':'2027-03-31',
+      'ABR 27':'2027-04-30','MAY 27':'2027-05-30','JUN 27':'2027-06-30'
+    };
+    var hoy = new Date(); hoy.setHours(0,0,0,0);
+    var tasas = KEYS.map(function(k){
+      var fut = futPrices[k];
+      if(!fut || !siopel) return null;
+      var vencDate = new Date(VENC[k]);
+      var dias = Math.round((vencDate - hoy) / 86400000);
+      if(dias<=0) return null;
+      var tna = ((fut/siopel) - 1) * (365/dias) * 100;
+      var tem = (Math.pow(fut/siopel, 30/dias) - 1) * 100;
+      return {key:k, fut:fut, dias:dias, tna:tna, tem:tem};
+    });
+    var tasasValid = tasas.filter(function(t){ return t!=null; });
+
+    /* ── Gráfico con zoom/pan (modo Precio o modo Tasa implícita) ── */
     var ctx = document.getElementById('futCanvas');
     if(ctx){
       if(futChartInst){ futChartInst.destroy(); futChartInst=null; }
-      futChartInst = new Chart(ctx, {
-        type:'line',
-        data:{
-          labels: KEYS,
-          datasets:[
+      var isTasa = (futView==='tasa');
+      var chartData = isTasa
+        ? { labels: KEYS, datasets:[
+            {label:'TNA implícita', data:tasas.map(function(t){return t?t.tna:null;}),
+             borderColor:'#E8914A', backgroundColor:'rgba(232,145,74,.10)', fill:true,
+             pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#E8914A',
+             borderWidth:2.5, tension:.3, spanGaps:false}
+          ]}
+        : { labels: KEYS, datasets:[
             {label:'Futuro ROFEX', data:futs, borderColor:'#78AEDE',
              backgroundColor:'rgba(120,174,222,.10)', fill:true,
              pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#78AEDE',
@@ -745,8 +810,10 @@
              pointRadius:3, pointBackgroundColor:'rgba(245,195,107,.6)',
              pointHoverRadius:5, pointBorderWidth:0,
              backgroundColor:'transparent', fill:false, tension:.3}
-          ]
-        },
+          ]};
+      futChartInst = new Chart(ctx, {
+        type:'line',
+        data: chartData,
         options:{
           responsive:true, maintainAspectRatio:false, animation:{duration:0},
           plugins:{
@@ -755,7 +822,7 @@
               zoom:{
                 wheel:{enabled:true},
                 pinch:{enabled:true},
-                mode:'y'  /* scroll = zoom Y (price range) */
+                mode:'y'  /* scroll = zoom Y (price/tasa range) */
               },
               pan:{ enabled:true, mode:'xy' }
             },
@@ -764,17 +831,22 @@
             filter:function(item){ return item.raw!=null; },
             callbacks:{
               label:function(c){
-                return '  '+c.dataset.label+':  $'+Math.round(c.raw).toLocaleString('es-AR');
+                return isTasa
+                  ? '  '+c.dataset.label+':  '+c.raw.toFixed(2)+'%'
+                  : '  '+c.dataset.label+':  $'+Math.round(c.raw).toLocaleString('es-AR');
               }
             }
           }
           },
           scales:{
             x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
-            y:{grace:0,
-               ticks:{color:'#adbac7',font:{size:11},
-                      callback:function(v){return '$'+Math.round(v).toLocaleString('es-AR');}},
-               grid:{color:'rgba(255,255,255,.06)'}}
+            y: isTasa
+              ? {grace:0, ticks:{color:'#adbac7',font:{size:11},
+                   callback:function(v){return v.toFixed(0)+'%';}},
+                 grid:{color:'rgba(255,255,255,.06)'}}
+              : {grace:0, ticks:{color:'#adbac7',font:{size:11},
+                   callback:function(v){return '$'+Math.round(v).toLocaleString('es-AR');}},
+                 grid:{color:'rgba(255,255,255,.06)'}}
           }
         }
       });
@@ -820,39 +892,98 @@
       tbody.appendChild(tr);
     });
 
-    /* ── KPI DIC-26 ── */
-    var fDic=futPrices['DIC 26']||null, rem_dic=1658, techo_dic=2020.96;
-    if(fDic!=null){
-      var spDic=((fDic/rem_dic-1)*100).toFixed(1);
-      var dTDic=((techo_dic/fDic-1)*100).toFixed(1);
-      var spCol2=parseFloat(spDic)<0?'var(--teal)':'var(--coral)';
-      var elFD=document.getElementById('kpiFutDic'); if(elFD) elFD.textContent=fmt$(fDic);
-      var elSD=document.getElementById('kpiSpreadDic');
-      if(elSD){ elSD.textContent=(parseFloat(spDic)>0?'+':'')+spDic+'%'; elSD.style.color=spCol2; }
-      
-      var elTD=document.getElementById('kpiTechoDic'); if(elTD) elTD.textContent='+'+dTDic+'%';
-    }
+    /* ── KPI row nueva: Spot / Último futuro / Forward / TNA prom / Pendiente / Datos ── */
+    (function renderKpis(){
+      /* Spot hoy + delta vs cierre anterior */
+      var elSpot=document.getElementById('kpiSpotHoy');
+      if(elSpot) elSpot.textContent = fmt$(siopel);
+      var prevS = (lri>0 && hS[lri-1]!=null) ? hS[lri-1] : null;
+      var elSpotD=document.getElementById('kpiSpotDelta');
+      if(elSpotD){
+        if(prevS && siopel!=null){
+          var dS=((siopel/prevS-1)*100);
+          elSpotD.textContent=(dS>=0?'+':'')+dS.toFixed(2)+'% vs cierre ant.';
+          elSpotD.style.color = dS>=0 ? 'var(--green)' : 'var(--red)';
+        } else { elSpotD.textContent='—'; elSpotD.style.color='var(--txt3)'; }
+      }
+
+      /* Último futuro con dato real = último de tasasValid (los meses lejanos sin cotización quedan afuera) */
+      var last = tasasValid.length ? tasasValid[tasasValid.length-1] : null;
+      var elUL=document.getElementById('kpiUltFutLabel');
+      var elUV=document.getElementById('kpiUltFutVal');
+      var elUD=document.getElementById('kpiUltFutDelta');
+      if(last){
+        if(elUL) elUL.textContent='ÚLTIMO FUTURO ('+last.key+')';
+        if(elUV) elUV.textContent=fmt$(last.fut);
+        if(elUD){ elUD.textContent=last.dias+' días al venc.'; elUD.style.color='var(--txt3)'; }
+      } else {
+        if(elUL) elUL.textContent='ÚLTIMO FUTURO';
+        if(elUV) elUV.textContent='—';
+        if(elUD) elUD.textContent='—';
+      }
+
+      /* Forward = variación del último futuro vs spot */
+      var elFV=document.getElementById('kpiForwardVal');
+      var elFL=document.getElementById('kpiForwardLabel');
+      if(last && siopel){
+        var fwd=((last.fut/siopel-1)*100);
+        if(elFL) elFL.textContent='FORWARD '+last.key;
+        if(elFV){ elFV.textContent=(fwd>=0?'+':'')+fwd.toFixed(2)+'%'; elFV.style.color = fwd>=0?'var(--green)':'var(--red)'; }
+      } else {
+        if(elFL) elFL.textContent='FORWARD';
+        if(elFV) elFV.textContent='—';
+      }
+
+      /* TNA implícita promedio (simple, sobre los contratos con dato real) */
+      var elTP=document.getElementById('kpiTnaProm');
+      if(elTP){
+        if(tasasValid.length){
+          var avgTna = tasasValid.reduce(function(a,t){return a+t.tna;},0)/tasasValid.length;
+          elTP.textContent=(avgTna>=0?'+':'')+avgTna.toFixed(1)+'%';
+        } else elTP.textContent='—';
+      }
+
+      /* Pendiente de la curva: comparar TNA del primer vs último contrato con dato */
+      var elPC=document.getElementById('kpiPendiente');
+      if(elPC){
+        if(tasasValid.length>=2){
+          var diffTna = tasasValid[tasasValid.length-1].tna - tasasValid[0].tna;
+          if(diffTna>3){ elPC.innerHTML='EMPINADA <span style="color:var(--green)">↗</span>'; }
+          else if(diffTna<-1){ elPC.innerHTML='INVERTIDA <span style="color:var(--red)">↘</span>'; }
+          else { elPC.innerHTML='PLANA <span style="color:var(--txt3)">→</span>'; }
+        } else elPC.textContent='—';
+      }
+
+      /* Estado de los datos: horario de rueda ROFEX (10:00–17:00 AR, lun-vie, aprox) */
+      var elED=document.getElementById('kpiEstadoDatos');
+      if(elED){
+        var now=new Date();
+        var arHour = parseInt(new Intl.DateTimeFormat('en-US',{hour:'2-digit',hour12:false,timeZone:'America/Argentina/Buenos_Aires'}).format(now));
+        var arDay = new Intl.DateTimeFormat('en-US',{weekday:'short',timeZone:'America/Argentina/Buenos_Aires'}).format(now);
+        var isWeekday = ['Mon','Tue','Wed','Thu','Fri'].indexOf(arDay)>=0;
+        if(isWeekday && arHour>=10 && arHour<17){ elED.textContent='Mercado abierto'; elED.style.color='var(--green)'; }
+        else { elED.textContent='Mercado cerrado'; elED.style.color='var(--txt3)'; }
+      }
+    })();
 
     /* ── Insight cuantitativo ── */
     var ins=document.getElementById('futInsight');
     if(ins && spreads.length>=2){
-      var first=spreads[0], last=spreads[spreads.length-1];
-      var diff=(last-first).toFixed(1);
+      var first=spreads[0], last2=spreads[spreads.length-1];
+      var diff=(last2-first).toFixed(1);
       var avg=(spreads.reduce(function(a,b){return a+b;},0)/spreads.length).toFixed(1);
       var maxSp=Math.max.apply(null,spreads).toFixed(1);
       var maxMes=KEYS[spreads.indexOf(parseFloat(maxSp))];
-      /* Identify where REM data ends */
-      var remCutoff = 'DIC 26';
       var msg='';
       if(crossoverIdx>=0){
         var crossMes=KEYS[crossoverIdx];
         msg='La prima implícita del mercado cae '+(Math.abs(parseFloat(diff)).toFixed(1))+'pp entre '+KEYS[0]+' ('+
-            (first>0?'+':'')+first+'%) y '+KEYS[KEYS.length-1]+' ('+last+'%). '+
+            (first>0?'+':'')+first+'%) y '+KEYS[KEYS.length-1]+' ('+last2+'%). '+
             'El spread pasa a negativo en '+crossMes+': el mercado converge al consenso del REM.';
-      } else if(last>0 && first>0){
+      } else if(last2>0 && first>0){
         msg='El mercado se mantiene más alcista que el REM en toda la curva. '+
             'Spread promedio: +'+avg+'%. Spread máximo: +'+maxSp+'% en '+maxMes+'.';
-      } else if(last<0 && first<0){
+      } else if(last2<0 && first<0){
         msg='El REM supera a la curva de futuros en todos los contratos. '+
             'Spread promedio: '+avg+'%.';
       } else {
@@ -861,51 +992,29 @@
       }
       ins.textContent=msg;
     }
-    /* ── Tasas implícitas ── */
+
+    /* ── Tabla Tasas implícitas (usa los valores ya calculados en `tasas`) ── */
     (function renderTasas(){
       var tbody2 = document.getElementById('futTasasTbody');
       if(!tbody2) return;
-      var spot = hS[lri];
-      if(!spot) return;
-
-      /* Fechas de vencimiento (último día hábil de cada mes) */
-      var VENC = {
-        'JUL 26':'2026-07-31','AGO 26':'2026-08-31','SEP 26':'2026-09-30',
-        'OCT 26':'2026-10-30','NOV 26':'2026-11-30','DIC 26':'2026-12-31',
-        'ENE 27':'2027-01-29','FEB 27':'2027-02-26','MAR 27':'2027-03-31',
-        'ABR 27':'2027-04-30','MAY 27':'2027-05-30','JUN 27':'2027-06-30'
-      };
-
-      var hoy = new Date();
-      hoy.setHours(0,0,0,0);
-
       tbody2.innerHTML = '';
-      KEYS.forEach(function(k){
-        var fut = futPrices[k];
-        if(!fut) return;
-        var vencDate = new Date(VENC[k]);
-        var dias = Math.round((vencDate - hoy) / 86400000);
-        if(dias <= 0) return;
-
-        var tna = ((fut/spot) - 1) * (365/dias) * 100;
-        var tem = (Math.pow(fut/spot, 30/dias) - 1) * 100;
-
-        var tnaColor = tna >= 0 ? 'var(--green)' : 'var(--red)';
-        var temColor = tem >= 0 ? 'var(--blue)' : 'var(--red)';
-        var tnaStr = (tna >= 0 ? '+' : '') + tna.toFixed(2) + '%';
-        var temStr = (tem >= 0 ? '+' : '') + tem.toFixed(2) + '%';
-
+      tasasValid.forEach(function(t){
+        var tnaColor = t.tna >= 0 ? 'var(--green)' : 'var(--red)';
+        var temColor = t.tem >= 0 ? 'var(--blue)' : 'var(--red)';
+        var tnaStr = (t.tna >= 0 ? '+' : '') + t.tna.toFixed(2) + '%';
+        var temStr = (t.tem >= 0 ? '+' : '') + t.tem.toFixed(2) + '%';
         var tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid var(--border)';
-        tr.innerHTML = '<td style="padding:7px 12px;color:var(--txt);font-weight:600">'+k+'</td>'+
-          '<td style="padding:7px 12px;text-align:right;color:var(--txt2)">$'+Math.round(fut).toLocaleString('es-AR')+'</td>'+
-          '<td style="padding:7px 12px;text-align:right;color:var(--txt3)">'+dias+'</td>'+
+        tr.innerHTML = '<td style="padding:7px 12px;color:var(--txt);font-weight:600">'+t.key+'</td>'+
+          '<td style="padding:7px 12px;text-align:right;color:var(--txt2)">$'+Math.round(t.fut).toLocaleString('es-AR')+'</td>'+
+          '<td style="padding:7px 12px;text-align:right;color:var(--txt3)">'+t.dias+'</td>'+
           '<td style="padding:7px 12px;text-align:right;color:'+tnaColor+';font-weight:700">'+tnaStr+'</td>'+
           '<td style="padding:7px 12px;text-align:right;color:'+temColor+';font-weight:700">'+temStr+'</td>';
         tbody2.appendChild(tr);
       });
     })();
   } /* fin renderFut */
+
 
   window.cargarFuturo = function(){
     var mes  = document.getElementById('futSelMes').value;
@@ -1268,6 +1377,11 @@
     var _mc=document.getElementById('mainContent');
     if(_fp) _fp.style.display=isF?'block':'none';
     if(_mc) _mc.style.display=isF?'none':'block';
+    /* Techo BCRA / Brecha / Prom. brecha: solo tienen sentido en SIOPEL/PROYECCIÓN/BRECHA */
+    var _bbm=document.querySelector('.bb-metrics');
+    if(_bbm) _bbm.style.display=isF?'none':'flex';
+    var _bbsep=document.querySelectorAll('.bb-sep');
+    if(_bbsep&&_bbsep[1]) _bbsep[1].style.display=isF?'none':'block';
     if(isF){
       (function(){
         var box=document.getElementById('futChartBox');
