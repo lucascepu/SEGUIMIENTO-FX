@@ -960,7 +960,7 @@
     }
 
     /* ── Guardar estado para renderFutTable() y para la tira de métricas ── */
-    _fs = { KEYS:KEYS, futs:futs, rems:rems, techos:techos, tasas:tasas, fmt$:fmt$ };
+    _fs = { KEYS:KEYS, futs:futs, rems:rems, techos:techos, tasas:tasas, fmt$:fmt$, siopel:siopel };
     renderFutTable();
 
     /* ── Tira de métricas FUTUROS: Último futuro / Forward / TNA implícita — fijos a DIC 26 ── */
@@ -1019,7 +1019,7 @@
   } /* fin renderFut */
 
   function renderFutTable(){
-    var KEYS=_fs.KEYS, futs=_fs.futs, rems=_fs.rems, techos=_fs.techos, tasas=_fs.tasas, fmt$=_fs.fmt$;
+    var KEYS=_fs.KEYS, futs=_fs.futs, rems=_fs.rems, techos=_fs.techos, tasas=_fs.tasas, fmt$=_fs.fmt$, siopel=_fs.siopel;
     if(!KEYS) return;
     var tbody = document.getElementById('futTbody');
     if(!tbody) return;
@@ -1031,7 +1031,7 @@
       if(thead2){ thead2.textContent='SPREAD'; thead2.style.color='var(--txt3)'; }
       if(thead3){ thead3.textContent='TECHO'; thead3.style.color='var(--txt3)'; thead3.className='col-techo'; }
     } else {
-      if(thead1){ thead1.textContent='DÍAS'; thead1.style.color='var(--txt3)'; }
+      if(thead1){ thead1.textContent='FORWARD'; thead1.style.color='var(--txt3)'; }
       if(thead2){ thead2.textContent='TNA'; thead2.style.color='var(--txt3)'; }
       if(thead3){ thead3.textContent='TEM'; thead3.style.color='var(--txt3)'; thead3.className=''; }
     }
@@ -1089,17 +1089,23 @@
         col3='<td class="col-techo" style="padding:'+cp+';text-align:right;color:var(--txt2);white-space:nowrap">'+
               (dist!=null?'+'+dist+'%':'—')+'</td>';
       } else {
-        var tnaStr='—', temStr='—';
+        var fwdStr='—', tnaStr='—', temStr='—';
         if(t){
+          var fwdVal = ((t.fut/siopel)-1)*100;
+          fwdStr = (fwdVal >= 0 ? '+' : '') + fwdVal.toFixed(2) + '%';
           tnaStr = (t.tna >= 0 ? '+' : '') + t.tna.toFixed(2) + '%';
           temStr = (t.tem >= 0 ? '+' : '') + t.tem.toFixed(2) + '%';
         }
-        col1='<td style="padding:'+cp+';text-align:right;color:var(--txt3);white-space:nowrap">'+(t?t.dias:'—')+'</td>';
+        var fwdColor = 'var(--txt3)';
+        if(t){ fwdColor = ((t.fut/siopel)-1)>=0 ? 'var(--green)' : 'var(--red)'; }
+        col1='<td style="padding:'+cp+';text-align:right;color:'+fwdColor+';font-weight:600;white-space:nowrap">'+fwdStr+'</td>';
         col2='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+(t?tnaColor(t.tna):'var(--txt3)')+';white-space:nowrap">'+tnaStr+'</td>';
         col3='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+(t?temColor(t.tem):'var(--txt3)')+';white-space:nowrap">'+temStr+'</td>';
       }
+      var mesCell = '<td style="padding:'+cp+';color:var(--txt);font-weight:600;white-space:nowrap">'+k+(isFocused?' 🔍':'')+
+        (t?'<div style="font-weight:400;font-size:10px;color:var(--txt3);margin-top:1px">'+t.dias+' días</div>':'')+'</td>';
       tr.innerHTML=
-        '<td style="padding:'+cp+';color:var(--txt);font-weight:600;white-space:nowrap">'+k+(isFocused?' 🔍':'')+'</td>'+
+        mesCell+
         '<td style="padding:'+cp+';text-align:right;color:var(--txt);font-weight:500;white-space:nowrap">'+fmt$(fut)+'</td>'+
         col1+col2+col3;
       tbody.appendChild(tr);
