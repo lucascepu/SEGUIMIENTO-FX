@@ -842,6 +842,11 @@
           if(dias<=0) return null;
           return ((fu/sp) - 1) * (365/dias) * 100;
         });
+        var fwdF = datesF.map(function(d,i){
+          var sp = siopelF[i], fu = futsF[i];
+          if(!sp || !fu) return null;
+          return ((fu/sp) - 1) * 100;
+        });
         /* etiquetas cortas dd/mm para no saturar el eje */
         chartLabels = datesF.map(function(d){ var p=d.split('-'); return p[2]+'/'+p[1]; });
         chartData = isTasa
@@ -902,17 +907,42 @@
             },
             interaction:{mode:'index',intersect:false},
           tooltip:{
-            filter:function(item){ return item.raw!=null; },
+            filter:function(item){
+              if(item.raw==null) return false;
+              if(isHistorico) return item.datasetIndex===0; /* un solo item: el resto va en afterBody */
+              return true;
+            },
             callbacks:{
+              title:function(items){
+                if(isHistorico && items.length){
+                  var idx = items[0].dataIndex;
+                  var d = datesF[idx]; /* 'YYYY-MM-DD' */
+                  var MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+                  var p = d.split('-');
+                  return p[2]+' '+MESES[parseInt(p[1],10)-1]+' '+p[0];
+                }
+                return items.length ? items[0].label : '';
+              },
               label:function(c){
+                if(isHistorico){
+                  var idx=c.dataIndex;
+                  return '  Precio:  $'+Math.round(futsF[idx]).toLocaleString('es-AR');
+                }
                 return isTasa
-                  ? '  '+(isHistorico?'TNA implícita':'TNA implícita')+':  '+c.raw.toFixed(2)+'%'
+                  ? '  TNA implícita:  '+c.raw.toFixed(2)+'%'
                   : '  '+c.dataset.label+':  $'+Math.round(c.raw).toLocaleString('es-AR');
               },
               afterBody:function(items){
-                /* Detalle extra (Forward/TNA/TEM) solo en modo Precio, curva de hoy, sobre el dataset principal */
-                if(isTasa || isHistorico || !items.length) return [];
+                if(!items.length) return [];
                 var idx = items[0].dataIndex;
+                if(isHistorico){
+                  var lines=[];
+                  if(tnaF[idx]!=null) lines.push('  TNA:  '+(tnaF[idx]>=0?'+':'')+tnaF[idx].toFixed(2)+'%');
+                  if(fwdF[idx]!=null) lines.push('  Forward:  '+(fwdF[idx]>=0?'+':'')+fwdF[idx].toFixed(1)+'%');
+                  return lines;
+                }
+                /* Detalle extra (Forward/TNA/TEM) solo en modo Precio, curva de hoy, sobre el dataset principal */
+                if(isTasa) return [];
                 var t = tasas[idx];
                 if(!t) return [];
                 var fwd = ((t.fut/siopel)-1)*100;
@@ -929,7 +959,7 @@
           scales:{
             x:{ticks:{color:'#adbac7',font:{size:11},maxTicksLimit:isHistorico?12:undefined}, grid:{color:'rgba(255,255,255,.06)'}},
             y: isTasa
-              ? {grace:0, suggestedMax:isHistorico?undefined:40, ticks:{color:'#adbac7',font:{size:11},
+              ? {grace:0, min:0, suggestedMax:isHistorico?undefined:40, ticks:{color:'#adbac7',font:{size:11},
                    callback:function(v){return v.toFixed(0)+'%';}},
                  grid:{color:'rgba(255,255,255,.06)'}}
               : {grace:0, ticks:{color:'#adbac7',font:{size:11},
@@ -944,7 +974,7 @@
       var titleEl = document.getElementById('futChartTitle');
       if(titleEl){
         if(futFocus){
-          titleEl.innerHTML = 'Historial '+futFocus+': '+(isTasa?'tasa implícita':'precio')+
+          titleEl.innerHTML = (isTasa?'Tasa implícita':'Precio')+' – '+futFocus+
             ' <a href="javascript:void(0)" onclick="toggleFocus(\''+futFocus+'\')" style="color:var(--blue);font-weight:600;margin-left:8px;text-decoration:underline">← ver curva de hoy</a>';
         } else {
           titleEl.textContent = isTasa ? 'Curva de futuros: tasa implícita (TNA)' : 'Curva de futuros: precio';
