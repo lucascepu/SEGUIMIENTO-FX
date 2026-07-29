@@ -711,6 +711,26 @@
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
   var futView = 'precio'; /* 'precio' | 'tasa' — toggle del grafico de FUTUROS */
+  var futFocus = null;    /* contrato en foco (ej. 'DIC 26') o null = curva de hoy */
+  var futHist = null;     /* {dates:[...], 'JUL 26':[...], ...} — se carga una vez, lazy */
+  var futHistLoading = false;
+  function siopelEnFecha(iso){
+    /* Busca el SIOPEL historico para una fecha ISO usando hDates/hS ya cargados */
+    var idx = hDates.indexOf(iso);
+    return idx>=0 ? hS[idx] : null;
+  }
+  window.toggleFocus = function(k){
+    futFocus = (futFocus===k) ? null : k;
+    if(futFocus && !futHist && !futHistLoading){
+      futHistLoading = true;
+      fetch('futurosHistorico.json')
+        .then(function(r){ return r.json(); })
+        .then(function(data){ futHist=data; futHistLoading=false; renderFut(); })
+        .catch(function(){ futHistLoading=false; futFocus=null; renderFut(); });
+      return; /* renderFut se llama cuando llegue el fetch */
+    }
+    renderFut();
+  };
   var futColGroup = 'a'; /* 'a' = REM/Spread/Techo | 'b' = Dias/TNA/TEM — columnas opcionales de la tabla */
   window.setFutColGroup = function(g){
     futColGroup = g;
@@ -803,7 +823,48 @@
     if(ctx){
       if(futChartInst){ futChartInst.destroy(); futChartInst=null; }
       var isTasa = (futView==='tasa');
-      var chartData = isTasa
+      var chartData, chartLabels, isHistorico = false;
+
+      if(futFocus && futHist && futHist[futFocus]){
+        isHistorico = true;
+        var hDatesF = futHist.dates;
+        var hFutF   = futHist[futFocus];
+        /* recortar al primer/ultimo dato real del contrato (no arranca en la misma fecha para todos) */
+        var firstIdx = hFutF.findIndex(function(v){ return v!=null; });
+        var lastIdx  = hFutF.length - 1 - hFutF.slice().reverse().findIndex(function(v){ return v!=null; });
+        var rango = function(arr){ return arr.slice(firstIdx, lastIdx+1); };
+        var datesF = rango(hDatesF);
+        var futsF  = rango(hFutF);
+        var siopelF = datesF.map(siopelEnFecha);
+        var vencF = new Date(VENC[futFocus]);
+        var tnaF = datesF.map(function(d,i){
+          var sp = siopelF[i], fu = futsF[i];
+          if(!sp || !fu) return null;
+          var dias = Math.round((vencF - new Date(d)) / 86400000);
+          if(dias<=0) return null;
+          return ((fu/sp) - 1) * (365/dias) * 100;
+        });
+        /* etiquetas cortas dd/mm para no saturar el eje */
+        chartLabels = datesF.map(function(d){ var p=d.split('-'); return p[2]+'/'+p[1]; });
+        chartData = isTasa
+          ? { labels: chartLabels, datasets:[
+              {label:'TNA implícita histórica', data:tnaF, borderColor:'#78AEDE',
+               backgroundColor:'rgba(120,174,222,.10)', fill:true,
+               pointRadius:0, pointHoverRadius:5, pointBackgroundColor:'#78AEDE',
+               borderWidth:2, tension:.15, spanGaps:false}
+            ]}
+          : { labels: chartLabels, datasets:[
+              {label:'Futuro '+futFocus, data:futsF, borderColor:'#78AEDE',
+               backgroundColor:'rgba(120,174,222,.10)', fill:true,
+               pointRadius:0, pointHoverRadius:5, pointBackgroundColor:'#78AEDE',
+               borderWidth:2, tension:.15, spanGaps:false},
+              {label:'SIOPEL', data:siopelF, borderColor:'#3fb950',
+               borderDash:[5,4], borderWidth:1.5, pointRadius:0,
+               backgroundColor:'transparent', fill:false, tension:.15}
+            ]};
+      } else {
+        chartLabels = KEYS;
+        chartData = isTasa
         ? { labels: KEYS, datasets:[
             {label:'TNA implícita (Futuros vs SIOPEL)', data:tasas.map(function(t){return t?t.tna:null;}),
              borderColor:'#78AEDE', backgroundColor:'rgba(120,174,222,.10)', fill:true,
@@ -824,6 +885,7 @@
              pointHoverRadius:5, pointBorderWidth:0,
              backgroundColor:'transparent', fill:false, tension:.3}
           ]};
+      }
       futChartInst = new Chart(ctx, {
         type:'line',
         data: chartData,
@@ -845,16 +907,16 @@
             callbacks:{
               label:function(c){
                 return isTasa
-                  ? '  TNA implícita:  '+c.raw.toFixed(2)+'%'
+                  ? '  '+(isHistorico?'TNA implícita':'TNA implícita')+':  '+c.raw.toFixed(2)+'%'
                   : '  '+c.dataset.label+':  $'+Math.round(c.raw).toLocaleString('es-AR');
               }
             }
           }
           },
           scales:{
-            x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
+            x:{ticks:{color:'#adbac7',font:{size:11},maxTicksLimit:isHistorico?12:undefined}, grid:{color:'rgba(255,255,255,.06)'}},
             y: isTasa
-              ? {grace:0, suggestedMax:40, ticks:{color:'#adbac7',font:{size:11},
+              ? {grace:0, suggestedMax:isHistorico?undefined:40, ticks:{color:'#adbac7',font:{size:11},
                    callback:function(v){return v.toFixed(0)+'%';}},
                  grid:{color:'rgba(255,255,255,.06)'}}
               : {grace:0, ticks:{color:'#adbac7',font:{size:11},
@@ -864,6 +926,17 @@
         }
       });
       /* Y-zoom handled by zoom plugin mode:y */
+
+      /* Título del gráfico + botón para volver a la curva de hoy */
+      var titleEl = document.getElementById('futChartTitle');
+      if(titleEl){
+        if(futFocus){
+          titleEl.innerHTML = 'Historial '+futFocus+': '+(isTasa?'tasa implícita':'precio')+
+            ' <a href="javascript:void(0)" onclick="toggleFocus(\''+futFocus+'\')" style="color:var(--blue);font-weight:600;margin-left:8px;text-decoration:underline">← ver curva de hoy</a>';
+        } else {
+          titleEl.textContent = isTasa ? 'Curva de futuros: tasa implícita (TNA)' : 'Curva de futuros: precio';
+        }
+      }
     }
 
     /* ── Guardar estado para renderFutTable() y para la tira de métricas ── */
@@ -949,9 +1022,16 @@
       var t = tasas[i];
       var isMob=window.innerWidth<600, cp=isMob?'6px 8px':'8px 12px';
       var tr=document.createElement('tr');
+      var isFocused = (futFocus===k);
+      var isDimmed  = (futFocus && !isFocused);
       tr.style.borderBottom='1px solid var(--border)';
-      tr.onmouseover=function(){this.style.background='var(--bg-hover)';};
-      tr.onmouseout=function(){this.style.background='';};
+      tr.style.cursor='pointer';
+      tr.style.opacity = isDimmed ? '0.35' : '1';
+      tr.style.background = isFocused ? 'rgba(120,174,222,.12)' : '';
+      tr.style.transition = 'opacity .15s, background .15s';
+      tr.onmouseover=function(){ if(!isFocused) this.style.background='var(--bg-hover)'; };
+      tr.onmouseout=function(){ this.style.background = isFocused ? 'rgba(120,174,222,.12)' : ''; };
+      tr.onclick=function(){ toggleFocus(k); };
       var col1,col2,col3;
       if(futColGroup==='a'){
         var spPct = fut!=null ? ((fut/rem-1)*100).toFixed(1) : null;
@@ -974,7 +1054,7 @@
         col3='<td style="padding:'+cp+';text-align:right;font-weight:700;color:var(--txt);white-space:nowrap">'+temStr+'</td>';
       }
       tr.innerHTML=
-        '<td style="padding:'+cp+';color:var(--txt);font-weight:600;white-space:nowrap">'+k+'</td>'+
+        '<td style="padding:'+cp+';color:var(--txt);font-weight:600;white-space:nowrap">'+k+(isFocused?' 🔍':'')+'</td>'+
         '<td style="padding:'+cp+';text-align:right;color:var(--txt);font-weight:500;white-space:nowrap">'+fmt$(fut)+'</td>'+
         col1+col2+col3;
       tbody.appendChild(tr);
