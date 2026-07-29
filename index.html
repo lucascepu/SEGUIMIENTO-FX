@@ -764,10 +764,11 @@
       var d = Math.round((vencDate - hoy) / 86400000);
       return d>0 ? d : null;
     }
+    var MIN_DIAS_TNA = 10; /* anualizar con menos días que esto da tasas inestables/sin sentido */
     var tasas = KEYS.map(function(k){
       var fut = futPrices[k];
       var dias = diasAlVenc(k);
-      if(!fut || !siopel || !dias) return null;
+      if(!fut || !siopel || !dias || dias<MIN_DIAS_TNA) return null;
       var tna = ((fut/siopel) - 1) * (365/dias) * 100;
       var tem = (Math.pow(fut/siopel, 30/dias) - 1) * 100;
       return {key:k, fut:fut, dias:dias, tna:tna, tem:tem};
@@ -775,7 +776,7 @@
     var tasasValid = tasas.filter(function(t){ return t!=null; });
     var remTna = KEYS.map(function(k,i){
       var rem = rems[i], dias = diasAlVenc(k);
-      if(!rem || !siopel || !dias) return null;
+      if(!rem || !siopel || !dias || dias<MIN_DIAS_TNA) return null;
       return ((rem/siopel) - 1) * (365/dias) * 100;
     });
 
@@ -926,8 +927,8 @@
       if(thead3){ thead3.textContent='TECHO'; thead3.style.color='var(--txt3)'; thead3.className='col-techo'; }
     } else {
       if(thead1){ thead1.textContent='DÍAS'; thead1.style.color='var(--txt3)'; }
-      if(thead2){ thead2.textContent='TNA'; thead2.style.color='var(--accent)'; }
-      if(thead3){ thead3.textContent='TEM'; thead3.style.color='var(--blue)'; thead3.className=''; }
+      if(thead2){ thead2.textContent='TNA'; thead2.style.color='var(--txt3)'; }
+      if(thead3){ thead3.textContent='TEM'; thead3.style.color='var(--txt3)'; thead3.className=''; }
     }
 
     tbody.innerHTML='';
@@ -951,16 +952,14 @@
         col3='<td class="col-techo" style="padding:'+cp+';text-align:right;color:var(--txt2);white-space:nowrap">'+
               (dist!=null?'+'+dist+'%':'—')+'</td>';
       } else {
-        var tnaStr='—', temStr='—', tnaColor='var(--txt3)', temColor='var(--txt3)';
+        var tnaStr='—', temStr='—';
         if(t){
-          tnaColor = t.tna >= 0 ? 'var(--green)' : 'var(--red)';
-          temColor = t.tem >= 0 ? 'var(--blue)' : 'var(--red)';
           tnaStr = (t.tna >= 0 ? '+' : '') + t.tna.toFixed(2) + '%';
           temStr = (t.tem >= 0 ? '+' : '') + t.tem.toFixed(2) + '%';
         }
         col1='<td style="padding:'+cp+';text-align:right;color:var(--txt3);white-space:nowrap">'+(t?t.dias:'—')+'</td>';
-        col2='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+tnaColor+';white-space:nowrap">'+tnaStr+'</td>';
-        col3='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+temColor+';white-space:nowrap">'+temStr+'</td>';
+        col2='<td style="padding:'+cp+';text-align:right;font-weight:700;color:var(--txt);white-space:nowrap">'+tnaStr+'</td>';
+        col3='<td style="padding:'+cp+';text-align:right;font-weight:700;color:var(--txt);white-space:nowrap">'+temStr+'</td>';
       }
       tr.innerHTML=
         '<td style="padding:'+cp+';color:var(--txt);font-weight:600;white-space:nowrap">'+k+'</td>'+
