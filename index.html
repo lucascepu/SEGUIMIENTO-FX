@@ -306,7 +306,7 @@
     <div class="bb-vsep"></div>
     <div class="bb-metric">
       <div class="bb-m-label" id="futMLabelFwd">Forward DIC 26</div>
-      <div class="bb-m-val green" id="futMValFwd">—</div>
+      <div class="bb-m-val" id="futMValFwd">—</div>
       <div class="bb-m-sub">vs spot</div>
     </div>
     <div class="bb-vsep"></div>
@@ -865,9 +865,10 @@
         chartData = isTasa
         ? { labels: KEYS, datasets:[
             {label:'TNA implícita (Futuros vs SIOPEL)', data:tasas.map(function(t){return t?t.tna:null;}),
-             borderColor:'#78AEDE', backgroundColor:'rgba(120,174,222,.10)', fill:true,
-             pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#78AEDE',
-             borderWidth:2.5, tension:.3, spanGaps:false}
+             showLine:false, /* puntos sueltos, no una curva continua: cada mes es un contrato independiente */
+             borderColor:'#8b98a5', backgroundColor:'#8b98a5',
+             pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#8b98a5',
+             pointBorderWidth:0, fill:false}
           ]}
         : { labels: KEYS, datasets:[
             {label:'Futuro ROFEX', data:futs, borderColor:'#78AEDE',
@@ -907,6 +908,20 @@
                 return isTasa
                   ? '  '+(isHistorico?'TNA implícita':'TNA implícita')+':  '+c.raw.toFixed(2)+'%'
                   : '  '+c.dataset.label+':  $'+Math.round(c.raw).toLocaleString('es-AR');
+              },
+              afterBody:function(items){
+                /* Detalle extra (Forward/TNA/TEM) solo en modo Precio, curva de hoy, sobre el dataset principal */
+                if(isTasa || isHistorico || !items.length) return [];
+                var idx = items[0].dataIndex;
+                var t = tasas[idx];
+                if(!t) return [];
+                var fwd = ((t.fut/siopel)-1)*100;
+                return [
+                  '',
+                  '  Forward:  '+(fwd>=0?'+':'')+fwd.toFixed(1)+'%',
+                  '  TNA:  '+(t.tna>=0?'+':'')+t.tna.toFixed(2)+'%',
+                  '  TEM:  '+(t.tem>=0?'+':'')+t.tem.toFixed(1)+'%'
+                ];
               }
             }
           }
@@ -945,6 +960,10 @@
         return '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">'+
           '<span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:'+bg+'"></span>'+label+'</span>';
       };
+      var dotSwatch = function(color,label){
+        return '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">'+
+          '<span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:'+color+'"></span>'+label+'</span>';
+      };
       if(legP){
         legP.innerHTML = isHistorico
           ? swatch('#78AEDE','Futuro '+futFocus) + swatch('#3fb950','SIOPEL',[5,4])
@@ -954,7 +973,7 @@
       if(legT){
         legT.innerHTML = isHistorico
           ? swatch('#78AEDE','TNA implícita histórica ('+futFocus+')')
-          : swatch('#78AEDE','TNA implícita (ROFEX vs SIOPEL)');
+          : dotSwatch('#8b98a5','TNA implícita (ROFEX vs SIOPEL) — un punto por contrato');
         legT.style.display = isTasa ? 'flex' : 'none';
       }
     }
@@ -975,8 +994,7 @@
       if(elFV){
         if(dic && siopel){
           var fwd=((dic.fut/siopel-1)*100);
-          elFV.textContent=(fwd>=0?'+':'')+fwd.toFixed(2)+'%';
-          elFV.style.color = fwd>=0?'var(--green)':'var(--red)';
+          elFV.textContent=(fwd>=0?'+':'')+fwd.toFixed(1)+'%';
         } else elFV.textContent='—';
       }
 
@@ -1092,13 +1110,11 @@
         var fwdStr='—', tnaStr='—', temStr='—';
         if(t){
           var fwdVal = ((t.fut/siopel)-1)*100;
-          fwdStr = (fwdVal >= 0 ? '+' : '') + fwdVal.toFixed(2) + '%';
+          fwdStr = (fwdVal >= 0 ? '+' : '') + fwdVal.toFixed(1) + '%';
           tnaStr = (t.tna >= 0 ? '+' : '') + t.tna.toFixed(2) + '%';
-          temStr = (t.tem >= 0 ? '+' : '') + t.tem.toFixed(2) + '%';
+          temStr = (t.tem >= 0 ? '+' : '') + t.tem.toFixed(1) + '%';
         }
-        var fwdColor = 'var(--txt3)';
-        if(t){ fwdColor = ((t.fut/siopel)-1)>=0 ? 'var(--green)' : 'var(--red)'; }
-        col1='<td style="padding:'+cp+';text-align:right;color:'+fwdColor+';font-weight:600;white-space:nowrap">'+fwdStr+'</td>';
+        col1='<td style="padding:'+cp+';text-align:right;color:var(--txt);font-weight:600;white-space:nowrap">'+fwdStr+'</td>';
         col2='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+(t?tnaColor(t.tna):'var(--txt3)')+';white-space:nowrap">'+tnaStr+'</td>';
         col3='<td style="padding:'+cp+';text-align:right;font-weight:700;color:'+(t?temColor(t.tem):'var(--txt3)')+';white-space:nowrap">'+temStr+'</td>';
       }
