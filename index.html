@@ -423,7 +423,14 @@
         </div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden" id="futTableBox">
-        <table id="futTableEl" style="border-collapse:collapse;font-size:12px;width:100%">
+        <table id="futTableEl" style="border-collapse:collapse;font-size:12px;width:100%;table-layout:fixed">
+          <colgroup>
+            <col style="width:22%">
+            <col style="width:26%">
+            <col style="width:17.33%">
+            <col style="width:17.33%">
+            <col style="width:17.34%">
+          </colgroup>
           <thead>
             <tr style="background:rgba(255,255,255,.03)">
               <th style="text-align:left;padding:8px 12px;font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)">MES</th>
