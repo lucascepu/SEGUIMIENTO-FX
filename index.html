@@ -764,21 +764,17 @@
       var d = Math.round((vencDate - hoy) / 86400000);
       return d>0 ? d : null;
     }
-    var MIN_DIAS_TNA = 10; /* anualizar con menos días que esto da tasas inestables/sin sentido */
     var tasas = KEYS.map(function(k){
       var fut = futPrices[k];
       var dias = diasAlVenc(k);
-      if(!fut || !siopel || !dias || dias<MIN_DIAS_TNA) return null;
+      if(!fut || !siopel || !dias) return null;
       var tna = ((fut/siopel) - 1) * (365/dias) * 100;
       var tem = (Math.pow(fut/siopel, 30/dias) - 1) * 100;
       return {key:k, fut:fut, dias:dias, tna:tna, tem:tem};
     });
     var tasasValid = tasas.filter(function(t){ return t!=null; });
-    var remTna = KEYS.map(function(k,i){
-      var rem = rems[i], dias = diasAlVenc(k);
-      if(!rem || !siopel || !dias || dias<MIN_DIAS_TNA) return null;
-      return ((rem/siopel) - 1) * (365/dias) * 100;
-    });
+    /* Nota: se descarta comparar contra la TNA implícita del REM — con pocos días al
+       vencimiento (ej. JUL 26) anualizar el REM (dato de encuesta) da valores sin sentido. */
 
     /* ── Gráfico con zoom/pan (modo Precio o modo Tasa implícita) ── */
     var ctx = document.getElementById('futCanvas');
@@ -787,16 +783,10 @@
       var isTasa = (futView==='tasa');
       var chartData = isTasa
         ? { labels: KEYS, datasets:[
-            {label:'Futuros ROFEX', data:tasas.map(function(t){return t?t.tna:null;}),
+            {label:'TNA implícita (Futuros vs SIOPEL)', data:tasas.map(function(t){return t?t.tna:null;}),
              borderColor:'#78AEDE', backgroundColor:'rgba(120,174,222,.10)', fill:true,
              pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#78AEDE',
-             borderWidth:2.5, tension:.3, spanGaps:false},
-            {label:'REM (implícita)', data:remTna, borderColor:'#F5C36B',
-             borderDash:[6,4], borderWidth:2, pointRadius:4, pointBackgroundColor:'#F5C36B',
-             backgroundColor:'transparent', fill:false, tension:.3},
-            {label:'Spot (SIOPEL)', data:KEYS.map(function(){return 0;}), borderColor:'#3fb950',
-             borderDash:[2,5], borderWidth:1.5, pointRadius:0,
-             backgroundColor:'transparent', fill:false, tension:0}
+             borderWidth:2.5, tension:.3, spanGaps:false}
           ]}
         : { labels: KEYS, datasets:[
             {label:'Futuro ROFEX', data:futs, borderColor:'#78AEDE',
