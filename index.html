@@ -891,7 +891,7 @@
           ]};
       }
 
-      /* Eje Y de Precio: rango fijo 1000-2000, sube de a 100 si algun valor se acerca al techo actual */
+      /* Eje Y de Precio: rango fijo 1250-2000, sube de a 100 si algun valor se acerca al techo actual */
       var priceYMax = 2000;
       if(!isTasa){
         var allPriceVals = (isHistorico ? futsF.concat(siopelF) : futs.concat(rems).concat(techos))
@@ -972,7 +972,7 @@
               ? {grace:0, suggestedMax:isHistorico?undefined:40, ticks:{color:'#adbac7',font:{size:11},
                    callback:function(v){return v.toFixed(0)+'%';}},
                  grid:{color:'rgba(255,255,255,.06)'}}
-              : {grace:0, min:1000, max:priceYMax, ticks:{color:'#adbac7',font:{size:11},
+              : {grace:0, min:1250, max:priceYMax, ticks:{color:'#adbac7',font:{size:11},
                    callback:function(v){return '$'+Math.round(v).toLocaleString('es-AR');}},
                  grid:{color:'rgba(255,255,255,.06)'}}
           }
