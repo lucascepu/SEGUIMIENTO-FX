@@ -823,7 +823,7 @@
             callbacks:{
               label:function(c){
                 return isTasa
-                  ? '  '+c.dataset.label+':  '+c.raw.toFixed(2)+'%'
+                  ? '  TNA implícita:  '+c.raw.toFixed(2)+'%'
                   : '  '+c.dataset.label+':  $'+Math.round(c.raw).toLocaleString('es-AR');
               }
             }
@@ -832,7 +832,7 @@
           scales:{
             x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
             y: isTasa
-              ? {grace:0, ticks:{color:'#adbac7',font:{size:11},
+              ? {grace:0, suggestedMax:40, ticks:{color:'#adbac7',font:{size:11},
                    callback:function(v){return v.toFixed(0)+'%';}},
                  grid:{color:'rgba(255,255,255,.06)'}}
               : {grace:0, ticks:{color:'#adbac7',font:{size:11},
