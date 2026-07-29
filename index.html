@@ -737,14 +737,27 @@
   };
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260728';
+  var ROFEX_VERSION = '20260729b'; /* bump: purga precios corruptos cacheados (ej. ENE 27 con print erroneo) */
+  function precioValido(key, precio){
+    /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
+       muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */
+    var base = FUT_DEFAULT[key];
+    if(!base || !precio) return true;
+    return Math.abs(precio/base - 1) <= 0.08;
+  }
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
       localStorage.setItem('futPricesVersion', ROFEX_VERSION);
     }
     var saved = localStorage.getItem('futPrices');
-    if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
+    if(saved){
+      var savedObj = JSON.parse(saved);
+      Object.keys(savedObj).forEach(function(k){
+        if(!precioValido(k, savedObj[k])) delete savedObj[k]; /* descarta valores corruptos cacheados */
+      });
+      futPrices = Object.assign({}, FUT_DEFAULT, savedObj);
+    }
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
@@ -1391,6 +1404,7 @@
               Object.keys(data).forEach(function(k){
                 if(k==='open') return;
                 var precio=data[k].ultimo&&data[k].ultimo>0?data[k].ultimo:null;
+                if(precio && !precioValido(k,precio)) precio=null; /* descarta print fuera de rango razonable */
                 if(precio&&futPrices[k]!==precio){ futPrices[k]=precio; changed=true; }
               });
               updateFutBadge();
@@ -1408,6 +1422,7 @@
                 Object.keys(data).forEach(function(k){
                   if(k==='open') return;
                   var precio=data[k].ultimo&&data[k].ultimo>0?data[k].ultimo:null;
+                  if(precio && !precioValido(k,precio)) precio=null; /* descarta print fuera de rango razonable */
                   if(precio) futPrices[k]=precio;
                 });
               }
@@ -1477,14 +1492,27 @@
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260728';
+  var ROFEX_VERSION = '20260729b'; /* bump: purga precios corruptos cacheados (ej. ENE 27 con print erroneo) */
+  function precioValido(key, precio){
+    /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
+       muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */
+    var base = FUT_DEFAULT[key];
+    if(!base || !precio) return true;
+    return Math.abs(precio/base - 1) <= 0.08;
+  }
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
       localStorage.setItem('futPricesVersion', ROFEX_VERSION);
     }
     var saved = localStorage.getItem('futPrices');
-    if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
+    if(saved){
+      var savedObj = JSON.parse(saved);
+      Object.keys(savedObj).forEach(function(k){
+        if(!precioValido(k, savedObj[k])) delete savedObj[k]; /* descarta valores corruptos cacheados */
+      });
+      futPrices = Object.assign({}, FUT_DEFAULT, savedObj);
+    }
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
@@ -1871,14 +1899,27 @@
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260728';
+  var ROFEX_VERSION = '20260729b'; /* bump: purga precios corruptos cacheados (ej. ENE 27 con print erroneo) */
+  function precioValido(key, precio){
+    /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
+       muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */
+    var base = FUT_DEFAULT[key];
+    if(!base || !precio) return true;
+    return Math.abs(precio/base - 1) <= 0.08;
+  }
   try{
     if(localStorage.getItem('futPricesVersion')!==ROFEX_VERSION){
       localStorage.removeItem('futPrices');
       localStorage.setItem('futPricesVersion', ROFEX_VERSION);
     }
     var saved = localStorage.getItem('futPrices');
-    if(saved) futPrices = Object.assign({}, FUT_DEFAULT, JSON.parse(saved));
+    if(saved){
+      var savedObj = JSON.parse(saved);
+      Object.keys(savedObj).forEach(function(k){
+        if(!precioValido(k, savedObj[k])) delete savedObj[k]; /* descarta valores corruptos cacheados */
+      });
+      futPrices = Object.assign({}, FUT_DEFAULT, savedObj);
+    }
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
