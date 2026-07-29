@@ -866,8 +866,8 @@
         ? { labels: KEYS, datasets:[
             {label:'TNA implícita (Futuros vs SIOPEL)', data:tasas.map(function(t){return t?t.tna:null;}),
              showLine:false, /* puntos sueltos, no una curva continua: cada mes es un contrato independiente */
-             borderColor:'#8b98a5', backgroundColor:'#8b98a5',
-             pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#8b98a5',
+             borderColor:'#E8914A', backgroundColor:'#E8914A',
+             pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#E8914A',
              pointBorderWidth:0, fill:false}
           ]}
         : { labels: KEYS, datasets:[
@@ -973,7 +973,7 @@
       if(legT){
         legT.innerHTML = isHistorico
           ? swatch('#78AEDE','TNA implícita histórica ('+futFocus+')')
-          : dotSwatch('#8b98a5','TNA implícita (ROFEX vs SIOPEL) — un punto por contrato');
+          : dotSwatch('#E8914A','TNA implícita (ROFEX vs SIOPEL) — un punto por contrato');
         legT.style.display = isTasa ? 'flex' : 'none';
       }
     }
