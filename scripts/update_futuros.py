@@ -118,10 +118,35 @@ try:
         if encontrado:
             break
 
+    # ── Sondeo 2: listar el panel de futuros/monedas para ver los simbolos reales que usa IOL ──
+    panel_intentos = []
+    panel_encontrado = None
+    PANEL_INSTRUMENTOS = ['futuros', 'Futuros', 'FUTUROS', 'monedas', 'Monedas']
+    PANEL_PANELES = ['general', 'General', 'Rofex', 'rofex', 'Dolar Futuro', 'dolar']
+    for instrumento in PANEL_INSTRUMENTOS:
+        for panel in PANEL_PANELES:
+            url = f"{IOL_URL}/api/v2/Cotizaciones/{urllib.parse.quote(instrumento)}/{urllib.parse.quote(panel)}/argentina"
+            status, body = try_get(url, token)
+            panel_intentos.append({'instrumento': instrumento, 'panel': panel, 'url': url,
+                                    'status': status, 'body_preview': body[:500] if body else None})
+            print(f"[futuros] probe panel instrumento={instrumento} panel={panel} -> {status}")
+            if status == 200 and body and len(body) > 10:
+                panel_encontrado = {'instrumento': instrumento, 'panel': panel, 'respuesta_preview': body[:2000]}
+                break
+        if panel_encontrado:
+            break
+
+    if not encontrado and not panel_encontrado:
+        fail("Ni la cotizacion individual ni el listado de paneles devolvieron datos utilizables. "
+             "Revisar 'intentos' y 'panel_intentos' para ajustar el formato con la API real de IOL.",
+             intentos=intentos, panel_intentos=panel_intentos)
+
     if not encontrado:
-        fail("Ningun formato de mercado/simbolo probado devolvio una cotizacion valida. "
-             "Revisar 'intentos' para ver los status/respuestas de IOL y ajustar el formato.",
-             intentos=intentos)
+        write_debug('panel_ok_pero_no_simbolo_individual', fecha=fecha_iso,
+                     panel_encontrado=panel_encontrado, intentos=intentos, panel_intentos=panel_intentos)
+        print("[futuros] El panel devolvio datos pero la cotizacion individual no. Revisar panel_encontrado "
+              "para extraer los simbolos reales y reintentar la cotizacion individual con esos.")
+        sys.exit(0)
 
     print(f"[futuros] Formato encontrado: mercado={encontrado['mercado']}, simbolo={encontrado['simbolo_formato']}")
     print(f"[futuros] Respuesta ejemplo: {encontrado['respuesta']}")
