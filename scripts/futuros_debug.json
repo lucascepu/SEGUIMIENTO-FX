@@ -1,11 +1,119 @@
 {
-  "timestamp_utc": "2026-07-30T20:06:55.241295Z",
+  "timestamp_utc": "2026-07-30T20:17:51.103922Z",
   "status": "error",
-  "error": "Login IOL fallo: HTTP 403",
-  "http_status": 403,
-  "response_body": "error code: 1010\n",
-  "cred_diag": {
-    "user_len": 8,
-    "pass_len": 11
-  }
+  "error": "Ningun formato de mercado/simbolo probado devolvio una cotizacion valida. Revisar 'intentos' para ver los status/respuestas de IOL y ajustar el formato.",
+  "intentos": [
+    {
+      "mercado": "rofex",
+      "simbolo": "DLR/DIC26",
+      "url": "https://api.invertironline.com/api/v2/rofex/Titulos/DLR%2FDIC26/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "rofex",
+      "simbolo": "DLR/DIC26M",
+      "url": "https://api.invertironline.com/api/v2/rofex/Titulos/DLR%2FDIC26M/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "rofex",
+      "simbolo": "DLRDIC26",
+      "url": "https://api.invertironline.com/api/v2/rofex/Titulos/DLRDIC26/Cotizacion",
+      "status": 400,
+      "body_preview": null
+    },
+    {
+      "mercado": "rofex",
+      "simbolo": "DLR/DIC2026",
+      "url": "https://api.invertironline.com/api/v2/rofex/Titulos/DLR%2FDIC2026/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "ROFX",
+      "simbolo": "DLR/DIC26",
+      "url": "https://api.invertironline.com/api/v2/ROFX/Titulos/DLR%2FDIC26/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "ROFX",
+      "simbolo": "DLR/DIC26M",
+      "url": "https://api.invertironline.com/api/v2/ROFX/Titulos/DLR%2FDIC26M/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "ROFX",
+      "simbolo": "DLRDIC26",
+      "url": "https://api.invertironline.com/api/v2/ROFX/Titulos/DLRDIC26/Cotizacion",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "mercado": "ROFX",
+      "simbolo": "DLR/DIC2026",
+      "url": "https://api.invertironline.com/api/v2/ROFX/Titulos/DLR%2FDIC2026/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "matba",
+      "simbolo": "DLR/DIC26",
+      "url": "https://api.invertironline.com/api/v2/matba/Titulos/DLR%2FDIC26/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "matba",
+      "simbolo": "DLR/DIC26M",
+      "url": "https://api.invertironline.com/api/v2/matba/Titulos/DLR%2FDIC26M/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "matba",
+      "simbolo": "DLRDIC26",
+      "url": "https://api.invertironline.com/api/v2/matba/Titulos/DLRDIC26/Cotizacion",
+      "status": 400,
+      "body_preview": null
+    },
+    {
+      "mercado": "matba",
+      "simbolo": "DLR/DIC2026",
+      "url": "https://api.invertironline.com/api/v2/matba/Titulos/DLR%2FDIC2026/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "rOFX",
+      "simbolo": "DLR/DIC26",
+      "url": "https://api.invertironline.com/api/v2/rOFX/Titulos/DLR%2FDIC26/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "rOFX",
+      "simbolo": "DLR/DIC26M",
+      "url": "https://api.invertironline.com/api/v2/rOFX/Titulos/DLR%2FDIC26M/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    },
+    {
+      "mercado": "rOFX",
+      "simbolo": "DLRDIC26",
+      "url": "https://api.invertironline.com/api/v2/rOFX/Titulos/DLRDIC26/Cotizacion",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "mercado": "rOFX",
+      "simbolo": "DLR/DIC2026",
+      "url": "https://api.invertironline.com/api/v2/rOFX/Titulos/DLR%2FDIC2026/Cotizacion",
+      "status": 500,
+      "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    }
+  ]
 }
