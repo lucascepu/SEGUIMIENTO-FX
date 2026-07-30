@@ -2,7 +2,8 @@ name: Auto-actualizar FX diario
 
 on:
   schedule:
-    - cron: '0 18 * * 1-5'   # 18:00 UTC = 15:00 AR (lun-vie), con delay GitHub ~15:10-15:15 AR
+    - cron: '0 18 * * 1-5'   # 18:00 UTC = 15:00 AR: actualiza SIOPEL (criptoya/MAE)
+    - cron: '0 21 * * 1-5'   # 21:00 UTC = 18:00 AR: actualiza futuros ROFEX (post-cierre 17hs, ya con ajuste oficial)
   workflow_dispatch:
     inputs:
       fecha:
@@ -39,7 +40,8 @@ jobs:
       - name: Actualizar futuros ROFEX
         continue-on-error: true
         env:
-          MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
+          PRIMARY_USER: ${{ secrets.PRIMARY_USER }}
+          PRIMARY_PASS: ${{ secrets.PRIMARY_PASS }}
           INPUT_FECHA: ${{ github.event.inputs.fecha }}
         run: |
           FECHA="${INPUT_FECHA}"
@@ -56,6 +58,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Sin cambios — ya actualizado o no hubo rueda hoy."
           else
-            git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (SIOPEL criptoya.com + futuros MAE)"
+            git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (SIOPEL criptoya.com + futuros Primary)"
             git push
           fi
