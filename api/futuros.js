@@ -1,8 +1,8 @@
 // Vercel Serverless Function — futuros ROFEX via Primary API (reMarkets/prod)
 // Autenticación: X-Username / X-Password → X-Auth-Token
-// Endpoint: api.remarkets.primary.com.ar (sandbox) o api.primary.com.ar (prod)
+// Endpoint real del usuario (segun su panel Primary API): api.remarkets.primary.com.ar
 
-const PRIMARY_URL = process.env.PRIMARY_URL || 'https://api.primary.com.ar';
+const PRIMARY_URL = process.env.PRIMARY_URL || 'https://api.remarkets.primary.com.ar';
 const PRIMARY_USER = process.env.PRIMARY_USER || '';
 const PRIMARY_PASS = process.env.PRIMARY_PASS || '';
 

@@ -30,7 +30,7 @@ def fail(msg, **extra):
     write_debug('error', error=msg, **extra)
     sys.exit(1)
 
-PRIMARY_URL = os.environ.get('PRIMARY_URL', 'https://api.primary.com.ar')
+PRIMARY_URL = os.environ.get('PRIMARY_URL', 'https://api.remarkets.primary.com.ar')
 PRIMARY_USER = os.environ.get('PRIMARY_USER', '').strip()
 PRIMARY_PASS = os.environ.get('PRIMARY_PASS', '').strip()
 
