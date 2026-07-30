@@ -37,6 +37,7 @@ jobs:
         run: python3 scripts/run_workflow.py
 
       - name: Actualizar futuros ROFEX
+        continue-on-error: true
         env:
           MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
           INPUT_FECHA: ${{ github.event.inputs.fecha }}
@@ -45,16 +46,16 @@ jobs:
           if [ -z "$FECHA" ]; then
             FECHA=$(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d)
           fi
-          python3 scripts/update_futuros.py "$FECHA" || echo "Futuros: sin datos para hoy (puede ser normal)"
+          python3 scripts/update_futuros.py "$FECHA"
 
       - name: Commit y push
         run: |
           git config user.name "fx-bot[auto]"
           git config user.email "fx-bot@seguimiento-fx.local"
-          if git diff --quiet index.html; then
+          git add index.html futurosHistorico.json scripts/futuros_debug.json 2>/dev/null || true
+          if git diff --cached --quiet; then
             echo "Sin cambios — ya actualizado o no hubo rueda hoy."
           else
-            git add index.html
-            git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (criptoya.com)"
+            git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (SIOPEL criptoya.com + futuros MAE)"
             git push
           fi
