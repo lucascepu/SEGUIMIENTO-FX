@@ -1,0 +1,8 @@
+{
+  "timestamp_utc": "2026-07-30T18:01:28.822393Z",
+  "status": "error",
+  "error": "No se encontraron contratos DLR en la respuesta de MAE",
+  "http_status": 200,
+  "response_preview": "[]",
+  "response_type": "<class 'list'>"
+}
