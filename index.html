@@ -1567,17 +1567,30 @@
           }
         }
 
-        function updateFutBadge(){
+        function updateFutBadge(ok){
           var badge = document.getElementById('futLiveBadge');
           var timeEl = document.getElementById('futLiveTime');
           if(!badge||!timeEl) return;
-          if(isMarketOpen()){
-            badge.style.display='inline-flex';
-            var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
-            timeEl.textContent='Últ. act. '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
-          } else {
+          if(!isMarketOpen()){
             badge.style.display='none';
             timeEl.textContent='';
+            return;
+          }
+          var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+          var hora=String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
+          if(ok){
+            badge.style.display='inline-flex';
+            badge.style.color='var(--green)';
+            badge.querySelector('span').style.background='var(--green)';
+            badge.childNodes[badge.childNodes.length-1].textContent=' EN VIVO';
+            timeEl.textContent='Últ. act. '+hora;
+          } else {
+            /* Se intentó pero no llegaron datos reales: no mentir con "EN VIVO" */
+            badge.style.display='inline-flex';
+            badge.style.color='var(--txt3)';
+            badge.querySelector('span').style.background='var(--txt3)';
+            badge.childNodes[badge.childNodes.length-1].textContent=' SIN DATOS EN VIVO';
+            timeEl.textContent='Mostrando último cierre · '+hora;
           }
         }
 
@@ -1586,18 +1599,18 @@
           fetch('/api/futuros')
             .then(function(r){ return r.json(); })
             .then(function(data){
-              if(data.open===false) return;
-              var changed=false;
+              if(data.open===false){ updateFutBadge(false); return; }
+              var changed=false, gotAny=false;
               Object.keys(data).forEach(function(k){
                 if(k==='open') return;
                 var precio=data[k].ultimo&&data[k].ultimo>0?data[k].ultimo:null;
                 if(precio && !precioValido(k,precio)) precio=null; /* descarta print fuera de rango razonable */
-                if(precio&&futPrices[k]!==precio){ futPrices[k]=precio; changed=true; }
+                if(precio){ gotAny=true; if(futPrices[k]!==precio){ futPrices[k]=precio; changed=true; } }
               });
-              updateFutBadge();
+              updateFutBadge(gotAny);
               if(changed) renderFut();
             })
-            .catch(function(){});
+            .catch(function(){ updateFutBadge(false); });
         }
 
         /* Primer render */
@@ -1605,20 +1618,21 @@
           fetch('/api/futuros')
             .then(function(r){ return r.json(); })
             .then(function(data){
+              var gotAny=false;
               if(data.open!==false){
                 Object.keys(data).forEach(function(k){
                   if(k==='open') return;
                   var precio=data[k].ultimo&&data[k].ultimo>0?data[k].ultimo:null;
                   if(precio && !precioValido(k,precio)) precio=null; /* descarta print fuera de rango razonable */
-                  if(precio) futPrices[k]=precio;
+                  if(precio){ gotAny=true; futPrices[k]=precio; }
                 });
               }
-              updateFutBadge();
+              updateFutBadge(gotAny);
               doRender();
               /* Iniciar polling cada 60s */
               futInterval=setInterval(fetchFuturos,60000);
             })
-            .catch(function(){ doRender(); });
+            .catch(function(){ updateFutBadge(false); doRender(); });
         } else {
           doRender();
         }
