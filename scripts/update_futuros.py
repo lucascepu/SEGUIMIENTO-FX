@@ -31,8 +31,8 @@ def fail(msg, **extra):
     sys.exit(1)
 
 PRIMARY_URL = os.environ.get('PRIMARY_URL', 'https://api.primary.com.ar')
-PRIMARY_USER = os.environ.get('PRIMARY_USER', '')
-PRIMARY_PASS = os.environ.get('PRIMARY_PASS', '')
+PRIMARY_USER = os.environ.get('PRIMARY_USER', '').strip()
+PRIMARY_PASS = os.environ.get('PRIMARY_PASS', '').strip()
 
 CONTRACTS = ['DLR/JUL26M','DLR/AGO26M','DLR/SEP26M','DLR/OCT26M',
              'DLR/NOV26M','DLR/DIC26M','DLR/ENE27M','DLR/FEB27M',
@@ -77,14 +77,19 @@ try:
     if not PRIMARY_USER or not PRIMARY_PASS:
         fail("PRIMARY_USER o PRIMARY_PASS no definidas (variables de entorno vacias)")
 
+    cred_diag = {
+        'user_len': len(PRIMARY_USER), 'pass_len': len(PRIMARY_PASS),
+        'user_has_control_chars': any(ord(c) < 32 for c in PRIMARY_USER),
+        'pass_has_control_chars': any(ord(c) < 32 for c in PRIMARY_PASS),
+    }
     try:
         token = get_token()
         print("[futuros] Login Primary OK")
     except urllib.error.HTTPError as e:
         body = e.read().decode('utf-8', errors='replace')[:300]
-        fail(f"Login Primary fallo: HTTP {e.code}", http_status=e.code, response_body=body)
+        fail(f"Login Primary fallo: HTTP {e.code}", http_status=e.code, response_body=body, cred_diag=cred_diag)
     except Exception as e:
-        fail(f"Login Primary fallo: {e}", traceback=traceback.format_exc())
+        fail(f"Login Primary fallo: {e}", traceback=traceback.format_exc(), cred_diag=cred_diag)
 
     nuevos = {}
     detalles = {}
