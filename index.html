@@ -445,7 +445,7 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 28/7/2026<br>
+        Cierre ROFEX 30/7/2026<br>
         REM ene–may 27: interpolado ($1.658→$1.760)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)<br>
         TNA = ((Futuro/Spot)−1) × 365/días · TEM = ((Futuro/Spot)^(30/días)−1)
@@ -705,7 +705,7 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1495.5,'AGO 26':1520.0,'SEP 26':1545.0,'OCT 26':1574.0,'NOV 26':1605.0,'DIC 26':1636.5,'ENE 27':1667.0,'FEB 27':1698.0,'MAR 27':1730.5,'ABR 27':1760.0,'MAY 27':1790.0,'JUN 27':1823.0};
+  var FUT_DEFAULT = {'JUL 26':1495.5,'AGO 26':1520.0,'SEP 26':1545.5,'OCT 26':1574.0,'NOV 26':1605.0,'DIC 26':1636.5,'ENE 27':1667.0,'FEB 27':1698.0,'MAR 27':1730.5,'ABR 27':1760.0,'MAY 27':1790.0,'JUN 27':1823.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
   var futView = 'precio'; /* 'precio' | 'tasa' — toggle del grafico de FUTUROS */
@@ -755,7 +755,7 @@
   };
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260729c'; /* bump: refrescar cierre 29-jul (antes tenia cacheado el cierre del 28-jul) */
+  var ROFEX_VERSION = '20260730'; /* bump: refrescar cierre 29-jul (antes tenia cacheado el cierre del 28-jul) */
   function precioValido(key, precio){
     /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
        muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */
@@ -1688,12 +1688,12 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1495.5,'AGO 26':1520.0,'SEP 26':1545.0,'OCT 26':1574.0,'NOV 26':1605.0,'DIC 26':1636.5,'ENE 27':1667.0,'FEB 27':1698.0,'MAR 27':1730.5,'ABR 27':1760.0,'MAY 27':1790.0,'JUN 27':1823.0};
+  var FUT_DEFAULT = {'JUL 26':1495.5,'AGO 26':1520.0,'SEP 26':1545.5,'OCT 26':1574.0,'NOV 26':1605.0,'DIC 26':1636.5,'ENE 27':1667.0,'FEB 27':1698.0,'MAR 27':1730.5,'ABR 27':1760.0,'MAY 27':1790.0,'JUN 27':1823.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260729c'; /* bump: refrescar cierre 29-jul (antes tenia cacheado el cierre del 28-jul) */
+  var ROFEX_VERSION = '20260730'; /* bump: refrescar cierre 29-jul (antes tenia cacheado el cierre del 28-jul) */
   function precioValido(key, precio){
     /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
        muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */
@@ -2095,12 +2095,12 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1917.52,'OCT 26':1952.04,'NOV 26':1987.18,'DIC 26':2020.96,'ENE 27':2055.32,'FEB 27':2092.32,'MAR 27':2118.98,'ABR 27':2145.98,'MAY 27':2173.32,'JUN 27':2201.01};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
-  var FUT_DEFAULT = {'JUL 26':1495.5,'AGO 26':1520.0,'SEP 26':1545.0,'OCT 26':1574.0,'NOV 26':1605.0,'DIC 26':1636.5,'ENE 27':1667.0,'FEB 27':1698.0,'MAR 27':1730.5,'ABR 27':1760.0,'MAY 27':1790.0,'JUN 27':1823.0};
+  var FUT_DEFAULT = {'JUL 26':1495.5,'AGO 26':1520.0,'SEP 26':1545.5,'OCT 26':1574.0,'NOV 26':1605.0,'DIC 26':1636.5,'ENE 27':1667.0,'FEB 27':1698.0,'MAR 27':1730.5,'ABR 27':1760.0,'MAY 27':1790.0,'JUN 27':1823.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260729c'; /* bump: refrescar cierre 29-jul (antes tenia cacheado el cierre del 28-jul) */
+  var ROFEX_VERSION = '20260730'; /* bump: refrescar cierre 29-jul (antes tenia cacheado el cierre del 28-jul) */
   function precioValido(key, precio){
     /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
        muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */

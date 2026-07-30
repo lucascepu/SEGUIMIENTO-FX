@@ -1,13 +1,34 @@
 {
-  "timestamp_utc": "2026-07-30T18:40:02.973321Z",
-  "status": "error",
-  "error": "Login Primary fallo: HTTP 401",
-  "http_status": 401,
-  "response_body": "{\"status\":\"ERROR\",\"message\":\"Unauthorized\"}",
-  "cred_diag": {
-    "user_len": 17,
-    "pass_len": 8,
-    "user_has_control_chars": false,
-    "pass_has_control_chars": false
-  }
+  "timestamp_utc": "2026-07-30T18:55:40.499433Z",
+  "status": "ok",
+  "fecha": "2026-07-30",
+  "contratos": {
+    "JUL 26": 1495.5,
+    "AGO 26": 1520.0,
+    "SEP 26": 1545.5,
+    "OCT 26": 1574.0,
+    "NOV 26": 1605.0,
+    "DIC 26": 1636.5,
+    "ENE 27": 1667.0,
+    "FEB 27": 1698.0,
+    "MAR 27": 1730.5,
+    "ABR 27": 1760.0,
+    "MAY 27": 1790.0,
+    "JUN 27": 1823.0
+  },
+  "detalles": {
+    "JUL 26": "SE=1495.5",
+    "AGO 26": "SE=1520.0",
+    "SEP 26": "SE=1545.5",
+    "OCT 26": "SE=1574.0",
+    "NOV 26": "SE=1605.0",
+    "DIC 26": "SE=1636.5",
+    "ENE 27": "SE=1667.0",
+    "FEB 27": "SE=1698.0",
+    "MAR 27": "SE=1730.5",
+    "ABR 27": "SE=1760.0",
+    "MAY 27": "SE=1790.0",
+    "JUN 27": "SE=1823.0"
+  },
+  "historico_actualizado": true
 }
