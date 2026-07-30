@@ -1,6 +1,18 @@
-// Vercel Serverless Function — futuros ROFEX via Primary API (reMarkets/prod)
-// Autenticación: X-Username / X-Password → X-Auth-Token
-// Endpoint real del usuario (segun su panel Primary API): api.remarkets.primary.com.ar
+// Vercel Serverless Function — futuros ROFEX via Primary API
+// DESACTIVADO TEMPORALMENTE (30-jul-2026): las credenciales configuradas resuelven a
+// api.remarkets.primary.com.ar, que es un ambiente de simulacion/paper-trading, no datos
+// reales de mercado (confirmado: devolvia precios ~5-7 puntos distintos del cierre real,
+// consistentes con una rueda anterior/replay). Hasta conseguir acceso real de market-data,
+// esta funcion devuelve siempre {open:false} para que el sitio use FUT_DEFAULT (dato manual
+// verificado) en vez de arriesgarse a mostrar numeros de simulacion como si fueran reales.
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cache-Control', 'no-store');
+  res.status(200).json({ open: false, reason: 'live_disabled_pending_real_credentials' });
+}
+
+/* ── Codigo original (Primary reMarkets), en pausa hasta tener credenciales de produccion ──
 
 const PRIMARY_URL = process.env.PRIMARY_URL || 'https://api.remarkets.primary.com.ar';
 const PRIMARY_USER = process.env.PRIMARY_USER || '';
@@ -42,7 +54,7 @@ async function getMarketData(token, ticker) {
   return res.json();
 }
 
-export default async function handler(req, res) {
+export default async function handler_ORIGINAL(req, res) {
   // Fuera de horario: devolver vacío (el frontend usa FUT_DEFAULT)
   const now = new Date();
   const ar = new Date(now.getTime() - 3 * 60 * 60 * 1000);
@@ -87,3 +99,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: e.message });
   }
 }
+──────────────────────────────────────────────────────────────────────────── */
