@@ -40,8 +40,8 @@ jobs:
       - name: Actualizar futuros ROFEX
         continue-on-error: true
         env:
-          PRIMARY_USER: ${{ secrets.PRIMARY_USER }}
-          PRIMARY_PASS: ${{ secrets.PRIMARY_PASS }}
+          IOL_USER: ${{ secrets.IOL_USER }}
+          IOL_PASS: ${{ secrets.IOL_PASS }}
           INPUT_FECHA: ${{ github.event.inputs.fecha }}
         run: |
           FECHA="${INPUT_FECHA}"

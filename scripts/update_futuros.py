@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """
-update_futuros.py — Actualiza FUT_DEFAULT en index.html con el cierre de ROFEX via Primary API.
+update_futuros.py — Actualiza FUT_DEFAULT en index.html con el cierre de ROFEX via API de IOL (invertirOnline).
 Uso: python3 scripts/update_futuros.py [fecha YYYY-MM-DD]
-Requiere: PRIMARY_USER, PRIMARY_PASS en env
+Requiere: IOL_USER, IOL_PASS en env
 
-Nota: se abandono MAE (Mercado Abierto Electronico) como fuente porque los futuros DLR
-no cotizan ahi -- cotizan en ROFEX/Matba-Rofex, que es lo que Primary provee. MAE devolvia
-siempre una lista vacia (200 OK, [] contratos), por eso nunca actualizaba nada.
+Historial de fuentes probadas:
+- MAE: no tiene datos de futuros DLR (devolvia [] siempre). Descartado.
+- Primary/reMarkets: resulto ser un ambiente de simulacion/paper-trading, no datos reales. Descartado.
+- IOL: cuenta real del usuario con API activada. En uso.
 
-Deja SIEMPRE un registro en scripts/futuros_debug.json (exito o fallo),
-para poder diagnosticar sin depender de los logs de Actions.
+El endpoint exacto de cotizacion de futuros de IOL no esta 100% confirmado por documentacion
+publica, asi que este script PRUEBA varias combinaciones de mercado/simbolo para un solo
+contrato de referencia (DIC 26) y deja el detalle completo de cada intento en
+scripts/futuros_debug.json. Con eso se ajusta el mercado/formato correcto en la siguiente
+iteracion sin tener que adivinar a ciegas.
+
+Deja SIEMPRE un registro en scripts/futuros_debug.json (exito o fallo).
 """
 import sys, os, re, json, datetime, urllib.request, urllib.error, urllib.parse, traceback
 
@@ -30,40 +36,42 @@ def fail(msg, **extra):
     write_debug('error', error=msg, **extra)
     sys.exit(1)
 
-PRIMARY_URL = os.environ.get('PRIMARY_URL', 'https://api.remarkets.primary.com.ar')
-PRIMARY_USER = os.environ.get('PRIMARY_USER', '').strip()
-PRIMARY_PASS = os.environ.get('PRIMARY_PASS', '').strip()
+IOL_URL = 'https://api.invertironline.com'
+IOL_USER = os.environ.get('IOL_USER', '').strip()
+IOL_PASS = os.environ.get('IOL_PASS', '').strip()
 
-CONTRACTS = ['DLR/JUL26M','DLR/AGO26M','DLR/SEP26M','DLR/OCT26M',
-             'DLR/NOV26M','DLR/DIC26M','DLR/ENE27M','DLR/FEB27M',
-             'DLR/MAR27M','DLR/ABR27M','DLR/MAY27M','DLR/JUN27M']
-
-TICKER_TO_KEY = {
-    'DLR/JUL26M':'JUL 26','DLR/AGO26M':'AGO 26','DLR/SEP26M':'SEP 26',
-    'DLR/OCT26M':'OCT 26','DLR/NOV26M':'NOV 26','DLR/DIC26M':'DIC 26',
-    'DLR/ENE27M':'ENE 27','DLR/FEB27M':'FEB 27','DLR/MAR27M':'MAR 27',
-    'DLR/ABR27M':'ABR 27','DLR/MAY27M':'MAY 27','DLR/JUN27M':'JUN 27'
-}
-
+# Meses -> sufijo de simbolo de 2 digitos + año 2 digitos (varias convenciones posibles)
 KEYS_ORDEN = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26',
               'ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27']
 
+# Simbolo de referencia para la sonda inicial (probamos formatos con DIC 26, el mas liquido)
+PROBE_SYMBOLS = ['DLR/DIC26', 'DLR/DIC26M', 'DLRDIC26', 'DLR/DIC2026']
+PROBE_MERCADOS = ['rofex', 'ROFX', 'matba', 'rOFX']
+
 def get_token():
+    data = urllib.parse.urlencode({
+        'username': IOL_USER, 'password': IOL_PASS, 'grant_type': 'password'
+    }).encode('utf-8')
     req = urllib.request.Request(
-        f"{PRIMARY_URL}/auth/getToken", method='POST',
-        headers={'X-Username': PRIMARY_USER, 'X-Password': PRIMARY_PASS}
+        f"{IOL_URL}/token", data=data, method='POST',
+        headers={'Content-Type': 'application/x-www-form-urlencoded'}
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
-        token = resp.headers.get('X-Auth-Token')
+        body = json.loads(resp.read())
+        token = body.get('access_token')
         if not token:
-            raise RuntimeError('Sin X-Auth-Token en la respuesta')
+            raise RuntimeError(f'Sin access_token en la respuesta: {body}')
         return token
 
-def get_market_data(token, ticker):
-    url = f"{PRIMARY_URL}/rest/marketdata/get?marketId=ROFX&symbol={urllib.parse.quote(ticker)}&entries=LA,CL,SE"
-    req = urllib.request.Request(url, headers={'X-Auth-Token': token})
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        return json.loads(resp.read())
+def try_get(url, token):
+    req = urllib.request.Request(url, headers={'Authorization': f'Bearer {token}'})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return resp.status, resp.read().decode('utf-8', errors='replace')
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode('utf-8', errors='replace')[:300]
+    except Exception as e:
+        return None, str(e)
 
 try:
     if len(sys.argv) >= 2 and sys.argv[1]:
@@ -74,119 +82,52 @@ try:
     fecha_iso = fecha.strftime("%Y-%m-%d")
     print(f"[futuros] Fecha: {fecha_iso}")
 
-    if not PRIMARY_USER or not PRIMARY_PASS:
-        fail("PRIMARY_USER o PRIMARY_PASS no definidas (variables de entorno vacias)")
+    if not IOL_USER or not IOL_PASS:
+        fail("IOL_USER o IOL_PASS no definidas (variables de entorno vacias)")
 
-    cred_diag = {
-        'user_len': len(PRIMARY_USER), 'pass_len': len(PRIMARY_PASS),
-        'user_has_control_chars': any(ord(c) < 32 for c in PRIMARY_USER),
-        'pass_has_control_chars': any(ord(c) < 32 for c in PRIMARY_PASS),
-    }
+    cred_diag = {'user_len': len(IOL_USER), 'pass_len': len(IOL_PASS)}
     try:
         token = get_token()
-        print("[futuros] Login Primary OK")
+        print("[futuros] Login IOL OK")
     except urllib.error.HTTPError as e:
-        body = e.read().decode('utf-8', errors='replace')[:300]
-        fail(f"Login Primary fallo: HTTP {e.code}", http_status=e.code, response_body=body, cred_diag=cred_diag)
+        body = e.read().decode('utf-8', errors='replace')[:500]
+        fail(f"Login IOL fallo: HTTP {e.code}", http_status=e.code, response_body=body, cred_diag=cred_diag)
     except Exception as e:
-        fail(f"Login Primary fallo: {e}", traceback=traceback.format_exc(), cred_diag=cred_diag)
+        fail(f"Login IOL fallo: {e}", traceback=traceback.format_exc(), cred_diag=cred_diag)
 
-    nuevos = {}
-    detalles = {}
-    for ticker in CONTRACTS:
-        key = TICKER_TO_KEY[ticker]
-        try:
-            data = get_market_data(token, ticker)
-        except Exception as e:
-            detalles[key] = f"error consultando: {e}"
-            continue
-        if not data or data.get('status') != 'OK' or not data.get('marketData'):
-            detalles[key] = f"sin marketData (status={data.get('status') if data else None})"
-            continue
-        md = data['marketData']
-        # Para el cierre oficial del dia priorizamos SE (settlement) por sobre LA (ultimo operado)
-        precio = None
-        for campo in ('SE','LA','CL'):
-            entry = md.get(campo)
-            if entry and entry.get('price') and entry['price'] > 0:
-                precio = round(float(entry['price']), 2)
-                detalles[key] = f"{campo}={precio}"
-                break
-        if precio:
-            nuevos[key] = precio
-        else:
-            detalles[key] = "sin precio valido en SE/LA/CL"
+    # ── Sondeo: probar combinaciones mercado/simbolo con un contrato de referencia ──
+    intentos = []
+    encontrado = None
+    for mercado in PROBE_MERCADOS:
+        for simbolo in PROBE_SYMBOLS:
+            url = f"{IOL_URL}/api/v2/{mercado}/Titulos/{urllib.parse.quote(simbolo, safe='')}/Cotizacion"
+            status, body = try_get(url, token)
+            intentos.append({'mercado': mercado, 'simbolo': simbolo, 'url': url,
+                              'status': status, 'body_preview': body[:300] if body else None})
+            print(f"[futuros] probe mercado={mercado} simbolo={simbolo} -> {status}")
+            if status == 200:
+                try:
+                    parsed = json.loads(body)
+                    if parsed.get('ultimoPrecio') or parsed.get('precio'):
+                        encontrado = {'mercado': mercado, 'simbolo_formato': simbolo, 'respuesta': parsed}
+                        break
+                except Exception:
+                    pass
+        if encontrado:
+            break
 
-    print(f"[futuros] Contratos obtenidos: {nuevos}")
-    print(f"[futuros] Detalle por contrato: {detalles}")
+    if not encontrado:
+        fail("Ningun formato de mercado/simbolo probado devolvio una cotizacion valida. "
+             "Revisar 'intentos' para ver los status/respuestas de IOL y ajustar el formato.",
+             intentos=intentos)
 
-    if not nuevos:
-        fail("No se pudo obtener precio para ningun contrato", detalles=detalles)
+    print(f"[futuros] Formato encontrado: mercado={encontrado['mercado']}, simbolo={encontrado['simbolo_formato']}")
+    print(f"[futuros] Respuesta ejemplo: {encontrado['respuesta']}")
 
-    if len(nuevos) < len(CONTRACTS):
-        faltantes = [k for k in TICKER_TO_KEY.values() if k not in nuevos]
-        print(f"[futuros] AVISO: faltan {faltantes} (se actualiza solo lo que se pudo obtener)")
-
-    # Actualizar index.html
-    HTML = 'index.html'
-    content = open(HTML, encoding='utf-8').read()
-
-    m = re.search(r'var FUT_DEFAULT = \{([^}]+)\};', content)
-    if not m:
-        fail("Patron FUT_DEFAULT no encontrado en index.html", detalles=detalles)
-
-    old_str = m.group(0)
-    old_inner = m.group(1)
-
-    def parse_fut_dict(s):
-        return dict(re.findall(r"'([^']+)':([\d.]+)", s))
-
-    actual = parse_fut_dict(old_inner)
-    for k, v in nuevos.items():
-        if k in actual:
-            actual[k] = str(v)
-
-    new_inner = ','.join(f"'{k}':{v}" for k, v in actual.items())
-    new_str = f"var FUT_DEFAULT = {{{new_inner}}};"
-
-    n = content.count(old_str)
-    print(f"[futuros] FUT_DEFAULT: {n} ocurrencias")
-    content = content.replace(old_str, new_str)
-
-    old_fecha = re.search(r'Cierre ROFEX (\d+/\d+/\d+)', content)
-    if old_fecha:
-        dia = fecha.day; mes = fecha.month; anio = fecha.year
-        content = content.replace(f"Cierre ROFEX {old_fecha.group(1)}", f"Cierre ROFEX {dia}/{mes}/{anio}")
-        print(f"[futuros] Fecha ROFEX actualizada: {dia}/{mes}/{anio}")
-
-    content = re.sub(r"var ROFEX_VERSION = '[^']+';", f"var ROFEX_VERSION = '{fecha_iso.replace('-','')}';", content)
-
-    open(HTML, 'w', encoding='utf-8').write(content)
-    print(f"[futuros] OK index.html actualizado con {len(nuevos)} contratos")
-
-    # Agregar o actualizar la fila del dia en el historico (upsert: puede correr 2 veces por dia)
-    HIST = 'futurosHistorico.json'
-    hist_updated = False
-    if os.path.exists(HIST):
-        hist = json.load(open(HIST, encoding='utf-8'))
-        dates = hist.get('dates', [])
-        if fecha_iso in dates:
-            idx = dates.index(fecha_iso)
-            for k in KEYS_ORDEN:
-                if k in nuevos:
-                    hist.setdefault(k, [None]*len(dates))[idx] = nuevos[k]
-            print(f"[futuros] {HIST}: fila {fecha_iso} actualizada (ya existia)")
-        else:
-            hist['dates'].append(fecha_iso)
-            for k in KEYS_ORDEN:
-                hist.setdefault(k, []).append(nuevos.get(k))
-            print(f"[futuros] {HIST} actualizado: fila {fecha_iso} agregada")
-        json.dump(hist, open(HIST, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
-        hist_updated = True
-    else:
-        print(f"[futuros] AVISO: {HIST} no encontrado")
-
-    write_debug('ok', fecha=fecha_iso, contratos=nuevos, detalles=detalles, historico_actualizado=hist_updated)
+    # Con el formato ya identificado, guardamos el diagnostico completo para construir
+    # el resto de los 12 contratos en la proxima iteracion del script.
+    write_debug('probe_ok', fecha=fecha_iso, encontrado=encontrado, intentos=intentos, cred_diag=cred_diag)
+    print("[futuros] Sonda exitosa. Revisar futuros_debug.json y confirmar formato antes de traer los 12 contratos.")
 
 except SystemExit:
     raise
