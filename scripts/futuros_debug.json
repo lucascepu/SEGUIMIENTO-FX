@@ -1,7 +1,7 @@
 {
-  "timestamp_utc": "2026-07-30T20:17:51.103922Z",
+  "timestamp_utc": "2026-07-30T21:45:24.977830Z",
   "status": "error",
-  "error": "Ningun formato de mercado/simbolo probado devolvio una cotizacion valida. Revisar 'intentos' para ver los status/respuestas de IOL y ajustar el formato.",
+  "error": "Ni la cotizacion individual ni el listado de paneles devolvieron datos utilizables. Revisar 'intentos' y 'panel_intentos' para ajustar el formato con la API real de IOL.",
   "intentos": [
     {
       "mercado": "rofex",
@@ -114,6 +114,218 @@
       "url": "https://api.invertironline.com/api/v2/rOFX/Titulos/DLR%2FDIC2026/Cotizacion",
       "status": 500,
       "body_preview": "<!DOCTYPE html>\r\n<html>\r\n    <head>\r\n        <title>Runtime Error</title>\r\n        <meta name=\"viewport\" content=\"width=device-width\" />\r\n        <style>\r\n         body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} \r\n         p {font-family:\"Verdana\";font-weight:normal;colo"
+    }
+  ],
+  "panel_intentos": [
+    {
+      "instrumento": "futuros",
+      "panel": "general",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/futuros/general/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "futuros",
+      "panel": "General",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/futuros/General/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "futuros",
+      "panel": "Rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/futuros/Rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "futuros",
+      "panel": "rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/futuros/rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "futuros",
+      "panel": "Dolar Futuro",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/futuros/Dolar%20Futuro/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "futuros",
+      "panel": "dolar",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/futuros/dolar/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Futuros",
+      "panel": "general",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Futuros/general/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Futuros",
+      "panel": "General",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Futuros/General/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Futuros",
+      "panel": "Rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Futuros/Rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Futuros",
+      "panel": "rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Futuros/rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Futuros",
+      "panel": "Dolar Futuro",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Futuros/Dolar%20Futuro/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Futuros",
+      "panel": "dolar",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Futuros/dolar/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "FUTUROS",
+      "panel": "general",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/FUTUROS/general/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "FUTUROS",
+      "panel": "General",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/FUTUROS/General/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "FUTUROS",
+      "panel": "Rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/FUTUROS/Rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "FUTUROS",
+      "panel": "rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/FUTUROS/rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "FUTUROS",
+      "panel": "Dolar Futuro",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/FUTUROS/Dolar%20Futuro/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "FUTUROS",
+      "panel": "dolar",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/FUTUROS/dolar/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "monedas",
+      "panel": "general",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/monedas/general/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "monedas",
+      "panel": "General",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/monedas/General/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "monedas",
+      "panel": "Rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/monedas/Rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "monedas",
+      "panel": "rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/monedas/rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "monedas",
+      "panel": "Dolar Futuro",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/monedas/Dolar%20Futuro/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "monedas",
+      "panel": "dolar",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/monedas/dolar/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Monedas",
+      "panel": "general",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Monedas/general/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Monedas",
+      "panel": "General",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Monedas/General/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Monedas",
+      "panel": "Rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Monedas/Rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Monedas",
+      "panel": "rofex",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Monedas/rofex/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Monedas",
+      "panel": "Dolar Futuro",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Monedas/Dolar%20Futuro/argentina",
+      "status": 404,
+      "body_preview": null
+    },
+    {
+      "instrumento": "Monedas",
+      "panel": "dolar",
+      "url": "https://api.invertironline.com/api/v2/Cotizaciones/Monedas/dolar/argentina",
+      "status": 404,
+      "body_preview": null
     }
   ]
 }
