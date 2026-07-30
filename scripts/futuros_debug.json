@@ -1,34 +1,11 @@
 {
-  "timestamp_utc": "2026-07-30T19:37:10.168608Z",
-  "status": "ok",
-  "fecha": "2026-07-30",
-  "contratos": {
-    "JUL 26": 1495.5,
-    "AGO 26": 1520.0,
-    "SEP 26": 1545.5,
-    "OCT 26": 1574.0,
-    "NOV 26": 1605.0,
-    "DIC 26": 1636.5,
-    "ENE 27": 1667.0,
-    "FEB 27": 1698.0,
-    "MAR 27": 1730.5,
-    "ABR 27": 1760.0,
-    "MAY 27": 1790.0,
-    "JUN 27": 1823.0
-  },
-  "detalles": {
-    "JUL 26": "SE=1495.5",
-    "AGO 26": "SE=1520.0",
-    "SEP 26": "SE=1545.5",
-    "OCT 26": "SE=1574.0",
-    "NOV 26": "SE=1605.0",
-    "DIC 26": "SE=1636.5",
-    "ENE 27": "SE=1667.0",
-    "FEB 27": "SE=1698.0",
-    "MAR 27": "SE=1730.5",
-    "ABR 27": "SE=1760.0",
-    "MAY 27": "SE=1790.0",
-    "JUN 27": "SE=1823.0"
-  },
-  "historico_actualizado": true
+  "timestamp_utc": "2026-07-30T20:06:55.241295Z",
+  "status": "error",
+  "error": "Login IOL fallo: HTTP 403",
+  "http_status": 403,
+  "response_body": "error code: 1010\n",
+  "cred_diag": {
+    "user_len": 8,
+    "pass_len": 11
+  }
 }
