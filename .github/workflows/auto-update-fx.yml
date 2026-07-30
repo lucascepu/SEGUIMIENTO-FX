@@ -3,7 +3,6 @@ name: Auto-actualizar FX diario
 on:
   schedule:
     - cron: '0 18 * * 1-5'   # 18:00 UTC = 15:00 AR: actualiza SIOPEL (criptoya/MAE)
-    - cron: '0 21 * * 1-5'   # 21:00 UTC = 18:00 AR: actualiza futuros ROFEX (post-cierre 17hs, ya con ajuste oficial)
   workflow_dispatch:
     inputs:
       fecha:
@@ -37,27 +36,23 @@ jobs:
           MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
         run: python3 scripts/run_workflow.py
 
-      - name: Actualizar futuros ROFEX
-        continue-on-error: true
-        env:
-          IOL_USER: ${{ secrets.IOL_USER }}
-          IOL_PASS: ${{ secrets.IOL_PASS }}
-          INPUT_FECHA: ${{ github.event.inputs.fecha }}
-        run: |
-          FECHA="${INPUT_FECHA}"
-          if [ -z "$FECHA" ]; then
-            FECHA=$(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d)
-          fi
-          python3 scripts/update_futuros.py "$FECHA"
+      # Automatizacion de futuros ROFEX: DADA DE BAJA (30-jul-2026).
+      # Se probaron 3 fuentes sin exito:
+      #   - MAE: no tiene datos de futuros DLR (API devolvia [] siempre)
+      #   - Primary/reMarkets: resulto ser un ambiente de simulacion, no datos reales
+      #   - IOL (invertirOnline): la cuenta del usuario no tiene acceso a cotizaciones de futuros
+      # scripts/update_futuros.py queda en el repo (con el intento de IOL) por si en el futuro
+      # se consigue una fuente de datos real. Mientras tanto, el cierre de futuros se actualiza
+      # a mano (Claude lo carga cuando el usuario pasa el dato del dia).
 
       - name: Commit y push
         run: |
           git config user.name "fx-bot[auto]"
           git config user.email "fx-bot@seguimiento-fx.local"
-          git add index.html futurosHistorico.json scripts/futuros_debug.json 2>/dev/null || true
+          git add index.html futurosHistorico.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "Sin cambios — ya actualizado o no hubo rueda hoy."
           else
-            git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (SIOPEL criptoya.com + futuros Primary)"
+            git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (SIOPEL criptoya.com)"
             git push
           fi
