@@ -48,13 +48,15 @@ KEYS_ORDEN = ['JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26',
 PROBE_SYMBOLS = ['DLR/DIC26', 'DLR/DIC26M', 'DLRDIC26', 'DLR/DIC2026']
 PROBE_MERCADOS = ['rofex', 'ROFX', 'matba', 'rOFX']
 
+UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+
 def get_token():
     data = urllib.parse.urlencode({
         'username': IOL_USER, 'password': IOL_PASS, 'grant_type': 'password'
     }).encode('utf-8')
     req = urllib.request.Request(
         f"{IOL_URL}/token", data=data, method='POST',
-        headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        headers={'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': UA}
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
         body = json.loads(resp.read())
@@ -64,7 +66,7 @@ def get_token():
         return token
 
 def try_get(url, token):
-    req = urllib.request.Request(url, headers={'Authorization': f'Bearer {token}'})
+    req = urllib.request.Request(url, headers={'Authorization': f'Bearer {token}', 'User-Agent': UA})
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             return resp.status, resp.read().decode('utf-8', errors='replace')
