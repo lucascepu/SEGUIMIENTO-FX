@@ -867,6 +867,19 @@
             ]};
       } else {
         chartLabels = KEYS;
+        /* Linea de tendencia (regresion lineal simple) sobre los puntos de TNA validos */
+        var trendData = null;
+        var validPts = tasas.map(function(t,i){ return t ? {x:i, y:t.tna} : null; }).filter(Boolean);
+        if(validPts.length>=2){
+          var n=validPts.length, sx=0, sy=0, sxy=0, sxx=0;
+          validPts.forEach(function(p){ sx+=p.x; sy+=p.y; sxy+=p.x*p.y; sxx+=p.x*p.x; });
+          var denom = (n*sxx - sx*sx);
+          if(denom!==0){
+            var slope = (n*sxy - sx*sy) / denom;
+            var intercept = (sy - slope*sx) / n;
+            trendData = KEYS.map(function(_,i){ return slope*i + intercept; });
+          }
+        }
         chartData = isTasa
         ? { labels: KEYS, datasets:[
             {label:'TNA implícita (Futuros vs SIOPEL)', data:tasas.map(function(t){return t?t.tna:null;}),
@@ -874,7 +887,11 @@
              borderColor:'#78AEDE', backgroundColor:'#78AEDE',
              pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#78AEDE',
              pointBorderWidth:0, fill:false}
-          ]}
+          ].concat(trendData ? [
+            {label:'Tendencia', data:trendData, borderColor:'rgba(120,174,222,.4)',
+             borderDash:[5,4], borderWidth:1.5, pointRadius:0, pointHoverRadius:0,
+             backgroundColor:'transparent', fill:false, tension:0}
+          ] : [])}
         : { labels: KEYS, datasets:[
             {label:'Futuro ROFEX', data:futs, borderColor:'#78AEDE',
              backgroundColor:'rgba(120,174,222,.10)', fill:true,
@@ -919,6 +936,7 @@
           tooltip:{
             filter:function(item){
               if(item.raw==null) return false;
+              if(item.dataset.label==='Tendencia') return false; /* es un resumen visual, no un dato real */
               if(isHistorico) return item.datasetIndex===0; /* un solo item: el resto va en afterBody */
               return true;
             },
@@ -1013,7 +1031,7 @@
       if(legT){
         legT.innerHTML = isHistorico
           ? swatch('#78AEDE','TNA implícita histórica ('+futFocus+')')
-          : dotSwatch('#78AEDE','TNA implícita (ROFEX vs SIOPEL) — un punto por contrato');
+          : dotSwatch('#78AEDE','TNA implícita (ROFEX vs SIOPEL) — un punto por contrato') + swatch('rgba(120,174,222,.4)','Tendencia',[5,4]);
         legT.style.display = isTasa ? 'flex' : 'none';
       }
     }
