@@ -57,6 +57,8 @@ if LRI_NEW != LRI_PREV + 1:
     print(f"ADVERTENCIA: idx hoy={LRI_NEW}, lri anterior={LRI_PREV} (diferencia={LRI_NEW-LRI_PREV})")
     print("¿Faltó alguna rueda intermedia? Verificar manualmente.")
 
+IS_FIRST_WRITE_TODAY = hS[LRI_NEW] is None  # calcular ANTES de que --force pise LRI_PREV
+
 if hS[LRI_NEW] is not None:
     if FORCE:
         print(f"[force] Sobreescribiendo hS[{LRI_NEW}]={hS[LRI_NEW]} → {NUEVO_SIOPEL}")
@@ -135,7 +137,7 @@ def find_prev_val_str():
 prev_val_str = find_prev_val_str()
 if prev_val_str is None:
     errors.append(f"NO ENCONTRADO: hS[{LRI_NEW}]={NUEVO_SIOPEL}\n  No pude localizar hS[{LRI_PREV}]={hS[LRI_PREV]} en el array")
-elif FORCE and isinstance(prev_val_str, tuple) and prev_val_str[0] == '__force_idx__':
+elif isinstance(prev_val_str, tuple) and prev_val_str[0] == '__force_idx__':
     _, idx, old_v, new_v = prev_val_str
     # Reemplazar usando reconstrucción del array completo
     vals = hS_str.split(',')
@@ -146,7 +148,11 @@ elif FORCE and isinstance(prev_val_str, tuple) and prev_val_str[0] == '__force_i
     if old_full in content:
         content = content.replace(old_full, new_full, 1)
         print(f"  ✓ hS[{idx}] force {old_v}→{new_v}")
-elif not FORCE:
+else:
+    # Cubre tanto el caso normal (not FORCE) como FORCE=True con hS[LRI_NEW] todavia vacio
+    # (ej. cuando el paso 1 sin force fallo por otro motivo y se cayo a MAE --force, pero
+    # el valor de hoy nunca se habia escrito). Antes este caso quedaba sin manejar y hS
+    # nunca se actualizaba, aunque el resto del HTML (hero, fecha, techo) si se actualizaba.
     replace_one(
         f"{prev_val_str},null",
         f"{prev_val_str},{NUEVO_SIOPEL:.2f}",
@@ -156,7 +162,7 @@ elif not FORCE:
 # ── 2. sSiopelActual ────────────────────────────────────────────────────────────
 m_sJun = re.search(r'var sSiopelActual=\[(.*?)\];', content)
 if m_sJun:
-    if FORCE:
+    if not IS_FIRST_WRITE_TODAY:
         # Reemplazar el último valor en sSiopelActual
         vals = m_sJun.group(1).split(',')
         old_last = vals[-1].strip()
@@ -170,11 +176,11 @@ if m_sJun:
         replace_one(old_sJun, new_sJun, "sSiopelActual append")
 
 # ── 3. hPt ─────────────────────────────────────────────────────────────────
-if not FORCE:
+if IS_FIRST_WRITE_TODAY:
     replace_one(f'hPt[{LRI_PREV}]=7', f'hPt[{LRI_NEW}]=7', f"hPt {LRI_PREV}→{LRI_NEW}")
 
 # ── 4. pPt (proj: 3 + len(sSiopelActual)) ────────────────────────────────────
-if not FORCE:
+if IS_FIRST_WRITE_TODAY:
     m_pPt = re.search(r'var pPt=N\(51\); pPt\[(\d+)\]=7;', content)
     if m_pPt:
         old_pPt_idx = int(m_pPt.group(1))
@@ -182,7 +188,7 @@ if not FORCE:
         replace_one(f'pPt[{old_pPt_idx}]=7', f'pPt[{new_pPt_idx}]=7', f"pPt {old_pPt_idx}→{new_pPt_idx}")
 
 # ── 5. ia (zona sombreada) ─────────────────────────────────────────────────
-if not FORCE:
+if IS_FIRST_WRITE_TODAY:
     m_ia = re.search(r"var ia=mode==='proj'\?(\d+):(\d+), ib=ia;", content)
     if m_ia:
         old_ia_proj, old_ia_hist = m_ia.group(1), m_ia.group(2)
@@ -195,7 +201,7 @@ if not FORCE:
         )
 
 # ── 6. Label chart ─────────────────────────────────────────────────────────
-if not FORCE:
+if IS_FIRST_WRITE_TODAY:
     m_lbl = re.search(r"ctx\.fillText\('(\d+-\w+) ←'", content)
     if m_lbl:
         replace_one(
