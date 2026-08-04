@@ -2250,8 +2250,16 @@
     }
 
     function resetToOfficial(){
-      /* Fuera de horario: el hero debe reflejar el cierre oficial, no un tick en vivo colgado */
+      /* Fuera de horario: el hero deberia reflejar el cierre oficial -- PERO solo si
+         hS[lri] ya corresponde a HOY. Si el cron todavia no cargo el cierre de hoy,
+         mejor mantener el ultimo precio en vivo capturado que retroceder al de ayer. */
       if(lri<0) return;
+      var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+      var todayIso = ar.getFullYear()+'-'+String(ar.getMonth()+1).padStart(2,'0')+'-'+String(ar.getDate()).padStart(2,'0');
+      var hSesHoy = (typeof hDates!=='undefined' && hDates[lri]===todayIso);
+      if(!hSesHoy && lastLivePrice){
+        return; /* dejar lo que ya se mostro en vivo, no retroceder */
+      }
       var heroPrice = document.getElementById('siopelVal');
       if(heroPrice) heroPrice.textContent = fmt(hS[lri]);
       var elDS = document.getElementById('deltaSiopelSub');
