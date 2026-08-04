@@ -1300,6 +1300,8 @@
     try{
       var ia=mode==='proj'?46:313, ib=ia;
       var xA=(xs.getPixelForValue(ia)+xs.getPixelForValue(ib))/2;
+      var xB = (mode==='proj') ? (xs.getPixelForValue(45)+xs.getPixelForValue(46))/2 : null;
+      var tooClose = (xB!==null && Math.abs(xA-xB) < 55);
       ctx.save();
       ctx.fillStyle='rgba(255,255,255,.04)';
       ctx.fillRect(xA,ca.top,ca.right-xA,ca.bottom-ca.top);
@@ -1308,10 +1310,15 @@
       ctx.beginPath(); ctx.moveTo(xA,ca.top); ctx.lineTo(xA,ca.bottom); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font='9px system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
-      ctx.textAlign='right'; ctx.fillText('3-AGO ←',xA-3,ca.top+13);
-      ctx.textAlign='left';  ctx.fillText('→ sin SIOPEL',xA+3,ca.top+13);
-      if(mode==='proj'){
-        var xB=(xs.getPixelForValue(45)+xs.getPixelForValue(46))/2;
+      if(tooClose){
+        /* Los dos marcadores caen casi en el mismo punto: un solo label combinado, sin pisarse */
+        ctx.textAlign='right'; ctx.fillText('3-AGO ←',xA-3,ca.top+13);
+        ctx.textAlign='left';  ctx.fillText('→ proyección',xA+3,ca.top+13);
+      } else {
+        ctx.textAlign='right'; ctx.fillText('3-AGO ←',xA-3,ca.top+13);
+        ctx.textAlign='left';  ctx.fillText('→ sin SIOPEL',xA+3,ca.top+13);
+      }
+      if(mode==='proj' && !tooClose){
         ctx.strokeStyle='rgba(255,255,255,.32)';
         ctx.setLineDash([6,3]); ctx.lineWidth=1.5;
         ctx.beginPath(); ctx.moveTo(xB,ca.top); ctx.lineTo(xB,ca.bottom); ctx.stroke();
