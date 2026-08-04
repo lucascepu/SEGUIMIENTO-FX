@@ -2229,6 +2229,17 @@
       /* Pasar precio provisorio al hero principal */
       var heroPrice = document.getElementById('siopelVal');
       if(heroPrice) heroPrice.textContent = fmt(lastLivePrice);
+      /* Recalcular el delta contra el ultimo cierre real (hS[lri]), no contra el par
+         actuals[0]/actuals[1] que puede haber quedado desactualizado (ej. fin de semana) */
+      var elDS = document.getElementById('deltaSiopelSub');
+      if(elDS && lri>=0 && hS[lri]!=null){
+        var _ds = +(lastLivePrice - hS[lri]).toFixed(2);
+        var _pct = (Math.abs(_ds)/hS[lri]*100).toFixed(2);
+        var fmt$=function(v){var n=Math.round(Math.abs(v)*10)/10;return '$'+n.toLocaleString('es-AR');};
+        elDS.innerHTML='<span class="'+(_ds>=0?'dUp':'dDn')+'">'+
+          (_ds>=0?'▲ +':'▼ ')+fmt$(_ds)+'</span>'+
+          '<span style="color:var(--txt3);font-size:10px"> ('+(_ds>=0?'+':'')+_pct+'%)</span>';
+      }
       /* Mostrar badge CIERRE PROV. en naranja */
       priceEl.textContent = fmt(lastLivePrice);
       timeEl.textContent = 'Cierre provisorio';
