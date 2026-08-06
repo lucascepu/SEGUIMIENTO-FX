@@ -2,7 +2,7 @@ name: Auto-actualizar FX diario
 
 on:
   schedule:
-    - cron: '0 18 * * 1-5'   # 18:00 UTC = 15:00 AR: actualiza SIOPEL (criptoya/MAE)
+    - cron: '47 17 * * 1-5'  # 17:47 UTC ~ 14:47 AR: fuera de la hora en punto, GitHub prioriza mejor estos horarios
   workflow_dispatch:
     inputs:
       fecha:
