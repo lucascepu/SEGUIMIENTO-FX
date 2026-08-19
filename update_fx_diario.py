@@ -181,9 +181,9 @@ if IS_FIRST_WRITE_TODAY:
 
 # ── 4. pPt (proj: 3 + len(sSiopelActual)) ────────────────────────────────────
 if IS_FIRST_WRITE_TODAY:
-    m_pPt = re.search(r'var pPt=N\(51\); pPt\[(\d+)\]=7;', content)
+    m_pPt = re.search(r'var pPt=N\((\d+)\); pPt\[(\d+)\]=7;', content)
     if m_pPt:
-        old_pPt_idx = int(m_pPt.group(1))
+        old_pPt_idx = int(m_pPt.group(2))
         new_pPt_idx = old_pPt_idx + 1
         replace_one(f'pPt[{old_pPt_idx}]=7', f'pPt[{new_pPt_idx}]=7', f"pPt {old_pPt_idx}→{new_pPt_idx}")
 
