@@ -261,6 +261,7 @@
       <div class="live-badge" id="liveBadge">
         <div class="live-label"><span class="live-dot"></span>EN VIVO</div>
         <div class="live-price" id="liveVal">—</div>
+        <div class="bb-delta" id="liveDeltaSub" style="margin-bottom:0;font-size:13px">—</div>
         <div class="live-time" id="liveTime">actualizando...</div>
       </div>
     </div>
@@ -2223,6 +2224,17 @@
       });
     }
 
+    function renderDelta(elId, curPrice, basePrice){
+      var el = document.getElementById(elId);
+      if(!el || curPrice==null || basePrice==null) return;
+      var _ds = +(curPrice - basePrice).toFixed(2);
+      var _pct = (Math.abs(_ds)/basePrice*100).toFixed(2);
+      var fmt$=function(v){var n=Math.round(Math.abs(v)*10)/10;return '$'+n.toLocaleString('es-AR');};
+      el.innerHTML='<span class="'+(_ds>=0?'dUp':'dDn')+'">'+
+        (_ds>=0?'▲ +':'▼ ')+fmt$(_ds)+'</span>'+
+        '<span style="color:var(--txt3);font-size:10px"> ('+(_ds>=0?'+':'')+_pct+'%)</span>';
+    }
+
     function showProv(){
       if(!lastLivePrice) return;
       /* Pasar precio provisorio al hero principal */
@@ -2230,15 +2242,8 @@
       if(heroPrice) heroPrice.textContent = fmt(lastLivePrice);
       /* Recalcular el delta contra el ultimo cierre real (hS[lri]), no contra el par
          actuals[0]/actuals[1] que puede haber quedado desactualizado (ej. fin de semana) */
-      var elDS = document.getElementById('deltaSiopelSub');
-      if(elDS && lri>=0 && hS[lri]!=null){
-        var _ds = +(lastLivePrice - hS[lri]).toFixed(2);
-        var _pct = (Math.abs(_ds)/hS[lri]*100).toFixed(2);
-        var fmt$=function(v){var n=Math.round(Math.abs(v)*10)/10;return '$'+n.toLocaleString('es-AR');};
-        elDS.innerHTML='<span class="'+(_ds>=0?'dUp':'dDn')+'">'+
-          (_ds>=0?'▲ +':'▼ ')+fmt$(_ds)+'</span>'+
-          '<span style="color:var(--txt3);font-size:10px"> ('+(_ds>=0?'+':'')+_pct+'%)</span>';
-      }
+      if(lri>=0) renderDelta('deltaSiopelSub', lastLivePrice, hS[lri]);
+      renderDelta('liveDeltaSub', lastLivePrice, lri>=0?hS[lri]:null); /* mismo delta, junto al tick en vivo */
       /* Mostrar badge CIERRE PROV. en naranja */
       priceEl.textContent = fmt(lastLivePrice);
       timeEl.textContent = 'Cierre provisorio';
@@ -2312,6 +2317,7 @@
           if(!price||isNaN(parseFloat(price))) return;
           lastLivePrice = parseFloat(price); /* guardar para uso en estado prov */
           priceEl.textContent=fmt(price);
+          if(lri>=0) renderDelta('liveDeltaSub', lastLivePrice, hS[lri]);
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
           timeEl.textContent='Últ. tick '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
           labelEl.innerHTML='<span class="live-dot"></span>EN VIVO';
