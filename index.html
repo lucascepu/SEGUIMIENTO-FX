@@ -1437,8 +1437,14 @@
             var idx=dp.dataIndex;
             var v=dp.raw; if(v===null||v===undefined){ bar.style.display='none'; return; }
             /* Date */
-            var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
-            var dateLbl=MFMT[raw]||LM[raw]||raw||'';
+            var isMonthlyView = (viewGranularity==='monthly' && curPeriod==='all' && mode!=='proj');
+            var dateLbl;
+            if(isMonthlyView){
+              dateLbl = chart.data.labels[idx] || '';
+            } else {
+              var raw=mode==='hist'?hLbl[idx]:pLbl[idx];
+              dateLbl = MFMT[raw]||LM[raw]||raw||'';
+            }
             var sep=' <span style="color:rgba(255,255,255,.18)">·</span> ';
             var dsLabel=dp.dataset.label||'';
             var fmt=function(n){ return parseFloat(n).toLocaleString('es-AR',{minimumFractionDigits:1,maximumFractionDigits:1}); };
@@ -1446,7 +1452,7 @@
             /* Contextual: qué dataset estoy mirando */
             if(dsLabel.indexOf('SIOPEL')>-1){
               /* SIOPEL: precio + brecha */
-              var tArr=mode==='hist'?hT:pT;
+              var tArr=isMonthlyView?chart.data.datasets[0].data:(mode==='hist'?hT:pT);
               var tVal=tArr[idx];
               var brecha=(tVal&&Math.abs(v-tVal)>0.5)?Math.round((tVal-v)/v*100):null;
               out+='<span style="color:var(--txt);font-weight:600">$'+fmt(v)+'</span>';
