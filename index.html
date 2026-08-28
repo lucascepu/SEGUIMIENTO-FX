@@ -340,6 +340,10 @@
   <button class="pbtn" data-p="12m">LTM</button>
   <button class="pbtn" data-p="all">Serie completa</button>
   <input type="date" id="desdeFecha" title="Desde fecha" min="2025-04-01" max="2026-07-03">
+  <span id="granRow" style="display:none;margin-left:10px;border:1px solid var(--border);border-radius:6px;overflow:hidden">
+    <button id="btnGranD" onclick="setGranularity('daily')" style="padding:3px 9px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117">DIARIO</button>
+    <button id="btnGranM" onclick="setGranularity('monthly')" style="padding:3px 9px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">MENSUAL</button>
+  </span>
 </div>
 
 <div id="winRow" class="period-row" style="padding-top:12px;margin-bottom:0;">
@@ -599,6 +603,14 @@
 
   function applyPeriod(){
     if(!chart) return;
+    if(viewGranularity==='monthly' && curPeriod==='all' && mode!=='proj'){
+      /* sw() ya armo labels/datasets/escala Y para la vista mensual -- no pisar nada, solo redibujar */
+      delete chart.options.scales.x.min;
+      delete chart.options.scales.x.max;
+      chart.update();
+      var rzB0=document.getElementById('resetZoomBtn'); if(rzB0) rzB0.style.display='none';
+      return;
+    }
     var s=0;
     if(curPeriod==='m1td')     s=IDX_M1TD;      /* May 1 → hoy (M-1 TD) */
     else if(curPeriod==='12m') s=IDX_12M;        /* 1 año atrás */
@@ -655,6 +667,13 @@
         document.querySelectorAll('#periodRow .pbtn').forEach(function(b){ b.classList.remove('pon'); });
         this.classList.add('pon');
         var df=document.getElementById('desdeFecha'); if(df) df.value='';
+        var gr=document.getElementById('granRow');
+        if(p==='all'){
+          if(gr) gr.style.display='inline-flex';
+        } else {
+          if(gr) gr.style.display='none';
+          if(viewGranularity==='monthly'){ viewGranularity='daily'; window.setGranularity('daily'); return; }
+        }
         applyPeriod();
       });
     });
@@ -1291,6 +1310,39 @@
   var bPt=N(NH); if(lri>=0)bPt[lri]=7;
 
   var mode='hist';
+  var viewGranularity='daily'; /* 'daily' | 'monthly' -- solo aplica con curPeriod==='all' */
+
+  function monthlyAgg(valsArr){
+    /* Agrupa por mes calendario usando hDates; toma el ULTIMO valor no-null de cada mes (cierre de mes) */
+    var out={labels:[],vals:[]};
+    var curKey=null, lastVal=null, lastLbl=null;
+    var MESES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    for(var i=0;i<hDates.length;i++){
+      var d=hDates[i];
+      if(!d) continue;
+      var key=d.slice(0,7); /* 'YYYY-MM' */
+      if(curKey!==null && key!==curKey){
+        out.labels.push(lastLbl);
+        out.vals.push(lastVal);
+      }
+      if(key!==curKey){
+        curKey=key;
+        var y=d.slice(2,4), m=parseInt(d.slice(5,7),10)-1;
+        lastLbl=MESES[m]+' '+y;
+      }
+      if(valsArr[i]!=null){ lastVal=valsArr[i]; }
+    }
+    if(curKey!==null){ out.labels.push(lastLbl); out.vals.push(lastVal); }
+    return out;
+  }
+
+  window.setGranularity=function(g){
+    viewGranularity=g;
+    var bD=document.getElementById('btnGranD'), bM=document.getElementById('btnGranM');
+    if(bD){ bD.style.background=g==='daily'?'var(--accent)':'var(--bg-card)'; bD.style.color=g==='daily'?'#0d1117':'var(--txt3)'; }
+    if(bM){ bM.style.background=g==='monthly'?'var(--accent)':'var(--bg-card)'; bM.style.color=g==='monthly'?'#0d1117':'var(--txt3)'; }
+    window.sw(mode);
+  };
 
   /* ── ZONES PLUGIN ── */
   var zPlug={id:'z', beforeDraw:function(c){
@@ -1495,8 +1547,22 @@
   window.sw=function(m){
     mode=m;
     var isH=(m==='hist'),isP=(m==='proj'),isB=(m==='brecha'),isF=(m==='fut');
+    var useMonthly = (viewGranularity==='monthly' && curPeriod==='all' && !isP);
 
     if(isB){
+      if(useMonthly){
+        var mB=monthlyAgg(brechaVals), mAvg=monthlyAgg(avgRef), mCur=monthlyAgg(curRef);
+        chart.data.labels=mB.labels;
+        chart.data.datasets=[
+          {label:'Brecha % (cierre de mes)',data:mB.vals,borderColor:DOLAR,borderWidth:2,
+           pointRadius:4,pointBackgroundColor:DOLAR,
+           fill:true,backgroundColor:'rgba(55,138,221,.1)',tension:.2,spanGaps:false},
+          {label:'Prom. 6M',data:mAvg.vals,borderColor:AVGC,borderWidth:1.5,
+           borderDash:[3,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
+          {label:'Nivel actual ('+curBr+'%)',data:mCur.vals,borderColor:TECH,borderWidth:1.5,
+           borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
+        ];
+      } else {
       chart.data.labels=hDispLbl;
       chart.data.datasets=[
         {label:'Brecha %',data:brechaVals,borderColor:DOLAR,borderWidth:2,
@@ -1507,6 +1573,7 @@
         {label:'Nivel actual ('+curBr+'%)',data:curRef,borderColor:TECH,borderWidth:1.5,
          borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
       ];
+      }
       /* Calcular autofit Y sobre brechaVals reales */
       var bVals=brechaVals.filter(function(v){return v!=null;});
       var bMn=bVals.length?Math.min.apply(null,bVals):0;
@@ -1514,6 +1581,20 @@
       var bPad=(bMx-bMn)*0.15||1;
       chart.options.scales.y.min=Math.floor(bMn-bPad);
       chart.options.scales.y.max=Math.ceil(bMx+bPad);
+    }else if(useMonthly){
+      var mT=monthlyAgg(hT), mS=monthlyAgg(hS), mA=monthlyAgg(hA);
+      chart.data.labels=mT.labels;
+      chart.data.datasets=[
+        {label:'Techo',data:mT.vals,borderColor:TECH,borderWidth:2,borderDash:[6,3],
+         pointRadius:0,pointBackgroundColor:TECH,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
+        {label:'SIOPEL (cierre de mes)',data:mS.vals,borderColor:DOLAR,borderWidth:2.5,
+         pointRadius:4,pointBackgroundColor:DOLAR,
+         fill:{target:0,below:FILL},tension:.1,spanGaps:false},
+        {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:mA.vals,borderColor:AVGC,borderWidth:1.5,
+         borderDash:[2,3],pointRadius:0,fill:false,tension:.1,spanGaps:true}
+      ];
+      chart.options.scales.y.min=1000;
+      chart.options.scales.y.max=1900;
     }else{
       chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
