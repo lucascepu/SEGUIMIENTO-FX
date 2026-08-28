@@ -1397,8 +1397,26 @@
     'ENE 26':'2/1/26','FEB 26':'2/2/26','MAR 26':'2/3/26',
     'ABR 26':'1/4/26','JUL 26':'1/7/26'
   };
+  var monthlyLabelsPlugin={id:'monthlyLabels', afterDatasetsDraw:function(c){
+    if(!(viewGranularity==='monthly' && curPeriod==='all' && mode==='hist')) return;
+    var ctx=c.ctx;
+    /* dataset 1 = SIOPEL en el armado de sw() para modo mensual (hist) */
+    var meta = c.getDatasetMeta(1);
+    if(!meta || !meta.data) return;
+    ctx.save();
+    ctx.font='600 10px system-ui';
+    ctx.fillStyle='rgba(230,237,243,.75)';
+    ctx.textAlign='center';
+    meta.data.forEach(function(pt, i){
+      var v = c.data.datasets[1].data[i];
+      if(v==null) return;
+      var txt = '$'+Math.round(v).toLocaleString('es-AR');
+      ctx.fillText(txt, pt.x, pt.y + 16);
+    });
+    ctx.restore();
+  }};
   var chart=new Chart(document.getElementById('mc3'),{
-    type:'line', plugins:[zPlug],
+    type:'line', plugins:[zPlug, monthlyLabelsPlugin],
     data:{labels:hDispLbl, datasets:[
       {label:'Techo',data:hT,borderColor:TECH,borderWidth:1.5,borderDash:[6,3],
        pointRadius:0,fill:false,tension:.15,spanGaps:true},
@@ -1438,6 +1456,11 @@
             var v=dp.raw; if(v===null||v===undefined){ bar.style.display='none'; return; }
             /* Date */
             var isMonthlyView = (viewGranularity==='monthly' && curPeriod==='all' && mode!=='proj');
+            if(isMonthlyView && mode==='hist' && (dp.dataset.label||'').indexOf('SIOPEL')>-1){
+              /* En mensual, SIOPEL ya tiene el precio fijo debajo de cada punto -- el tooltip
+                 solo aporta valor sobre el Techo (linea sin puntos propios) */
+              bar.style.display='none'; return;
+            }
             var dateLbl;
             if(isMonthlyView){
               dateLbl = chart.data.labels[idx] || '';
