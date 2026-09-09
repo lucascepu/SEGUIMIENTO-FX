@@ -53,9 +53,13 @@ NEW_IDX = hDates.index(HOY)
 LRI_PREV = max(i for i,v in enumerate(hS) if v is not None)
 LRI_NEW  = NEW_IDX
 
-if LRI_NEW != LRI_PREV + 1:
+HAS_GAP = (LRI_NEW != LRI_PREV + 1)
+if HAS_GAP:
     print(f"ADVERTENCIA: idx hoy={LRI_NEW}, lri anterior={LRI_PREV} (diferencia={LRI_NEW-LRI_PREV})")
     print("¿Faltó alguna rueda intermedia? Verificar manualmente.")
+    print("Por el hueco, se actualiza SOLO hS[] (por indice exacto, sin ambiguedad).")
+    print("sSiopelActual/hPt/pPt/ia NO se tocan automaticamente -- requieren carga manual")
+    print("del dia faltante para no desalinear las series (son listas secuenciales, sin indice propio).")
 
 IS_FIRST_WRITE_TODAY = hS[LRI_NEW] is None  # calcular ANTES de que --force pise LRI_PREV
 
@@ -105,59 +109,28 @@ def replace_one(old, new, label):
     print(f"  ✓ {label}")
 
 # ── 1. hS[LRI_NEW] ──────────────────────────────────────────────────────────
-# Encontrar el string exacto en el array y reemplazar el primer null tras lri_prev
-hS_vals = hS_str.split(',')
-# encontrar posición del null en LRI_NEW dentro de la lista
-# Buscar el valor del lri tal como aparece en el array hS (puede ser "1482.0", "1482", "1482.00", etc.)
-# Usar regex para matchear cualquier representación numérica del valor
-def find_prev_val_str():
-    """Encuentra la representación exacta del valor hS[LRI_PREV] en el string del array."""
-    target = hS[LRI_PREV]
-    if FORCE and LRI_PREV == LRI_NEW:
-        # En modo force: sobreescribir usando índice exacto en el array
-        # Reconstruir el array con el valor corregido
-        vals = hS_str.split(',')
-        if LRI_NEW < len(vals):
-            old_v = vals[LRI_NEW].strip()
-            new_v = f"{NUEVO_SIOPEL:.2f}"
-            return ('__force_idx__', LRI_NEW, old_v, new_v)
-        return None
-    # Buscar en la cola del array hS el patrón: <número>,null
-    tail_match = re.search(r'((?:\d+\.?\d*)),null(?:,null)+\]', hS_str)
-    if tail_match:
-        found = float(tail_match.group(1))
-        if abs(found - target) < 0.01:
-            return tail_match.group(1)
-    # Fallback: buscar el número exacto en cualquier representación
-    for fmt in [str(target), f"{target:.1f}", f"{target:.2f}", str(int(target))]:
-        if f"{fmt},null" in hS_str:
-            return fmt
-    return None
-
-prev_val_str = find_prev_val_str()
-if prev_val_str is None:
-    errors.append(f"NO ENCONTRADO: hS[{LRI_NEW}]={NUEVO_SIOPEL}\n  No pude localizar hS[{LRI_PREV}]={hS[LRI_PREV]} en el array")
-elif isinstance(prev_val_str, tuple) and prev_val_str[0] == '__force_idx__':
-    _, idx, old_v, new_v = prev_val_str
-    # Reemplazar usando reconstrucción del array completo
-    vals = hS_str.split(',')
-    vals[idx] = new_v
-    new_hS_str = ','.join(vals)
-    old_full = f"var hS=[{hS_str}];"
-    new_full = f"var hS=[{new_hS_str}];"
-    if old_full in content:
-        content = content.replace(old_full, new_full, 1)
-        print(f"  ✓ hS[{idx}] force {old_v}→{new_v}")
+# Escribir SIEMPRE por indice exacto (reconstruyendo el array), nunca por
+# reemplazo de texto tipo "valor_anterior,null" -- ese approach rellenaba el
+# PRIMER null que encontraba en la cola del array, que no es necesariamente
+# el indice correcto si hay un hueco previo sin cargar (ej. una fecha que
+# quedo sin actualizar un dia). Con indice explicito no hay ambiguedad posible.
+hS_vals_list = hS_str.split(',')
+if LRI_NEW >= len(hS_vals_list):
+    errors.append(f"hS[{LRI_NEW}] fuera de rango (largo actual del array: {len(hS_vals_list)})")
 else:
-    # Cubre tanto el caso normal (not FORCE) como FORCE=True con hS[LRI_NEW] todavia vacio
-    # (ej. cuando el paso 1 sin force fallo por otro motivo y se cayo a MAE --force, pero
-    # el valor de hoy nunca se habia escrito). Antes este caso quedaba sin manejar y hS
-    # nunca se actualizaba, aunque el resto del HTML (hero, fecha, techo) si se actualizaba.
-    replace_one(
-        f"{prev_val_str},null",
-        f"{prev_val_str},{NUEVO_SIOPEL:.2f}",
-        f"hS[{LRI_NEW}]={NUEVO_SIOPEL:.2f}"
-    )
+    old_v = hS_vals_list[LRI_NEW].strip()
+    if old_v != 'null' and not FORCE:
+        errors.append(f"hS[{LRI_NEW}] ya tiene un valor ({old_v}) y no se paso --force")
+    else:
+        hS_vals_list[LRI_NEW] = f"{NUEVO_SIOPEL:.2f}"
+        new_hS_str = ','.join(hS_vals_list)
+        old_full = f"var hS=[{hS_str}];"
+        new_full = f"var hS=[{new_hS_str}];"
+        if old_full in content:
+            content = content.replace(old_full, new_full, 1)
+            print(f"  ✓ hS[{LRI_NEW}] {old_v}→{NUEVO_SIOPEL:.2f}")
+        else:
+            errors.append("NO ENCONTRADO: bloque completo de hS (estructura inesperada)")
 
 # ── 2. sSiopelActual ────────────────────────────────────────────────────────────
 m_sJun = re.search(r'var sSiopelActual=\[(.*?)\];', content)
@@ -171,16 +144,19 @@ if m_sJun:
         new_sJun = f"var sSiopelActual=[{new_inner}];"
         replace_one(old_sJun, new_sJun, f"sSiopelActual force {old_last}→{NUEVO_SIOPEL:.2f}")
     else:
-        old_sJun = f"var sSiopelActual=[{m_sJun.group(1)}];"
-        new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL:.2f}];"
-        replace_one(old_sJun, new_sJun, "sSiopelActual append")
+        if HAS_GAP:
+            print("  ⏭ sSiopelActual: SALTEADO por hueco (cargar el dia faltante a mano primero)")
+        else:
+            old_sJun = f"var sSiopelActual=[{m_sJun.group(1)}];"
+            new_sJun = f"var sSiopelActual=[{m_sJun.group(1)},{NUEVO_SIOPEL:.2f}];"
+            replace_one(old_sJun, new_sJun, "sSiopelActual append")
 
 # ── 3. hPt ─────────────────────────────────────────────────────────────────
-if IS_FIRST_WRITE_TODAY:
+if IS_FIRST_WRITE_TODAY and not HAS_GAP:
     replace_one(f'hPt[{LRI_PREV}]=7', f'hPt[{LRI_NEW}]=7', f"hPt {LRI_PREV}→{LRI_NEW}")
 
 # ── 4. pPt (proj: 3 + len(sSiopelActual)) ────────────────────────────────────
-if IS_FIRST_WRITE_TODAY:
+if IS_FIRST_WRITE_TODAY and not HAS_GAP:
     m_pPt = re.search(r'var pPt=N\((\d+)\); pPt\[(\d+)\]=7;', content)
     if m_pPt:
         old_pPt_idx = int(m_pPt.group(2))
@@ -188,7 +164,7 @@ if IS_FIRST_WRITE_TODAY:
         replace_one(f'pPt[{old_pPt_idx}]=7', f'pPt[{new_pPt_idx}]=7', f"pPt {old_pPt_idx}→{new_pPt_idx}")
 
 # ── 5. ia (zona sombreada) ─────────────────────────────────────────────────
-if IS_FIRST_WRITE_TODAY:
+if IS_FIRST_WRITE_TODAY and not HAS_GAP:
     m_ia = re.search(r"var ia=mode==='proj'\?(\d+):(\d+), ib=ia;", content)
     if m_ia:
         old_ia_proj, old_ia_hist = m_ia.group(1), m_ia.group(2)
@@ -201,7 +177,7 @@ if IS_FIRST_WRITE_TODAY:
         )
 
 # ── 6. Label chart ─────────────────────────────────────────────────────────
-if IS_FIRST_WRITE_TODAY:
+if IS_FIRST_WRITE_TODAY and not HAS_GAP:
     m_lbl = re.search(r"ctx\.fillText\('(\d+-\w+) ←'", content)
     if m_lbl:
         replace_one(
