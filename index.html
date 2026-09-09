@@ -380,11 +380,14 @@
   <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">
     Estimaciones REM — Dólar oficial
   </div>
-  <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Horizonte proyectado · REM BCRA + curva de futuros ROFEX como referencia de mercado</div>
+  <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">SIOPEL real (últimos meses) + proyección REM BCRA a 1 año, con curva de futuros ROFEX como referencia de mercado</div>
   <div style="position:relative;width:100%;height:320px">
     <canvas id="remBandCanvas"></canvas>
   </div>
   <div style="display:flex;gap:16px;padding-left:4px;margin-top:10px;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+      <span style="width:20px;height:2px;background:#78AEDE;display:inline-block;border-radius:1px"></span>SIOPEL (real)
+    </span>
     <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
       <span style="width:14px;height:14px;display:inline-block;border-radius:2px;background:rgba(180,180,190,.28)"></span>Rango REM P10–P90
     </span>
@@ -392,7 +395,7 @@
       <span style="width:14px;height:14px;display:inline-block;border-radius:2px;background:rgba(140,140,150,.42)"></span>Rango REM P25–P75
     </span>
     <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
-      <span style="width:20px;height:2px;background:#e6edf3;display:inline-block;border-radius:1px"></span>REM (mediana)
+      <span style="width:20px;height:2px;background:#E8914A;display:inline-block;border-radius:1px"></span>REM (mediana)
     </span>
     <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
       <span style="width:10px;height:10px;border-radius:50%;background:#3fb98f;display:inline-block"></span>Futuros ROFEX (breakeven)
@@ -1476,18 +1479,48 @@
   function renderRemBandChart(){
     var canvas = document.getElementById('remBandCanvas');
     if(!canvas) return;
-    var months = Object.keys(REM_PCTL); /* orden de insercion: SEP 26, OCT 26, NOV 26, DIC 26 */
-    var p90=[],p10=[],p75=[],p25=[],med=[],fut=[];
-    months.forEach(function(m){
+
+    /* ── Meses futuros: todos los que tengamos en FUT_REM / FUT_DEFAULT (hoy: SEP26-AGO27) ── */
+    var futMonths = ['SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27','JUL 27','AGO 27']
+      .filter(function(m){ return typeof FUT_REM!=='undefined' && FUT_REM[m]!=null; });
+
+    /* ── Meses pasados reales: ultimos 6 cierres de mes de SIOPEL, sin repetir el primer mes futuro ── */
+    var realAgg = monthlyAgg(hS); /* {labels, vals, idxs} -- cierre real de cada mes calendario */
+    /* monthlyAgg devuelve labels en MAYUSCULA ('SEP 26'); normalizar a formato Titulo ('Sep 26')
+       para que coincida con el formato de futMonths y la deteccion de mes duplicado funcione */
+    var realLabels = realAgg.labels.map(function(l){
+      var p=l.split(' '); return p[0].charAt(0)+p[0].slice(1).toLowerCase()+' '+p[1];
+    });
+    var realVals = realAgg.vals.slice();
+    if(realLabels.length && futMonths.length){
+      var firstFutLbl = futMonths[0];
+      var firstFutLblFmt = firstFutLbl.split(' ')[0].charAt(0)+firstFutLbl.split(' ')[0].slice(1).toLowerCase()+' '+firstFutLbl.split(' ')[1];
+      if(realLabels[realLabels.length-1]===firstFutLblFmt){ realLabels.pop(); realVals.pop(); }
+    }
+    var PAST_N = 6;
+    if(realLabels.length > PAST_N){ realLabels = realLabels.slice(-PAST_N); realVals = realVals.slice(-PAST_N); }
+
+    var months = realLabels.concat(futMonths.map(function(m){
+      var p=m.split(' '); return p[0].charAt(0)+p[0].slice(1).toLowerCase()+' '+p[1]; /* 'SEP 26' -> 'Sep 26' para que coincida con el formato de realLabels */
+    }));
+
+    var nPast = realLabels.length;
+    var p90=[],p10=[],p75=[],p25=[],med=[],fut=[],siopelReal=[];
+    for(var i=0;i<nPast;i++){
+      siopelReal.push(realVals[i]);
+      p90.push(null); p10.push(null); p75.push(null); p25.push(null); med.push(null); fut.push(null);
+    }
+    futMonths.forEach(function(m){
       var r = REM_PCTL[m];
-      p90.push(r.p90); p10.push(r.p10); p75.push(r.p75); p25.push(r.p25);
-      med.push(r.med);
+      p90.push(r?r.p90:null); p10.push(r?r.p10:null); p75.push(r?r.p75:null); p25.push(r?r.p25:null);
+      med.push(FUT_REM[m]!=null?FUT_REM[m]:null);
       fut.push(typeof FUT_DEFAULT!=='undefined' && FUT_DEFAULT[m]!=null ? FUT_DEFAULT[m] : null);
+      siopelReal.push(null);
     });
 
     var labels = months.map(function(m){
       var parts=m.split(' ');
-      var MESES={ENE:'ene',FEB:'feb',MAR:'mar',ABR:'abr',MAY:'may',JUN:'jun',JUL:'jul',AGO:'ago',SEP:'sept',OCT:'oct',NOV:'nov',DIC:'dic'};
+      var MESES={Ene:'ene',Feb:'feb',Mar:'mar',Abr:'abr',May:'may',Jun:'jun',Jul:'jul',Ago:'ago',Sep:'sept',Oct:'oct',Nov:'nov',Dic:'dic'};
       return (MESES[parts[0]]||parts[0].toLowerCase())+'-'+parts[1];
     });
 
@@ -1501,8 +1534,10 @@
           {label:'Rango P10–P90', data:p10, borderColor:'transparent', backgroundColor:'rgba(180,180,190,.28)', pointRadius:0, fill:'-1', tension:.2},
           {label:'P75', data:p75, borderColor:'transparent', backgroundColor:'transparent', pointRadius:0, fill:false, tension:.2},
           {label:'Rango P25–P75', data:p25, borderColor:'transparent', backgroundColor:'rgba(140,140,150,.42)', pointRadius:0, fill:'-1', tension:.2},
-          {label:'REM (mediana)', data:med, borderColor:'#e6edf3', borderWidth:2, pointRadius:3,
-           pointBackgroundColor:'#e6edf3', fill:false, tension:.15},
+          {label:'SIOPEL (real, cierre de mes)', data:siopelReal, borderColor:'#78AEDE', borderWidth:2.5,
+           pointRadius:4, pointBackgroundColor:'#78AEDE', fill:false, tension:.15, spanGaps:false},
+          {label:'REM (mediana)', data:med, borderColor:'#E8914A', borderWidth:2, pointRadius:3,
+           pointBackgroundColor:'#E8914A', fill:false, tension:.15, spanGaps:false},
           {label:'Futuros ROFEX (breakeven)', data:fut, borderColor:'#3fb98f', borderWidth:2, pointRadius:5,
            pointBackgroundColor:'#3fb98f', pointBorderColor:'#3fb98f', fill:false, tension:.15, spanGaps:false}
         ]
@@ -1515,6 +1550,7 @@
           tooltip:{
             filter:function(item){
               var lbl=item.dataset.label||'';
+              if(item.raw==null) return false;
               return lbl.indexOf('P90')===-1 && lbl.indexOf('P75')===-1 && lbl.indexOf('Rango')===-1;
             },
             callbacks:{
@@ -1525,12 +1561,30 @@
           }
         },
         scales:{
-          x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
+          x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'},
+             afterFit:function(){}, },
           y:{grace:'10%', ticks:{color:'#adbac7',font:{size:11},
                callback:function(v){return '$'+Math.round(v).toLocaleString('es-AR');}},
              grid:{color:'rgba(255,255,255,.06)'}}
         }
-      }
+      },
+      plugins:[{
+        id:'todayLine',
+        afterDraw:function(c){
+          if(nPast<=0 || nPast>=labels.length) return;
+          var xs=c.scales.x, ca=c.chartArea;
+          var x=(xs.getPixelForValue(nPast-1)+xs.getPixelForValue(nPast))/2;
+          var ctx=c.ctx;
+          ctx.save();
+          ctx.strokeStyle='rgba(255,255,255,.18)'; ctx.setLineDash([4,3]); ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(x,ca.top); ctx.lineTo(x,ca.bottom); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.font='9px system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
+          ctx.textAlign='right'; ctx.fillText('real ←',x-4,ca.top+12);
+          ctx.textAlign='left';  ctx.fillText('→ proyección REM',x+4,ca.top+12);
+          ctx.restore();
+        }
+      }]
     });
 
     /* Fix mobile: el tooltip de Chart.js no tiene un "mouse out" nativo al levantar el dedo,
