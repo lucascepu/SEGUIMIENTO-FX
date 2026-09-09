@@ -1518,6 +1518,17 @@
         }
       }
     });
+
+    /* Fix mobile: el tooltip de Chart.js no tiene un "mouse out" nativo al levantar el dedo,
+       asi que queda pegado en la ultima posicion tocada. Lo cerramos manualmente al soltar. */
+    canvas.ontouchend = function(){
+      setTimeout(function(){
+        if(!remBandChart) return;
+        remBandChart.setActiveElements([]);
+        remBandChart.tooltip.setActiveElements([], {x:0,y:0});
+        remBandChart.update();
+      }, 700); /* dar tiempo a leer el tooltip antes de cerrarlo */
+    };
   }
 
   var chart=new Chart(document.getElementById('mc3'),{
