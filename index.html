@@ -376,6 +376,32 @@
   </span>
 </div>
 
+<div id="remBandSection" style="display:none;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
+  <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">
+    Estimaciones REM — Dólar oficial
+  </div>
+  <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Horizonte proyectado · REM BCRA + curva de futuros ROFEX como referencia de mercado</div>
+  <div style="position:relative;width:100%;height:320px">
+    <canvas id="remBandCanvas"></canvas>
+  </div>
+  <div style="display:flex;gap:16px;padding-left:4px;margin-top:10px;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+      <span style="width:14px;height:14px;display:inline-block;border-radius:2px;background:rgba(180,180,190,.28)"></span>Rango REM P10–P90
+    </span>
+    <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+      <span style="width:14px;height:14px;display:inline-block;border-radius:2px;background:rgba(140,140,150,.42)"></span>Rango REM P25–P75
+    </span>
+    <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+      <span style="width:20px;height:2px;background:#e6edf3;display:inline-block;border-radius:1px"></span>REM (mediana)
+    </span>
+    <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+      <span style="width:10px;height:10px;border-radius:50%;background:#3fb98f;display:inline-block"></span>Futuros ROFEX (breakeven)
+    </span>
+  </div>
+  <div style="font-size:10px;color:var(--txt3);margin-top:10px;line-height:1.5">
+    REM: Relevamiento de Expectativas de Mercado, BCRA — agosto 2026 (publ. 4-sep-2026), 47 participantes, TC nominal promedio mensual días hábiles. Futuros: cierre ROFEX del contrato de cada mes, usado como referencia de mercado ("breakeven").
+  </div>
+</div>
 
 </div>
 
@@ -722,6 +748,13 @@
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
+  /* REM agosto-2026 (BCRA, publ. 4-sep-2026) -- Cuadro 10.4, TC nominal promedio mensual dias habiles */
+  var REM_PCTL = {
+    'SEP 26':{p10:1514,p25:1522,med:1530,p75:1540,p90:1547},
+    'OCT 26':{p10:1539,p25:1551,med:1565,p75:1581,p90:1594},
+    'NOV 26':{p10:1563,p25:1579,med:1600,p75:1622,p90:1646},
+    'DIC 26':{p10:1591,p25:1605,med:1630,p75:1672,p90:1705}
+  };
   var FUT_DEFAULT = {'AGO 26':1507.5,'SEP 26':1533.5,'OCT 26':1561.5,'NOV 26':1592.0,'DIC 26':1622.0,'ENE 27':1653.0,'FEB 27':1682.0,'MAR 27':1718.5,'ABR 27':1748.0,'MAY 27':1779.0,'JUN 27':1813.0,'JUL 27':1845.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
@@ -1425,6 +1458,68 @@
     });
     ctx.restore();
   }};
+  var remBandChart = null;
+  function renderRemBandChart(){
+    var canvas = document.getElementById('remBandCanvas');
+    if(!canvas) return;
+    var months = Object.keys(REM_PCTL); /* orden de insercion: SEP 26, OCT 26, NOV 26, DIC 26 */
+    var p90=[],p10=[],p75=[],p25=[],med=[],fut=[];
+    months.forEach(function(m){
+      var r = REM_PCTL[m];
+      p90.push(r.p90); p10.push(r.p10); p75.push(r.p75); p25.push(r.p25);
+      med.push(r.med);
+      fut.push(typeof FUT_DEFAULT!=='undefined' && FUT_DEFAULT[m]!=null ? FUT_DEFAULT[m] : null);
+    });
+
+    var labels = months.map(function(m){
+      var parts=m.split(' ');
+      var MESES={ENE:'ene',FEB:'feb',MAR:'mar',ABR:'abr',MAY:'may',JUN:'jun',JUL:'jul',AGO:'ago',SEP:'sept',OCT:'oct',NOV:'nov',DIC:'dic'};
+      return (MESES[parts[0]]||parts[0].toLowerCase())+'-'+parts[1];
+    });
+
+    if(remBandChart){ remBandChart.destroy(); remBandChart=null; }
+    remBandChart = new Chart(canvas, {
+      type:'line',
+      data:{
+        labels: labels,
+        datasets:[
+          {label:'P90', data:p90, borderColor:'transparent', backgroundColor:'transparent', pointRadius:0, fill:false, tension:.2},
+          {label:'Rango P10–P90', data:p10, borderColor:'transparent', backgroundColor:'rgba(180,180,190,.28)', pointRadius:0, fill:'-1', tension:.2},
+          {label:'P75', data:p75, borderColor:'transparent', backgroundColor:'transparent', pointRadius:0, fill:false, tension:.2},
+          {label:'Rango P25–P75', data:p25, borderColor:'transparent', backgroundColor:'rgba(140,140,150,.42)', pointRadius:0, fill:'-1', tension:.2},
+          {label:'REM (mediana)', data:med, borderColor:'#e6edf3', borderWidth:2, pointRadius:3,
+           pointBackgroundColor:'#e6edf3', fill:false, tension:.15},
+          {label:'Futuros ROFEX (breakeven)', data:fut, borderColor:'#3fb98f', borderWidth:2, pointRadius:5,
+           pointBackgroundColor:'#3fb98f', pointBorderColor:'#3fb98f', fill:false, tension:.15, spanGaps:false}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:{duration:0},
+        interaction:{mode:'index', intersect:false},
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            filter:function(item){
+              var lbl=item.dataset.label||'';
+              return lbl.indexOf('P90')===-1 && lbl.indexOf('P75')===-1 && lbl.indexOf('Rango')===-1;
+            },
+            callbacks:{
+              label:function(c){
+                return '  '+c.dataset.label+':  $'+Math.round(c.raw).toLocaleString('es-AR');
+              }
+            }
+          }
+        },
+        scales:{
+          x:{ticks:{color:'#adbac7',font:{size:11}}, grid:{color:'rgba(255,255,255,.06)'}},
+          y:{grace:'10%', ticks:{color:'#adbac7',font:{size:11},
+               callback:function(v){return '$'+Math.round(v).toLocaleString('es-AR');}},
+             grid:{color:'rgba(255,255,255,.06)'}}
+        }
+      }
+    });
+  }
+
   var chart=new Chart(document.getElementById('mc3'),{
     type:'line', plugins:[zPlug, monthlyLabelsPlugin],
     data:{labels:hDispLbl, datasets:[
@@ -1682,6 +1777,10 @@
                proj:'Datos reales M-1 + techo oficial + escenarios TC proyectados.',
                brecha:'Evolución diaria de la brecha % (techo − SIOPEL) / SIOPEL.'};
     document.getElementById('mD').textContent=descs[m]||'';
+    /* Nueva vista: banda de percentiles REM + futuros como breakeven (solo PROYECCION) */
+    var _rbs=document.getElementById('remBandSection');
+    if(_rbs) _rbs.style.display = isP ? 'block' : 'none';
+    if(isP) renderRemBandChart();
     /* Show/hide futPanel and main chart */
     var _fp=document.getElementById('futPanel');
     var _mc=document.getElementById('mainContent');
