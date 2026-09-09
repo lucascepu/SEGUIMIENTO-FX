@@ -346,6 +346,7 @@
   </span>
 </div>
 
+<div id="mainChartBlock">
 <div id="winRow" class="period-row" style="padding-top:12px;margin-bottom:0;">
   <span class="win-label">Promedio:</span>
   <button class="pbtn pon" data-w="30"  onclick="setAvgWindow(30,this)">30d</button>
@@ -374,6 +375,7 @@
     <span class="leg-item"><span class="leg-line leg-d2"></span>prom. 6M (15.7%)</span>
     <span class="leg-item"><span class="leg-line leg-d1"></span>nivel actual</span>
   </span>
+</div>
 </div>
 
 <div id="remBandSection" style="display:none;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
@@ -408,7 +410,7 @@
     <div style="font-weight:600;color:var(--txt);margin-bottom:6px;font-size:10px;letter-spacing:.05em;text-transform:uppercase">Cómo se interpreta</div>
     El REM le pregunta a 47 participantes del mercado (bancos, consultoras, fondos) cuánto creen que va a valer el dólar oficial en cada mes. Los percentiles ordenan esas respuestas de menor a mayor:
     <br><br>
-    <b style="color:var(--txt)">Mediana (línea blanca)</b>: el valor del medio — mitad proyecta menos, mitad más.
+    <b style="color:var(--txt)">Mediana (línea naranja)</b>: el valor del medio — mitad proyecta menos, mitad más.
     <br>
     <b style="color:var(--txt)">P25–P75 (banda oscura)</b>: el 50% central de las respuestas, sin los extremos — donde está la mayoría del consenso.
     <br>
@@ -1845,6 +1847,10 @@
     document.getElementById('periodRow').style.display=isP?'none':'flex';
     document.getElementById('winRow').style.display='flex';
     if(!isP) applyPeriod();
+    /* PROYECCION: el grafico viejo (denso, comprimido) queda en desuso -- solo se muestra
+       el grafico nuevo de banda REM (remBandSection, mas arriba en sw()) */
+    var _mcb=document.getElementById('mainChartBlock');
+    if(_mcb) _mcb.style.display = isP ? 'none' : 'block';
 
     var bH=document.getElementById('bH'),bP=document.getElementById('bP'),bB=document.getElementById('bB');
     bH.className='btn '+(isH?'btn-on':'btn-off');
