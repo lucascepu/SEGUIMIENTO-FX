@@ -1980,7 +1980,7 @@
     document.getElementById('legH').style.display=isH?'flex':'none';
     document.getElementById('legP').style.display=isP?'flex':'none';
     document.getElementById('legB').style.display=isB?'flex':'none';
-    var _sw=document.getElementById('scenWrap'); if(_sw) _sw.style.display=isP?'block':'none';
+    var _sw=document.getElementById('scenWrap'); if(_sw) _sw.style.display='none'; /* viejo, con datos hardcodeados desconectados de FUT_TECHO/FUT_REM -- mismo criterio que el grafico viejo, oculto */
     if(!isP&&_scenOpen){_scenOpen=false;var _sp=document.getElementById('scenPanel');if(_sp)_sp.style.display='none';var _st=document.getElementById('scenToggle');if(_st)_st.textContent='▼ Ver tabla de escenarios';}
   };
 
