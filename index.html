@@ -496,7 +496,7 @@
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
         Cierre ROFEX 8/9/2026<br>
-        REM ago-26 a dic-27: REM BCRA jul-2026 (dólar oficial proyectado)<br>
+        REM ago-26 a dic-27: REM BCRA agosto-2026 (dólar oficial proyectado)<br>
         Techo 2027: crawling peg ~1.6% m/m (IPC REM)<br>
         TNA = ((Futuro/Spot)−1) × 365/días · TEM = ((Futuro/Spot)^(30/días)−1)
       </div>
@@ -522,7 +522,7 @@
           <span style="width:20px;height:2px;background:#78AEDE;display:inline-block;border-radius:1px"></span>Futuro ROFEX
         </span>
         <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
-          <span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,#F5C36B 0,#F5C36B 5px,transparent 5px,transparent 9px)"></span>REM jun-26
+          <span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,#F5C36B 0,#F5C36B 5px,transparent 5px,transparent 9px)"></span>REM ago-26
         </span>
         <span style="font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:6px">
           <span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,rgba(245,195,107,.4) 0,rgba(245,195,107,.4) 3px,transparent 3px,transparent 7px)"></span>Techo BCRA
@@ -539,8 +539,8 @@
 </div><!-- /futPanel -->
 
 <p class="footnote" id="footerNote">
-  SIOPEL: datos reales abr 2025–<span id="footerFecha">13/7/2026</span>. Techo: crawling peg BCRA (IPC INDEC T-2); sep-26 en adelante provisorio con IPC REM jul-2026.
-  Brecha = (techo − SIOPEL) / SIOPEL. Proyecciones: REM BCRA (jun-2026).
+  SIOPEL: datos reales abr 2025–<span id="footerFecha">13/7/2026</span>. Techo: crawling peg BCRA (IPC INDEC T-2); sep-26 en adelante provisorio con IPC REM agosto-2026.
+  Brecha = (techo − SIOPEL) / SIOPEL. Proyecciones: REM BCRA (agosto-2026).
 </p>
 <div class="glosario">
   <div class="glosario-title" onclick="toggleGlosario()" 
@@ -766,7 +766,7 @@
   ,'AGO 27':1878,'SEP 27':1912,'OCT 27':1946,'NOV 27':1981,'DIC 27':2016};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
-  // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
+  // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   /* REM agosto-2026 (BCRA, publ. 4-sep-2026) -- Cuadro 10.4, TC nominal promedio mensual dias habiles */
   var REM_PCTL = {
     'SEP 26':{p10:1514,p25:1522,med:1530,p75:1540,p90:1547},
@@ -966,7 +966,7 @@
              backgroundColor:'rgba(120,174,222,.10)', fill:true,
              pointRadius:6, pointHoverRadius:9, pointBackgroundColor:'#78AEDE',
              borderWidth:2.5, tension:.3, spanGaps:false},
-            {label:'REM jun-26', data:rems, borderColor:'#F5C36B',
+            {label:'REM ago-26', data:rems, borderColor:'#F5C36B',
              borderDash:[6,4], borderWidth:2, pointRadius:4, pointBackgroundColor:'#F5C36B',
              backgroundColor:'transparent', fill:false, tension:.3},
             {label:'Techo BCRA', data:techos, borderColor:'rgba(245,195,107,.4)',
@@ -1094,7 +1094,7 @@
       if(legP){
         legP.innerHTML = isHistorico
           ? swatch('#78AEDE','Futuro '+futFocus) + swatch('#3fb950','SIOPEL',[5,4])
-          : swatch('#78AEDE','Futuro ROFEX') + swatch('#F5C36B','REM jun-26',[5,4]) + swatch('rgba(245,195,107,.4)','Techo BCRA',[3,4]);
+          : swatch('#78AEDE','Futuro ROFEX') + swatch('#F5C36B','REM ago-26',[5,4]) + swatch('rgba(245,195,107,.4)','Techo BCRA',[3,4]);
         legP.style.display = isTasa ? 'none' : 'flex';
       }
       if(legT){
@@ -2021,7 +2021,7 @@
   ,'AGO 27':1878,'SEP 27':1912,'OCT 27':1946,'NOV 27':1981,'DIC 27':2016};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
-  // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
+  // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   var FUT_DEFAULT = {'SEP 26':1528.5,'OCT 26':1554.0,'NOV 26':1582.0,'DIC 26':1611.0,'ENE 27':1641.0,'FEB 27':1670.0,'MAR 27':1701.5,'ABR 27':1730.0,'MAY 27':1762.0,'JUN 27':1792.5,'JUL 27':1825.5,'AGO 27':1861.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
@@ -2429,7 +2429,7 @@
   ,'AGO 27':1878,'SEP 27':1912,'OCT 27':1946,'NOV 27':1981,'DIC 27':2016};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
   var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
-  // Datos ROFEX cierre 18/6/2026 — actualizá con el formulario cuando cambien
+  // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   var FUT_DEFAULT = {'SEP 26':1528.5,'OCT 26':1554.0,'NOV 26':1582.0,'DIC 26':1611.0,'ENE 27':1641.0,'FEB 27':1670.0,'MAR 27':1701.5,'ABR 27':1730.0,'MAY 27':1762.0,'JUN 27':1792.5,'JUL 27':1825.5,'AGO 27':1861.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
@@ -2484,6 +2484,50 @@
       el.textContent=parseInt(p[2])+'/'+parseInt(p[1])+'/'+p[0];
     }
   })();
+
+  /* ── STALE-DATA CHECK (simple, sin dependencias) ──────────────────────
+     SIOPEL se actualiza automaticamente todos los dias habiles (cron).
+     Umbral: si el ultimo dato real tiene mas de STALE_DAYS_SIOPEL dias
+     de antiguedad (calendario, para tolerar un fin de semana largo),
+     se considera desactualizado y se muestra un aviso discreto. */
+  var STALE_DAYS_SIOPEL = 4;
+  (function(){
+    if(lri<0 || !hDates[lri]) return;
+    var lastDate = new Date(hDates[lri]+'T00:00:00');
+    var today = new Date(); today.setHours(0,0,0,0);
+    var diasDesde = Math.round((today - lastDate) / 86400000);
+    if(diasDesde > STALE_DAYS_SIOPEL){
+      var el = document.getElementById('footerFecha');
+      if(el && el.parentNode){
+        var warn = document.createElement('span');
+        warn.style.color = 'var(--accent)';
+        warn.style.marginLeft = '6px';
+        warn.textContent = '⚠ dato con '+diasDesde+' días de antigüedad';
+        el.parentNode.insertBefore(warn, el.nextSibling);
+      }
+    }
+  })();
+
+  /* Mismo chequeo simple para el cierre manual de FUTUROS (Cierre ROFEX).
+     Es un dato cargado a mano, no automatico -- umbral mas laxo. */
+  var STALE_DAYS_FUTUROS = 6;
+  (function(){
+    var nota = document.getElementById('futNota');
+    if(!nota) return;
+    var m = nota.textContent.match(/Cierre ROFEX (\d+)\/(\d+)\/(\d+)/);
+    if(!m) return;
+    var lastDate = new Date(+m[3], +m[2]-1, +m[1]);
+    var today = new Date(); today.setHours(0,0,0,0);
+    var diasDesde = Math.round((today - lastDate) / 86400000);
+    if(diasDesde > STALE_DAYS_FUTUROS){
+      var warn = document.createElement('div');
+      warn.style.color = 'var(--accent)';
+      warn.style.marginTop = '4px';
+      warn.textContent = '⚠ cierre de futuros con '+diasDesde+' días de antigüedad -- verificar si corresponde actualizar';
+      nota.appendChild(warn);
+    }
+  })();
+
   chart.options.animation={duration:0};
   sw('hist');
   setAvgWindow(curWindow, document.querySelector('#winRow [data-w="'+curWindow+'"]'));
