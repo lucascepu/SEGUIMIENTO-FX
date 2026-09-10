@@ -2071,7 +2071,7 @@
     var curR=roll[lri];
     var wl=win===126?'6M':win===63?'90d':'30d';
     var el=document.getElementById('cardProm');
-    if(el) el.textContent='+'+(curR||'—')+'%';
+    if(el) el.textContent = curR!=null ? ('+'+curR+'%') : '—';
     var wlEl=document.getElementById('winLabel');
     if(wlEl) wlEl.textContent=wl;
     var legWl=document.getElementById('legWinLabel'); if(legWl) legWl.textContent=wl;
