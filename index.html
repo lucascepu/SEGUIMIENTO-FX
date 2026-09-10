@@ -280,13 +280,13 @@
   <div class="bb-metrics" id="bbMetricsHist">
     <div class="bb-metric">
       <div class="bb-m-label">Techo BCRA</div>
-      <div class="bb-m-val amber" id="techoVal">$1.891,12</div>
+      <div class="bb-m-val amber" id="techoVal">$1.891,76</div>
       <div class="bb-m-sub" id="deltaTechoSub">—</div>
     </div>
     <div class="bb-vsep"></div>
     <div class="bb-metric">
       <div class="bb-m-label">Brecha al techo</div>
-      <div class="bb-m-val green" id="cardBrecha">+24.95%</div>
+      <div class="bb-m-val green" id="cardBrecha">+24.99%</div>
       <div class="bb-m-sub" id="pctRow">hist <span id="pctHist">—</span> · 6M <span id="pct6m">—</span></div>
     </div>
     <div class="bb-vsep"></div>
@@ -867,7 +867,12 @@
       'ENE 27':'2027-01-29','FEB 27':'2027-02-26','MAR 27':'2027-03-31',
       'ABR 27':'2027-04-30','MAY 27':'2027-05-30','JUN 27':'2027-06-30','JUL 27':'2027-07-30','AGO 27':'2027-08-31'
     };
-    var hoy = new Date(); hoy.setHours(0,0,0,0);
+    /* FIX auditoria matematica: antes usaba new Date() (reloj real del navegador), que puede
+       adelantarse respecto a la fecha real del spot/SIOPEL usado (ej. fin de semana, o antes
+       de que corra la actualizacion del dia) -- eso subestima dias al vencimiento e infla la
+       TNA. Ahora se ancla a la fecha real del dato (hDates[lri]), consistente con 'siopel'. */
+    var hoy = hDates[lri] ? new Date(hDates[lri]+'T00:00:00') : new Date();
+    hoy.setHours(0,0,0,0);
     function diasAlVenc(k){
       var vencDate = new Date(VENC[k]);
       var d = Math.round((vencDate - hoy) / 86400000);
