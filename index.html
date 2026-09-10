@@ -352,7 +352,7 @@
   <button class="pbtn pon" data-w="21"  onclick="setAvgWindow(21,this)">1M</button>
   <button class="pbtn" data-w="63"  onclick="setAvgWindow(63,this)">3M</button>
   <button class="pbtn" data-w="126" onclick="setAvgWindow(126,this)">6M</button>
-  <button id="resetZoomBtn" onclick="window.resetZoom()" style="display:none;margin-left:10px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#ddd;font-size:11px;cursor:pointer;">↺ Reset zoom</button>
+  <button id="resetZoomBtn" onclick="window.resetZoom()" style="display:none;margin-left:10px;padding:3px 10px;border-radius:4px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#ddd;font-size:11px;cursor:pointer;">↺ Reiniciar zoom</button>
 </div>
 <div class="chart-wrap">
 <div id="hoverBar"></div>
@@ -363,7 +363,7 @@
   <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
   <span class="leg-item"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
-  <span class="leg-item"><span class="leg-line leg-d2"></span>prom. <span id="legWinLabel">1M</span> (rolling)</span>
+  <span class="leg-item"><span class="leg-line leg-d2"></span>prom. <span id="legWinLabel">1M</span> (móvil)</span>
   </span>
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
@@ -372,7 +372,7 @@
   </span>
   <span id="legB" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-solid"></span>brecha diaria %</span>
-    <span class="leg-item"><span class="leg-line leg-d2"></span>prom. 6M (15.7%)</span>
+    <span class="leg-item"><span class="leg-line leg-d2"></span>prom. móvil</span>
     <span class="leg-item"><span class="leg-line leg-d1"></span>nivel actual</span>
   </span>
 </div>
@@ -462,7 +462,7 @@
         </div>
         <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
           <button id="btnColA" onclick="setFutColGroup('a')" style="padding:4px 8px;font-size:9px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117;white-space:nowrap">REM · SPREAD · TECHO</button>
-          <button id="btnColB" onclick="setFutColGroup('b')" style="padding:4px 8px;font-size:9px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3);white-space:nowrap">DÍAS · TNA · TEM</button>
+          <button id="btnColB" onclick="setFutColGroup('b')" style="padding:4px 8px;font-size:9px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3);white-space:nowrap">FORWARD · TNA · TEM</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;min-height:14px;margin-bottom:6px">
@@ -495,9 +495,9 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 8/9/2026<br>
+        Cierre ROFEX 8 sep 2026<br>
         REM ago-26 a dic-27: REM BCRA agosto-2026 (dólar oficial proyectado)<br>
-        Techo 2027: crawling peg ~1.6% m/m (IPC REM)<br>
+        Techo 2027: crawling peg ~1.6% mensual (IPC REM)<br>
         TNA = ((Futuro/Spot)−1) × 365/días · TEM = ((Futuro/Spot)^(30/días)−1)
       </div>
     </div>
@@ -539,7 +539,7 @@
 </div><!-- /futPanel -->
 
 <p class="footnote" id="footerNote">
-  SIOPEL: datos reales abr 2025–<span id="footerFecha">13/7/2026</span>. Techo: crawling peg BCRA (IPC INDEC T-2); sep-26 en adelante provisorio con IPC REM agosto-2026.
+  SIOPEL: datos reales abr 2025–<span id="footerFecha">13 jul 2026</span>. Techo: crawling peg BCRA (IPC INDEC T-2); sep-26 en adelante provisorio con IPC REM agosto-2026.
   Brecha = (techo − SIOPEL) / SIOPEL. Proyecciones: REM BCRA (agosto-2026).
 </p>
 <div class="glosario">
@@ -553,9 +553,9 @@
     <div class="glosario-item"><strong>SIOPEL (Divisa Venta)</strong> — Tipo de cambio mayorista de referencia publicado diariamente por el BCRA. Es el precio al que las entidades financieras venden divisas en el mercado interbancario.</div>
     <div class="glosario-item"><strong>Techo BCRA</strong> — Límite superior de la banda cambiaria vigente. Si el SIOPEL lo alcanza, el BCRA interviene vendiendo reservas. Se ajusta mensualmente según el crawling peg oficial.</div>
     <div class="glosario-item"><strong>Brecha %</strong> — Distancia porcentual del SIOPEL al techo: (Techo − SIOPEL) / SIOPEL. Indica cuánto margen queda antes de que el dólar toque el techo de la banda.</div>
-    <div class="glosario-item"><strong>Prom. 6M (rolling)</strong> — Promedio móvil de la brecha % calculado sobre los últimos 126 días hábiles (≈ 6 meses). Referencia de tendencia de mediano plazo.</div>
+    <div class="glosario-item"><strong>Promedio de brecha (móvil)</strong> — Promedio de la brecha % sobre una ventana móvil de ruedas, elegible entre 1M (21 ruedas), 3M (63) y 6M (126). Referencia de tendencia de corto o mediano plazo según la ventana elegida.</div>
     <div class="glosario-item"><strong>Percentil histórico</strong> — Indica qué porcentaje de los días desde abr-2025 tuvo una brecha inferior a la actual. Ejemplo: "85% días hist" = el 85% de los días la brecha fue menor que hoy → brecha actualmente alta.</div>
-    <div class="glosario-item"><strong>REM</strong> — Relevamiento de Expectativas de Mercado. Encuesta mensual del BCRA a ~46 analistas sobre sus proyecciones de inflación, tipo de cambio y tasas.</div>
+    <div class="glosario-item"><strong>REM</strong> — Relevamiento de Expectativas de Mercado. Encuesta mensual del BCRA a bancos y consultoras sobre sus proyecciones de inflación, tipo de cambio y tasas.</div>
   </div>
   </div><!-- /glosarioBody -->
 </div>
@@ -1161,7 +1161,7 @@
         msg='El REM supera a la curva de futuros en todos los contratos. '+
             'Spread promedio: '+avg+'%.';
       } else {
-        msg='Spread promedio JUN–DIC: '+(parseFloat(avg)>0?'+':'')+avg+'%. '+
+        msg='Spread promedio '+KEYS[0]+'–'+KEYS[KEYS.length-1]+': '+(parseFloat(avg)>0?'+':'')+avg+'%. '+
             'Spread máximo: +'+maxSp+'% en '+maxMes+'.';
       }
       ins.textContent=msg;
@@ -1614,7 +1614,7 @@
       {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:3,
        pointRadius:hPt,pointBackgroundColor:DOLAR,
        fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-      {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:hA,borderColor:AVGC,borderWidth:1,
+      {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:hA,borderColor:AVGC,borderWidth:1,
        borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'REM',data:N(46),borderColor:REMC,borderWidth:1.5,
        borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -1782,7 +1782,7 @@
           {label:'Brecha % (cierre de mes)',data:mB.vals,borderColor:DOLAR,borderWidth:2,
            pointRadius:4,pointBackgroundColor:DOLAR,
            fill:true,backgroundColor:'rgba(55,138,221,.1)',tension:.2,spanGaps:false},
-          {label:'Prom. 6M',data:mAvgVals,borderColor:AVGC,borderWidth:1.5,
+          {label:'Prom. '+document.getElementById('winLabel').textContent,data:mAvgVals,borderColor:AVGC,borderWidth:1.5,
            borderDash:[3,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
           {label:'Nivel actual ('+curBr+'%)',data:mCurVals,borderColor:TECH,borderWidth:1.5,
            borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
@@ -1793,7 +1793,7 @@
         {label:'Brecha %',data:brechaVals,borderColor:DOLAR,borderWidth:2,
          pointRadius:bPt,pointBackgroundColor:DOLAR,
          fill:true,backgroundColor:'rgba(55,138,221,.1)',tension:.3,spanGaps:false},
-        {label:'Prom. 6M',data:avgRef,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. '+document.getElementById('winLabel').textContent,data:avgRef,borderColor:AVGC,borderWidth:1.5,
          borderDash:[3,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
         {label:'Nivel actual ('+curBr+'%)',data:curRef,borderColor:TECH,borderWidth:1.5,
          borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
@@ -1816,7 +1816,7 @@
         {label:'SIOPEL (cierre de mes)',data:mS.vals,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:4,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.1,spanGaps:false},
-        {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:mAVals,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:mAVals,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.1,spanGaps:true}
       ];
       chart.options.scales.y.min=1000;
@@ -1829,7 +1829,7 @@
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
-        {label:'Prom. '+document.getElementById('winLabel').textContent+' (rolling)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
         {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -2481,12 +2481,13 @@
   };
 
   lri=hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
-  /* Actualizar footer con fecha real del último dato */
+  /* Actualizar footer con fecha real del último dato (formato "D mes AAAA", consistente con siopelDate) */
   (function(){
     var el=document.getElementById('footerFecha');
     if(el&&lri>=0&&hDates[lri]){
+      var MESES_ES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
       var p=hDates[lri].split('-');
-      el.textContent=parseInt(p[2])+'/'+parseInt(p[1])+'/'+p[0];
+      el.textContent=parseInt(p[2])+' '+MESES_ES[parseInt(p[1])-1]+' '+p[0];
     }
   })();
 
@@ -2519,9 +2520,12 @@
   (function(){
     var nota = document.getElementById('futNota');
     if(!nota) return;
-    var m = nota.textContent.match(/Cierre ROFEX (\d+)\/(\d+)\/(\d+)/);
+    var MESES_ES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    var m = nota.textContent.match(/Cierre ROFEX (\d+) (\w+) (\d+)/);
     if(!m) return;
-    var lastDate = new Date(+m[3], +m[2]-1, +m[1]);
+    var mesIdx = MESES_ES.indexOf(m[2].toLowerCase());
+    if(mesIdx<0) return;
+    var lastDate = new Date(+m[3], mesIdx, +m[1]);
     var today = new Date(); today.setHours(0,0,0,0);
     var diasDesde = Math.round((today - lastDate) / 86400000);
     if(diasDesde > STALE_DAYS_FUTUROS){
