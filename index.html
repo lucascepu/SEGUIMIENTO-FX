@@ -403,6 +403,9 @@
     <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
       <span style="width:10px;height:10px;border-radius:50%;background:#3fb98f;display:inline-block"></span>Futuros ROFEX (breakeven)
     </span>
+    <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
+      <span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,rgba(245,195,107,.6) 0,rgba(245,195,107,.6) 6px,transparent 6px,transparent 9px)"></span>Techo BCRA
+    </span>
   </div>
   <div style="font-size:10px;color:var(--txt3);margin-top:10px;line-height:1.5">
     REM: Relevamiento de Expectativas de Mercado, BCRA — agosto 2026 (publ. 4-sep-2026), 47 participantes, TC nominal promedio mensual días hábiles. Futuros: cierre ROFEX del contrato de cada mes, usado como referencia de mercado ("breakeven").
@@ -1506,22 +1509,24 @@
       var p=l.split(' '); return p[0].charAt(0)+p[0].slice(1).toLowerCase()+' '+p[1];
     });
     var realVals = realAgg.vals.slice();
+    var realIdxs = realAgg.idxs.slice();
     if(realLabels.length && futMonths.length){
       var firstFutLbl = futMonths[0];
       var firstFutLblFmt = firstFutLbl.split(' ')[0].charAt(0)+firstFutLbl.split(' ')[0].slice(1).toLowerCase()+' '+firstFutLbl.split(' ')[1];
-      if(realLabels[realLabels.length-1]===firstFutLblFmt){ realLabels.pop(); realVals.pop(); }
+      if(realLabels[realLabels.length-1]===firstFutLblFmt){ realLabels.pop(); realVals.pop(); realIdxs.pop(); }
     }
     var PAST_N = 6;
-    if(realLabels.length > PAST_N){ realLabels = realLabels.slice(-PAST_N); realVals = realVals.slice(-PAST_N); }
+    if(realLabels.length > PAST_N){ realLabels = realLabels.slice(-PAST_N); realVals = realVals.slice(-PAST_N); realIdxs = realIdxs.slice(-PAST_N); }
 
     var months = realLabels.concat(futMonths.map(function(m){
       var p=m.split(' '); return p[0].charAt(0)+p[0].slice(1).toLowerCase()+' '+p[1]; /* 'SEP 26' -> 'Sep 26' para que coincida con el formato de realLabels */
     }));
 
     var nPast = realLabels.length;
-    var p90=[],p10=[],p75=[],p25=[],med=[],fut=[],siopelReal=[];
+    var p90=[],p10=[],p75=[],p25=[],med=[],fut=[],siopelReal=[],techo=[];
     for(var i=0;i<nPast;i++){
       siopelReal.push(realVals[i]);
+      techo.push(typeof hT!=='undefined' && realIdxs[i]!=null ? hT[realIdxs[i]] : null);
       p90.push(null); p10.push(null); p75.push(null); p25.push(null); med.push(null); fut.push(null);
     }
     futMonths.forEach(function(m){
@@ -1529,6 +1534,7 @@
       p90.push(r?r.p90:null); p10.push(r?r.p10:null); p75.push(r?r.p75:null); p25.push(r?r.p25:null);
       med.push(FUT_REM[m]!=null?FUT_REM[m]:null);
       fut.push(typeof FUT_DEFAULT!=='undefined' && FUT_DEFAULT[m]!=null ? FUT_DEFAULT[m] : null);
+      techo.push(typeof FUT_TECHO!=='undefined' && FUT_TECHO[m]!=null ? FUT_TECHO[m] : null);
       siopelReal.push(null);
     });
 
@@ -1553,7 +1559,9 @@
           {label:'REM (mediana)', data:med, borderColor:'#E8914A', borderWidth:2, pointRadius:3,
            pointBackgroundColor:'#E8914A', fill:false, tension:.15, spanGaps:false},
           {label:'Futuros ROFEX (breakeven)', data:fut, borderColor:'#3fb98f', borderWidth:2, pointRadius:5,
-           pointBackgroundColor:'#3fb98f', pointBorderColor:'#3fb98f', fill:false, tension:.15, spanGaps:false}
+           pointBackgroundColor:'#3fb98f', pointBorderColor:'#3fb98f', fill:false, tension:.15, spanGaps:false},
+          {label:'Techo BCRA', data:techo, borderColor:'rgba(245,195,107,.6)', borderWidth:1.5, borderDash:[6,3],
+           pointRadius:0, fill:false, tension:.15, spanGaps:false}
         ]
       },
       options:{
