@@ -183,6 +183,7 @@
 
   /* Gráfico principal */
   .chart-wrap  { height:260px; }
+  .rem-chart-wrap { height:260px !important; }
   .mode-desc   { font-size:11px; }
   .legend      { font-size:11px; gap:5px 10px; }
 
@@ -383,7 +384,7 @@
     Estimaciones REM — Dólar oficial
   </div>
   <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">SIOPEL real (últimos meses) + proyección REM BCRA a 1 año, con curva de futuros ROFEX como referencia de mercado</div>
-  <div style="position:relative;width:100%;height:320px">
+  <div class="rem-chart-wrap" style="position:relative;width:100%;height:320px">
     <canvas id="remBandCanvas"></canvas>
   </div>
   <div style="display:flex;gap:16px;padding-left:4px;margin-top:10px;flex-wrap:wrap">
