@@ -1117,6 +1117,14 @@
     /* ── Tira de métricas FUTUROS: Último futuro / Forward / TNA implícita — fijos a DIC 26 ── */
     (function renderMetricsFut(){
       var dic = tasas[KEYS.indexOf('DIC 26')];
+      /* Labels dinamicos: se arman a partir de dic.key (mismo contrato que ya selecciona
+         la linea de arriba), en vez de tener 'DIC 26' escrito a mano en el HTML. Si el
+         contrato de referencia cambia de mes en el futuro, el texto lo sigue solo. */
+      var refLbl = dic ? dic.key : 'DIC 26';
+      var elLU=document.getElementById('futMLabelUlt'); if(elLU) elLU.textContent='Último futuro ('+refLbl+')';
+      var elLF=document.getElementById('futMLabelFwd'); if(elLF) elLF.textContent='Forward '+refLbl;
+      var elLT=document.getElementById('futMLabelTna'); if(elLT) elLT.textContent='TNA implícita '+refLbl;
+
       var elUV=document.getElementById('futMValUlt');
       var elUS=document.getElementById('futMSubUlt');
       if(elUV) elUV.textContent = dic ? fmt$(dic.fut) : fmt$(futPrices['DIC 26']);
