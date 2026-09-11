@@ -766,7 +766,6 @@
   ,'ENE 27':1661,'FEB 27':1695,'MAR 27':1719,'ABR 27':1749,'MAY 27':1781,'JUN 27':1813,'JUL 27':1845
   ,'AGO 27':1878,'SEP 27':1912,'OCT 27':1946,'NOV 27':1981,'DIC 27':2016};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   /* REM agosto-2026 (BCRA, publ. 4-sep-2026) -- Cuadro 10.4, TC nominal promedio mensual dias habiles */
   var REM_PCTL = {
@@ -849,7 +848,6 @@
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
-  function pct(a,b){ return b&&a? ((a/b-1)*100).toFixed(1)+'%' : '—'; }
 
   var _fs = {}; /* estado compartido de FUTUROS: se llena en renderFut(), lo usa renderFutTable() */
 
@@ -2034,7 +2032,6 @@
   ,'ENE 27':1661,'FEB 27':1695,'MAR 27':1719,'ABR 27':1749,'MAY 27':1781,'JUN 27':1813,'JUL 27':1845
   ,'AGO 27':1878,'SEP 27':1912,'OCT 27':1946,'NOV 27':1981,'DIC 27':2016};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   var FUT_DEFAULT = {'SEP 26':1528.5,'OCT 26':1554.0,'NOV 26':1582.0,'DIC 26':1611.0,'ENE 27':1641.0,'FEB 27':1670.0,'MAR 27':1701.5,'ABR 27':1730.0,'MAY 27':1762.0,'JUN 27':1792.5,'JUL 27':1825.5,'AGO 27':1861.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
@@ -2065,7 +2062,6 @@
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
-  function pct(a,b){ return b&&a? ((a/b-1)*100).toFixed(1)+'%' : '—'; }
 
 
 
@@ -2297,38 +2293,14 @@
       _cvs.style.cursor=(m==='chartpan')?'grab':'crosshair'; }
   });
 
-  /* Cursor hints */
-  _cvs.addEventListener('mousemove',function(e){
-    if(_ad.on||!chart) return;
-    var r=_cvs.getBoundingClientRect();
-    var mx=e.clientX-r.left, my=e.clientY-r.top;
-    var ca=chart.chartArea;
-    if(my>ca.bottom+2) _cvs.style.cursor='ew-resize';
-    else if(mx<ca.left-2) _cvs.style.cursor='ns-resize';
-    else if(mx>=ca.left&&mx<=ca.right&&my>=ca.top&&my<=ca.bottom) _cvs.style.cursor='grab';
-    else _cvs.style.cursor='default';
-  });
+  /* NOTA limpieza tecnica: este bloque (mousemove/dblclick/wheel sobre el mismo canvas mc3)
+     estaba duplicado -- un segundo bloque identico se registraba justo despues. El dblclick
+     duplicado era inofensivo (resetZoom() es idempotente), pero el wheel duplicado hacia que
+     el zoom con Ctrl+rueda corriera a aprox. el doble de velocidad de lo previsto (el mismo
+     calculo de escala se ejecutaba dos veces por tick, sobre el valor ya mutado por el primero).
+     Se dejo una sola copia (la que ya "ganaba" visualmente al registrarse despues). */
 
-  /* Double-click → reset zoom */
-  _cvs.addEventListener('dblclick',function(){ window.resetZoom(); });
 
-  /* Ctrl+Wheel → Y-axis zoom */
-  _cvs.addEventListener('wheel',function(e){
-    if(e.ctrlKey||e.metaKey){
-      e.preventDefault();
-      var ys=chart.scales.y;
-      var f=e.deltaY>0?1.12:0.88;
-      var ctr=(ys.max+ys.min)/2, half=(ys.max-ys.min)/2*f;
-      var yLo=mode==='brecha'?-5:500, yHi=mode==='brecha'?60:3000;
-      chart.options.scales.y.min=Math.max(yLo,Math.round(ctr-half));
-      chart.options.scales.y.max=Math.min(yHi,Math.round(ctr+half));
-      chart.update('none'); window._showRZ();
-    }
-  },{passive:false});
-
-  _cvs.style.cursor='crosshair';
-
-  /* Cursor hints on hover */
   _cvs.addEventListener('mousemove',function(e){
     if(_ad.on || !chart) return;
     var r=_cvs.getBoundingClientRect();
@@ -2442,7 +2414,6 @@
   ,'ENE 27':1661,'FEB 27':1695,'MAR 27':1719,'ABR 27':1749,'MAY 27':1781,'JUN 27':1813,'JUL 27':1845
   ,'AGO 27':1878,'SEP 27':1912,'OCT 27':1946,'NOV 27':1981,'DIC 27':2016};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
-  var FUT_KEYS  = ['JUN 26','JUL 26','AGO 26','SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27'];
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   var FUT_DEFAULT = {'SEP 26':1528.5,'OCT 26':1554.0,'NOV 26':1582.0,'DIC 26':1611.0,'ENE 27':1641.0,'FEB 27':1670.0,'MAR 27':1701.5,'ABR 27':1730.0,'MAY 27':1762.0,'JUN 27':1792.5,'JUL 27':1825.5,'AGO 27':1861.5};
   var futPrices = Object.assign({}, FUT_DEFAULT);
@@ -2473,7 +2444,6 @@
   } catch(e){}
 
   function fmt$(v){ return v==null?'—':'$'+Math.round(v).toLocaleString('es-AR'); }
-  function pct(a,b){ return b&&a? ((a/b-1)*100).toFixed(1)+'%' : '—'; }
 
 
 
