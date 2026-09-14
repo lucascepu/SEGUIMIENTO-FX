@@ -74,15 +74,28 @@ else:  # criptoya
     siopel = round(float(m["price"] if isinstance(m, dict) else m), 2)
     print(f"[auto_update_fx] TC criptoya: {siopel}")
 
-    # MEP/CCL vienen en la misma respuesta -- capturar si estan disponibles (best-effort,
-    # no bloquea el update de SIOPEL si faltan)
+    # MEP/CCL en criptoya NO son un precio simple como mayorista -- vienen anidados
+    # por bono (al30, gd30, letras, bpo27) y plazo de liquidacion (ci, 24hs), cada uno
+    # con su propio price/variation/timestamp. AL30 es el bono mas liquido (los demas
+    # suelen tener timestamps viejos, de semanas atras, cuando no operan). Se usa
+    # AL30+CI como referencia (mismo criterio que el mercado usa habitualmente para
+    # "el" MEP/CCL), con 24hs como respaldo si CI no estuviera disponible.
+    def extract_bond_price(obj):
+        if not isinstance(obj, dict): return None
+        for bond in ("al30", "gd30"):
+            b = obj.get(bond)
+            if not isinstance(b, dict): continue
+            for term in ("ci", "24hs"):
+                t = b.get(term)
+                if isinstance(t, dict) and t.get("price"):
+                    return round(float(t["price"]), 2)
+        return None
+
     mep_val = None; ccl_val = None
     try:
-        mm = data.get("mep")
-        if mm: mep_val = round(float(mm["price"] if isinstance(mm, dict) else mm), 2)
-        mc = data.get("ccl")
-        if mc: ccl_val = round(float(mc["price"] if isinstance(mc, dict) else mc), 2)
-        print(f"[auto_update_fx] MEP criptoya: {mep_val}, CCL criptoya: {ccl_val}")
+        mep_val = extract_bond_price(data.get("mep"))
+        ccl_val = extract_bond_price(data.get("ccl"))
+        print(f"[auto_update_fx] MEP criptoya (AL30/CI): {mep_val}, CCL criptoya (AL30/CI): {ccl_val}")
     except Exception as e:
         print(f"[auto_update_fx] AVISO: no se pudo leer MEP/CCL ({e}), se omiten hoy")
 
