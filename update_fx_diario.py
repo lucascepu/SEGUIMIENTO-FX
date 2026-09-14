@@ -18,7 +18,17 @@ if len(sys.argv) < 2:
 
 NUEVO_SIOPEL = round(float(sys.argv[1]), 2)
 FORCE = '--force' in sys.argv  # permite sobreescribir si ya hay valor
-args = [a for a in sys.argv[2:] if a != '--force']
+
+# Extraer --mep VALOR y --ccl VALOR si vienen (opcional, best-effort)
+raw_args = sys.argv[2:]
+MEP_VAL = None; CCL_VAL = None
+if '--mep' in raw_args:
+    i = raw_args.index('--mep'); MEP_VAL = round(float(raw_args[i+1]), 2)
+    raw_args = raw_args[:i] + raw_args[i+2:]
+if '--ccl' in raw_args:
+    i = raw_args.index('--ccl'); CCL_VAL = round(float(raw_args[i+1]), 2)
+    raw_args = raw_args[:i] + raw_args[i+2:]
+args = [a for a in raw_args if a != '--force']
 if args:
     raw = args[0].strip()
     # Aceptar tanto YYYY-MM-DD como YYYYMMDD
@@ -206,6 +216,25 @@ if m_techo:
 m_brecha = re.search(r'id="cardBrecha">([^<]+)<', content)
 if m_brecha:
     replace_one(f'id="cardBrecha">{m_brecha.group(1)}<', f'id="cardBrecha">{BRECHA_FMT}<', "cardBrecha")
+
+# ── 8. MEP/CCL (opcional, best-effort -- no bloquea el resto si no vino el dato) ──
+if MEP_VAL is not None and CCL_VAL is not None:
+    m_dmc = re.search(r"var hDatesMC=\[(.*?)\];", content, re.S)
+    m_mep = re.search(r"var hMEP=\[(.*?)\];", content, re.S)
+    m_ccl = re.search(r"var hCCL=\[(.*?)\];", content, re.S)
+    if m_dmc and m_mep and m_ccl:
+        dmc_str = m_dmc.group(1)
+        if f"'{HOY}'" in dmc_str:
+            print(f"  · MEP/CCL {HOY} ya estaba cargado, se omite")
+        else:
+            new_dmc = f"var hDatesMC=[{dmc_str},'{HOY}'];"
+            new_mep = f"var hMEP=[{m_mep.group(1)},{MEP_VAL}];"
+            new_ccl = f"var hCCL=[{m_ccl.group(1)},{CCL_VAL}];"
+            replace_one(m_dmc.group(0), new_dmc, f"hDatesMC +{HOY}")
+            replace_one(m_mep.group(0), new_mep, f"hMEP +{MEP_VAL}")
+            replace_one(m_ccl.group(0), new_ccl, f"hCCL +{CCL_VAL}")
+    else:
+        print("  · AVISO: no se encontraron los arrays hDatesMC/hMEP/hCCL, se omite MEP/CCL")
 
 # ── Errores ─────────────────────────────────────────────────────────────────
 if errors:

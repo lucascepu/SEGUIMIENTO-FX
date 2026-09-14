@@ -55,6 +55,7 @@ if source == 'mae':
     if not siopel:
         print("ERROR: UST$T no encontrado en MAE"); sys.exit(1)
     print(f"[auto_update_fx] TC MAE: {siopel}")
+    mep_val = None; ccl_val = None  # MAE no trae MEP/CCL, se omiten en este camino
 
 else:  # criptoya
     print(f"[auto_update_fx] Llamando criptoya...")
@@ -73,12 +74,26 @@ else:  # criptoya
     siopel = round(float(m["price"] if isinstance(m, dict) else m), 2)
     print(f"[auto_update_fx] TC criptoya: {siopel}")
 
+    # MEP/CCL vienen en la misma respuesta -- capturar si estan disponibles (best-effort,
+    # no bloquea el update de SIOPEL si faltan)
+    mep_val = None; ccl_val = None
+    try:
+        mm = data.get("mep")
+        if mm: mep_val = round(float(mm["price"] if isinstance(mm, dict) else mm), 2)
+        mc = data.get("ccl")
+        if mc: ccl_val = round(float(mc["price"] if isinstance(mc, dict) else mc), 2)
+        print(f"[auto_update_fx] MEP criptoya: {mep_val}, CCL criptoya: {ccl_val}")
+    except Exception as e:
+        print(f"[auto_update_fx] AVISO: no se pudo leer MEP/CCL ({e}), se omiten hoy")
+
 # ── Validar ───────────────────────────────────────────────────────────────────
 if not (1000 < siopel < 5000):
     print(f"ERROR: valor {siopel} fuera de rango"); sys.exit(1)
 
 # ── Ejecutar update ───────────────────────────────────────────────────────────
 cmd = [sys.executable, "update_fx_diario.py", str(siopel), fecha_iso]
+if mep_val is not None and ccl_val is not None:
+    cmd += ["--mep", str(mep_val), "--ccl", str(ccl_val)]
 if FORCE:
     cmd.append('--force')
 print(f"[auto_update_fx] Ejecutando: {' '.join(cmd)}")
