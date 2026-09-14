@@ -572,11 +572,16 @@
     </div>
   </div>
 
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;height:22px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;height:22px;flex-wrap:wrap;gap:8px">
     <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase" id="mcChartTitle">MEP / CCL / SIOPEL — serie histórica</div>
-    <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden">
-      <button id="btnMcPrecio" onclick="setMcView('precio')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117">PRECIO</button>
-      <button id="btnMcBrecha" onclick="setMcView('brecha')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">BRECHA VS OFICIAL</button>
+    <div style="display:flex;align-items:center;gap:12px">
+      <label id="mcTechoWrap" style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--txt3);cursor:pointer;user-select:none">
+        <input type="checkbox" id="mcTechoCheck" onchange="toggleMcTecho(this)" style="accent-color:var(--accent);cursor:pointer">Techo BCRA
+      </label>
+      <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden">
+        <button id="btnMcPrecio" onclick="setMcView('precio')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117">PRECIO</button>
+        <button id="btnMcBrecha" onclick="setMcView('brecha')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">BRECHA VS OFICIAL</button>
+      </div>
     </div>
   </div>
   <div style="position:relative;width:100%;height:300px;margin-bottom:8px">
@@ -1557,6 +1562,7 @@
   /* ── MEP / CCL ── */
   var mcChart = null;
   var mcView = 'precio'; /* 'precio' | 'brecha' */
+  var mcShowTecho = false;
 
   function findSiopelForDate(iso){
     /* SIOPEL de esa fecha exacta si existe; si no, el ultimo dato real anterior (MEP/CCL
@@ -1565,6 +1571,16 @@
     if(idx>=0 && hS[idx]!=null) return hS[idx];
     for(var i=hDates.length-1;i>=0;i--){
       if(hDates[i]!=null && hDates[i]<=iso && hS[i]!=null) return hS[i];
+    }
+    return null;
+  }
+
+  function findTechoForDate(iso){
+    /* Mismo criterio que findSiopelForDate, pero contra hT[] (techo BCRA) */
+    var idx = hDates.indexOf(iso);
+    if(idx>=0 && hT[idx]!=null) return hT[idx];
+    for(var i=hDates.length-1;i>=0;i--){
+      if(hDates[i]!=null && hDates[i]<=iso && hT[i]!=null) return hT[i];
     }
     return null;
   }
@@ -1621,6 +1637,7 @@
 
     var labels = hDatesMC.map(function(d){ var p=d.split('-'); return parseInt(p[2])+'/'+parseInt(p[1]); });
     var siopelSeries = hDatesMC.map(function(d){ return findSiopelForDate(d); });
+    var techoSeries = hDatesMC.map(function(d){ return findTechoForDate(d); });
 
     var datasets;
     if(mcView==='precio'){
@@ -1629,6 +1646,10 @@
         {label:'MEP', data:hMEP, borderColor:'#E8914A', borderWidth:2, pointRadius:0, fill:false, tension:.1, spanGaps:true},
         {label:'CCL', data:hCCL, borderColor:'#3fb98f', borderWidth:2, pointRadius:0, fill:false, tension:.1, spanGaps:true}
       ];
+      if(mcShowTecho){
+        datasets.push({label:'Techo BCRA', data:techoSeries, borderColor:'rgba(245,195,107,.6)', borderWidth:1.5,
+          borderDash:[6,3], pointRadius:0, fill:false, tension:.1, spanGaps:true});
+      }
     } else {
       var brechaMep = hMEP.map(function(v,i){ var s=siopelSeries[i]; return s!=null?Math.round((v/s-1)*1000)/10:null; });
       var brechaCcl = hCCL.map(function(v,i){ var s=siopelSeries[i]; return s!=null?Math.round((v/s-1)*1000)/10:null; });
@@ -1681,19 +1702,27 @@
     var bP=document.getElementById('btnMcPrecio'), bB=document.getElementById('btnMcBrecha');
     if(bP){ bP.style.background=v==='precio'?'var(--accent)':'var(--bg-card)'; bP.style.color=v==='precio'?'#0d1117':'var(--txt3)'; }
     if(bB){ bB.style.background=v==='brecha'?'var(--accent)':'var(--bg-card)'; bB.style.color=v==='brecha'?'#0d1117':'var(--txt3)'; }
+    var techoWrap=document.getElementById('mcTechoWrap');
+    if(techoWrap) techoWrap.style.display = v==='precio' ? 'flex' : 'none';
     var title=document.getElementById('mcChartTitle');
     if(title) title.textContent = v==='precio' ? 'MEP / CCL / SIOPEL — serie histórica' : 'Brecha MEP/CCL vs oficial — serie histórica';
     var legend=document.getElementById('mcLegend');
     if(legend){
+      var techoLeg = mcShowTecho ? '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,rgba(245,195,107,.6) 0,rgba(245,195,107,.6) 6px,transparent 6px,transparent 9px)"></span>Techo BCRA</span>' : '';
       legend.innerHTML = v==='precio' ?
         '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;background:#78AEDE;display:inline-block;border-radius:1px"></span>SIOPEL (oficial)</span>'+
         '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;background:#E8914A;display:inline-block;border-radius:1px"></span>MEP</span>'+
-        '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;background:#3fb98f;display:inline-block;border-radius:1px"></span>CCL</span>'
+        '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;background:#3fb98f;display:inline-block;border-radius:1px"></span>CCL</span>'+techoLeg
         :
         '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;background:#E8914A;display:inline-block;border-radius:1px"></span>Brecha MEP %</span>'+
         '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;background:#3fb98f;display:inline-block;border-radius:1px"></span>Brecha CCL %</span>';
     }
     renderMcChart();
+  };
+
+  window.toggleMcTecho = function(checkbox){
+    mcShowTecho = checkbox.checked;
+    window.setMcView(mcView); /* reconstruye leyenda + grafico con/sin la linea de techo */
   };
 
   var remBandChart = null;
