@@ -1647,6 +1647,19 @@
     var siopelSeries = hDatesMC.map(function(d){ return findSiopelForDate(d); });
     var techoSeries = hDatesMC.map(function(d){ return findTechoForDate(d); });
 
+    /* Marcadores de mes (para el eje X) -- primera fecha de cada mes calendario dentro de
+       hDatesMC, mismo criterio 'un mes salteando uno' que el resto de los graficos */
+    var MESES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    var mcMonthIdxs=[], mcMonthLbls={}, lastYM=null;
+    hDatesMC.forEach(function(d,i){
+      var ym=d.slice(0,7);
+      if(ym!==lastYM){
+        lastYM=ym;
+        mcMonthIdxs.push(i);
+        mcMonthLbls[i]=MESES3[parseInt(d.slice(5,7),10)-1]+' '+d.slice(2,4);
+      }
+    });
+
     var datasets;
     if(mcView==='precio'){
       datasets = [
@@ -1687,7 +1700,12 @@
           }
         },
         scales:{
-          x:{ticks:{color:'#adbac7',font:{size:10},maxTicksLimit:10}, grid:{color:'rgba(255,255,255,.06)'}},
+          x:{ticks:{color:'#adbac7',font:{size:10},
+               callback:function(val){
+                 var pos = mcMonthIdxs.indexOf(val);
+                 if(pos<0) return null;
+                 return (pos%2===0) ? mcMonthLbls[val] : null;
+               }}, grid:{color:'rgba(255,255,255,.06)'}},
           y:{ticks:{color:'#adbac7',font:{size:11},
                callback:function(v){ return mcView==='precio' ? '$'+Math.round(v).toLocaleString('es-AR') : v+'%'; }},
              grid:{color:'rgba(255,255,255,.06)'}}
@@ -1986,14 +2004,14 @@
               if(!dl&&!sl) return null;
               var isMonth=/^[A-Z]/.test(dl);
               if(range>200){
-                /* Salteo dinamico: cuantos marcadores de mes caen en el rango visible, y
-                   se apunta a mostrar ~8 sin importar si son 12 o 25 (crece con el tiempo) */
+                /* Estandarizado: siempre un mes salteando uno (MAR|MAY|JUL...), consistente
+                   con el criterio que se usa en PROYECCION/MEP-CCL, sin importar cuantos
+                   meses haya en total */
                 if(!isMonth) return null;
                 var visibles = MONTH_MARKER_IDXS.filter(function(idx){ return idx>=mn && idx<=mx; });
-                var skip = Math.max(1, Math.ceil(visibles.length/8));
                 var pos = visibles.indexOf(val);
                 if(pos<0) return null;
-                return (pos%skip===0) ? dl : null;
+                return (pos%2===0) ? dl : null;
               }
               if(range>80){
                 if(isMonth) return dl;
