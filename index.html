@@ -572,7 +572,7 @@
     </div>
   </div>
 
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;height:22px;flex-wrap:wrap;gap:8px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px 12px">
     <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase" id="mcChartTitle">MEP / CCL / SIOPEL — serie histórica</div>
     <div style="display:flex;align-items:center;gap:12px">
       <label id="mcTechoWrap" style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--txt3);cursor:pointer;user-select:none">
@@ -1713,7 +1713,46 @@
       }
     });
 
-    canvas.ontouchend = function(){
+    /* ── Pinch-to-zoom (dos dedos) sobre el eje X -- no mueve la pagina, agranda el rango ── */
+    canvas.style.touchAction = 'none'; /* evita que el navegador zoomee la pagina en vez del grafico */
+    var mcPinch = {active:false, startDist:0, startMin:0, startMax:0};
+    function touchDist(t){
+      var dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY;
+      return Math.sqrt(dx*dx+dy*dy);
+    }
+    canvas.ontouchstart = function(e){
+      if(e.touches.length===2){
+        e.preventDefault();
+        mcPinch.active=true;
+        mcPinch.startDist=touchDist(e.touches);
+        var xs=mcChart.scales.x;
+        mcPinch.startMin = xs.min!=null?xs.min:0;
+        mcPinch.startMax = xs.max!=null?xs.max:(labels.length-1);
+      }
+    };
+    canvas.ontouchmove = function(e){
+      if(mcPinch.active && e.touches.length===2){
+        e.preventDefault();
+        var dist=touchDist(e.touches);
+        if(dist<=0||mcPinch.startDist<=0) return;
+        var factor = mcPinch.startDist/dist; /* dedos separandose -> factor<1 -> acerca (zoom in) */
+        var ctr=(mcPinch.startMax+mcPinch.startMin)/2;
+        var half=(mcPinch.startMax-mcPinch.startMin)/2*factor;
+        half = Math.max(3, half); /* no permitir acercar a menos de ~6 puntos visibles */
+        var newMin=Math.max(0, Math.round(ctr-half));
+        var newMax=Math.min(labels.length-1, Math.round(ctr+half));
+        mcChart.options.scales.x.min=newMin;
+        mcChart.options.scales.x.max=newMax;
+        mcChart.update('none');
+      }
+    };
+    canvas.ondblclick = function(){
+      mcChart.options.scales.x.min = undefined;
+      mcChart.options.scales.x.max = undefined;
+      mcChart.update();
+    };
+    canvas.ontouchend = function(e){
+      if(e.touches.length<2) mcPinch.active=false;
       setTimeout(function(){
         if(!mcChart) return;
         mcChart.setActiveElements([]);
