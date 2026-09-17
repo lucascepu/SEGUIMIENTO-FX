@@ -2936,10 +2936,44 @@
       }
     }
 
+    function hoyEsOficial(){
+      /* true si hS[lri] (el cierre ya cargado en esta version de la pagina) corresponde
+         a la fecha de hoy -- false si el cron todavia no cargo el cierre de hoy */
+      if(lri<0 || typeof hDates==='undefined') return false;
+      var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+      var todayIso = ar.getFullYear()+'-'+String(ar.getMonth()+1).padStart(2,'0')+'-'+String(ar.getDate()).padStart(2,'0');
+      return hDates[lri]===todayIso;
+    }
+
+    function fetchProvisorio(){
+      /* Intentar conseguir un precio provisorio (recien llegado a la pagina, sin
+         lastLivePrice capturado -- ej. rueda ya termino pero el cron todavia no cargo
+         el cierre real). Mismo fetch que ya se usaba dentro de 'prov'. */
+      fetch('/api/dolar')
+        .then(function(r){return r.json();})
+        .then(function(data){
+          var m=data.mayorista;
+          if(!m) return;
+          var price=typeof m==='object'?m.price:m;
+          if(price&&!isNaN(parseFloat(price))){
+            lastLivePrice=parseFloat(price);
+            showProv();
+          }
+        })
+        .catch(function(){});
+    }
+
     function fetchLive(){
       var state = marketState();
 
       if(state==='hidden'){
+        if(!hoyEsOficial()){
+          /* El cierre real de hoy todavia no llego (cron con demora, o pagina recien
+             abierta sin haber pasado por 'open'/'prov') -- seguir mostrando/buscando
+             el provisorio en vez de caer al cierre de ayer. */
+          if(lastLivePrice){ showProv(); } else { fetchProvisorio(); }
+          return;
+        }
         badge.classList.remove('visible','closed');
         resetToOfficial();
         return;
@@ -2949,19 +2983,7 @@
         if(lastLivePrice){
           showProv();
         } else {
-          /* No tuvimos precio durante la rueda — intentar traer de criptoya igual */
-          fetch('/api/dolar')
-            .then(function(r){return r.json();})
-            .then(function(data){
-              var m=data.mayorista;
-              if(!m) return;
-              var price=typeof m==='object'?m.price:m;
-              if(price&&!isNaN(parseFloat(price))){
-                lastLivePrice=parseFloat(price);
-                showProv();
-              }
-            })
-            .catch(function(){});
+          fetchProvisorio();
         }
         return;
       }
