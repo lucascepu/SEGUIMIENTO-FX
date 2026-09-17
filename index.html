@@ -58,11 +58,9 @@
   .live-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--green);display:flex;align-items:center;gap:5px;}
   .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0;}
   @keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.65);}}
-  .live-price{font-size:42px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.03em;}
   .live-time{font-size:10px;color:var(--txt3);}
   .live-badge.closed .live-label{color:var(--red);}
   .live-badge.closed .live-dot{background:var(--red);animation:none;}
-  .live-badge.closed .live-price{display:block;}
   .live-badge.closed .live-time{display:block;}
   .bb-hero-wrap{position:relative;display:inline-block;}
   .bb-dot{color:rgba(255,255,255,.2);font-size:10px;}
@@ -199,7 +197,6 @@
   /* Badge EN VIVO: pasa debajo del precio en mobile */
   .bb-hero-wrap { display:block; position:static; }
   .live-badge   { position:static; margin-top:6px; }
-  .live-price   { font-size:32px; }
   .live-time    { font-size:10px; }
 
   /* FUTUROS */
@@ -260,9 +257,7 @@
       <div class="bb-price" id="siopelVal">$1.513,50</div>
       <div class="bb-delta" id="deltaSiopelSub">—</div>
       <div class="live-badge" id="liveBadge">
-        <div class="live-label"><span class="live-dot"></span>EN VIVO</div>
-        <div class="live-price" id="liveVal">—</div>
-        <div class="bb-delta" id="liveDeltaSub" style="margin-bottom:0;font-size:13px">—</div>
+        <div class="live-label"><span class="live-dot"></span><span id="liveStatusText">EN VIVO</span></div>
         <div class="live-time" id="liveTime">actualizando...</div>
       </div>
     </div>
@@ -2849,7 +2844,6 @@
      NO usar criptoya para el cierre oficial — usar solo para display en tiempo real. */
   (function(){
     var badge   = document.getElementById('liveBadge');
-    var priceEl = document.getElementById('liveVal');
     var timeEl  = document.getElementById('liveTime');
     var labelEl = badge ? badge.querySelector('.live-label') : null;
     var heroWrap= document.querySelector('.bb-hero-wrap');
@@ -2896,17 +2890,13 @@
 
     function showProv(){
       if(!lastLivePrice) return;
-      /* Pasar precio provisorio al hero principal */
+      /* Precio y delta van SOLO en el hero principal -- una sola fuente de verdad,
+         el badge de al lado ya no repite el numero, solo indica el estado */
       var heroPrice = document.getElementById('siopelVal');
       if(heroPrice) heroPrice.textContent = fmt(lastLivePrice);
-      /* Recalcular el delta contra el ultimo cierre real (hS[lri]), no contra el par
-         actuals[0]/actuals[1] que puede haber quedado desactualizado (ej. fin de semana) */
       if(lri>=0) renderDelta('deltaSiopelSub', lastLivePrice, hS[lri]);
-      renderDelta('liveDeltaSub', lastLivePrice, lri>=0?hS[lri]:null); /* mismo delta, junto al tick en vivo */
-      /* Mostrar badge CIERRE PROV. en naranja */
-      priceEl.textContent = fmt(lastLivePrice);
       timeEl.textContent = 'Cierre provisorio';
-      labelEl.innerHTML = '<span class="live-dot" style="background:var(--accent);animation:none"></span>CIERRE PROV.';
+      labelEl.innerHTML = '<span class="live-dot" style="background:var(--accent);animation:none"></span>PROVISORIO';
       badge.classList.add('visible');
       badge.classList.remove('closed');
       positionBadge();
@@ -2997,8 +2987,9 @@
           var price=typeof m==='object'?m.price:m;
           if(!price||isNaN(parseFloat(price))) return;
           lastLivePrice = parseFloat(price); /* guardar para uso en estado prov */
-          priceEl.textContent=fmt(price);
-          if(lri>=0) renderDelta('liveDeltaSub', lastLivePrice, hS[lri]);
+          var heroPrice = document.getElementById('siopelVal');
+          if(heroPrice) heroPrice.textContent = fmt(price);
+          if(lri>=0) renderDelta('deltaSiopelSub', lastLivePrice, hS[lri]);
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
           timeEl.textContent='Últ. tick '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
           labelEl.innerHTML='<span class="live-dot"></span>EN VIVO';
