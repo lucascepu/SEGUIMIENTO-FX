@@ -58,6 +58,7 @@
   .live-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--green);display:flex;align-items:center;gap:5px;}
   .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0;}
   @keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.65);}}
+  .live-price{font-size:42px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.03em;}
   .live-time{font-size:10px;color:var(--txt3);}
   .live-badge.closed .live-label{color:var(--red);}
   .live-badge.closed .live-dot{background:var(--red);animation:none;}
@@ -197,6 +198,7 @@
   /* Badge EN VIVO: pasa debajo del precio en mobile */
   .bb-hero-wrap { display:block; position:static; }
   .live-badge   { position:static; margin-top:6px; }
+  .live-price   { font-size:32px; }
   .live-time    { font-size:10px; }
 
   /* FUTUROS */
@@ -258,6 +260,7 @@
       <div class="bb-delta" id="deltaSiopelSub">—</div>
       <div class="live-badge" id="liveBadge">
         <div class="live-label"><span class="live-dot"></span><span id="liveStatusText">EN VIVO</span></div>
+        <div class="live-price" id="liveVal" style="display:none">—</div>
         <div class="live-time" id="liveTime">actualizando...</div>
       </div>
     </div>
@@ -2890,11 +2893,12 @@
 
     function showProv(){
       if(!lastLivePrice) return;
-      /* Precio y delta van SOLO en el hero principal -- una sola fuente de verdad,
-         el badge de al lado ya no repite el numero, solo indica el estado */
+      /* Mercado cerrado: el provisorio pasa a ocupar el lugar del precio "real" (hero
+         principal) -- ya no hay un numero en vivo aparte que mostrar, se oculta liveVal */
       var heroPrice = document.getElementById('siopelVal');
       if(heroPrice) heroPrice.textContent = fmt(lastLivePrice);
       if(lri>=0) renderDelta('deltaSiopelSub', lastLivePrice, hS[lri]);
+      var lv=document.getElementById('liveVal'); if(lv) lv.style.display='none';
       timeEl.textContent = 'Cierre provisorio';
       labelEl.innerHTML = '<span class="live-dot" style="background:var(--accent);animation:none"></span>PROVISORIO';
       badge.classList.add('visible');
@@ -2907,6 +2911,7 @@
          hS[lri] ya corresponde a HOY. Si el cron todavia no cargo el cierre de hoy,
          mejor mantener el ultimo precio en vivo capturado que retroceder al de ayer. */
       if(lri<0) return;
+      var lv=document.getElementById('liveVal'); if(lv) lv.style.display='none';
       var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
       var todayIso = ar.getFullYear()+'-'+String(ar.getMonth()+1).padStart(2,'0')+'-'+String(ar.getDate()).padStart(2,'0');
       var hSesHoy = (typeof hDates!=='undefined' && hDates[lri]===todayIso);
@@ -2987,9 +2992,8 @@
           var price=typeof m==='object'?m.price:m;
           if(!price||isNaN(parseFloat(price))) return;
           lastLivePrice = parseFloat(price); /* guardar para uso en estado prov */
-          var heroPrice = document.getElementById('siopelVal');
-          if(heroPrice) heroPrice.textContent = fmt(price);
-          if(lri>=0) renderDelta('deltaSiopelSub', lastLivePrice, hS[lri]);
+          var lv=document.getElementById('liveVal');
+          if(lv){ lv.textContent=fmt(price); lv.style.display='block'; }
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
           timeEl.textContent='Últ. tick '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
           labelEl.innerHTML='<span class="live-dot"></span>EN VIVO';
