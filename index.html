@@ -2940,6 +2940,37 @@
       return hDates[lri]===todayIso;
     }
 
+    var _checkingServer = false;
+    function checkServerYRecargar(){
+      /* La pagina es estatica: aunque el cron ya subio el cierre real al servidor,
+         esta pestaña (si ya estaba abierta) sigue con la copia vieja en memoria y
+         nunca se entera sola -- por eso quedaba en "provisorio" aunque el real ya
+         hubiera cargado. Ademas de re-pedir el precio en vivo, ahora tambien se
+         chequea cada 60s si el HTML publicado ya tiene el cierre de HOY -- si es
+         asi, se recarga la pagina entera para traer todo actualizado de una. */
+      if(_checkingServer) return;
+      _checkingServer = true;
+      fetch('/', {cache:'no-store'})
+        .then(function(r){ return r.text(); })
+        .then(function(html){
+          var mS = html.match(/var hS=\[([^\]]+)\]/);
+          var mD = html.match(/var hDates=\[([^\]]+)\]/);
+          if(!mS || !mD) return;
+          var hsSrv = mS[1].split(',').map(function(v){ v=v.trim(); return v==='null'?null:parseFloat(v); });
+          var hdSrv = mD[1].split(',').map(function(v){ return v.trim().replace(/'/g,''); });
+          var lriSrv=-1;
+          for(var i=hsSrv.length-1;i>=0;i--){ if(hsSrv[i]!=null){ lriSrv=i; break; } }
+          if(lriSrv<0) return;
+          var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+          var todayIso = ar.getFullYear()+'-'+String(ar.getMonth()+1).padStart(2,'0')+'-'+String(ar.getDate()).padStart(2,'0');
+          if(hdSrv[lriSrv]===todayIso){
+            location.reload();
+          }
+        })
+        .catch(function(){})
+        .finally(function(){ _checkingServer=false; });
+    }
+
     function fetchProvisorio(){
       /* Intentar conseguir un precio provisorio (recien llegado a la pagina, sin
          lastLivePrice capturado -- ej. rueda ya termino pero el cron todavia no cargo
@@ -2965,8 +2996,10 @@
         if(!hoyEsOficial()){
           /* El cierre real de hoy todavia no llego (cron con demora, o pagina recien
              abierta sin haber pasado por 'open'/'prov') -- seguir mostrando/buscando
-             el provisorio en vez de caer al cierre de ayer. */
+             el provisorio en vez de caer al cierre de ayer, Y chequear si el servidor
+             ya tiene el real (en cuyo caso se recarga sola, ver checkServerYRecargar). */
           if(lastLivePrice){ showProv(); } else { fetchProvisorio(); }
+          checkServerYRecargar();
           return;
         }
         badge.classList.remove('visible','closed');
@@ -2980,6 +3013,7 @@
         } else {
           fetchProvisorio();
         }
+        checkServerYRecargar();
         return;
       }
 
