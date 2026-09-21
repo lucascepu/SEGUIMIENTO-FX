@@ -2104,24 +2104,36 @@
               var sl=hLbl[val]||'';
               if(!dl&&!sl) return null;
               var isMonth=/^[A-Z]/.test(dl);
-              if(range>200){
-                /* Estandarizado: siempre un mes salteando uno (MAR|MAY|JUL...), consistente
-                   con el criterio que se usa en PROYECCION/MEP-CCL, sin importar cuantos
-                   meses haya en total */
-                if(!isMonth) return null;
-                var visibles = MONTH_MARKER_IDXS.filter(function(idx){ return idx>=mn && idx<=mx; });
+              /* Marcadores de mes visibles en el rango actual, con el mismo salteo
+                 'uno si, uno no' SIEMPRE (antes solo aplicaba en range>200 -- por eso
+                 en rangos intermedios como M-2TD podian mostrarse todos los meses
+                 pegados a etiquetas de dia sueltas, superponiendose). */
+              var visibles = MONTH_MARKER_IDXS.filter(function(idx){ return idx>=mn && idx<=mx; });
+              if(isMonth){
                 var pos = visibles.indexOf(val);
                 if(pos<0) return null;
                 return (pos%2===0) ? dl : null;
               }
+              /* No es mes: una etiqueta de dia suelta (solo existen para mayo-jun 2026,
+                 densidad especial). Si queda pegada (1 indice de distancia) a un
+                 marcador de mes que SI se esta mostrando, se descarta para que no
+                 colisionen visualmente. */
+              function pegadoAMesVisible(idx){
+                for(var k=0;k<visibles.length;k++){
+                  if(k%2!==0) continue; /* solo cuentan los meses que realmente se muestran */
+                  if(Math.abs(visibles[k]-idx)<=1) return true;
+                }
+                return false;
+              }
+              if(range>200) return null; /* rangos muy largos: solo meses, ya cubierto arriba */
               if(range>80){
-                if(isMonth) return dl;
                 if(!dl) return null;
+                if(pegadoAMesVisible(val)) return null;
                 return parseInt(dl.split('/')[0])===1?dl:null;
               }
               if(range>40){
-                if(isMonth) return dl;
                 if(!dl) return null;
+                if(pegadoAMesVisible(val)) return null;
                 var dn=parseInt(dl.split('/')[0]);
                 return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
               }
