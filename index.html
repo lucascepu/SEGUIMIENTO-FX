@@ -335,7 +335,7 @@
 
 
 <div id="periodRow" class="period-row">
-  <button class="pbtn pon" data-p="m1td">M-1 TD</button>
+  <button class="pbtn pon" data-p="m1td">M-2 TD</button>
   <button class="pbtn" data-p="2026">YTD</button>
   <button class="pbtn" data-p="12m">LTM</button>
   <button class="pbtn" data-p="all">Serie completa</button>
@@ -345,6 +345,7 @@
     <button id="btnGranM" onclick="setGranularity('monthly')" style="padding:3px 9px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">MENSUAL</button>
   </span>
 </div>
+<div id="periodVarRow" style="display:none;font-size:11px;color:var(--txt2);margin:-4px 0 10px 0"></div>
 
 <div id="mainChartBlock">
 <div id="winRow" class="period-row" style="padding-top:12px;margin-bottom:0;">
@@ -700,11 +701,12 @@
   })();
 
   var IDX_M1TD = (function(){
+    /* Ahora retrocede 2 meses (no 1) para mostrar un poco mas de historial por defecto */
     var _l = hS.reduce(function(mx,s,i){return s!=null?i:mx;},-1);
     if(_l<0 || !hDates[_l]) return IDX_MAY1;
     var p=hDates[_l].split('-');
-    var pm=parseInt(p[1])-1,py=parseInt(p[0]);
-    if(pm<1){pm=12;py--;}
+    var pm=parseInt(p[1])-2,py=parseInt(p[0]);
+    if(pm<1){pm+=12;py--;}
     var prefix=py+'-'+String(pm).padStart(2,'0');
     for(var i=0;i<hDates.length;i++){if(hDates[i]&&hDates[i].startsWith(prefix))return i;}
     return IDX_MAY1;
@@ -738,7 +740,7 @@
       return;
     }
     var s=0;
-    if(curPeriod==='m1td')     s=IDX_M1TD;      /* May 1 → hoy (M-1 TD) */
+    if(curPeriod==='m1td')     s=IDX_M1TD;      /* mes-2 → hoy (M-2 TD) */
     else if(curPeriod==='12m') s=IDX_12M;        /* 1 año atrás */
     else if(curPeriod==='2026') s=IDX_2026;      /* Ene 2 2026 */
     else if(curPeriod==='all')  s=0;             /* Serie completa */
@@ -781,6 +783,46 @@
       }
       /* proj: no tocar el Y (escala fija para que se vean los escenarios) */
     })();
+
+    /* Variacion % del periodo visible: desde el inicio del rango (s) hasta hoy --
+       mismo criterio para los 4 botones (M-2TD/YTD/LTM/Serie completa), usando el
+       valor real del dia anterior al inicio del rango como base (ultimo dia del
+       periodo previo), igual que ya se hace para MTD/YTD en la cabecera. */
+    (function(){
+      var pvEl=document.getElementById('periodVarRow');
+      if(!pvEl) return;
+      if(mode!=='hist' && mode!=='brecha'){ pvEl.textContent=''; pvEl.style.display='none'; return; }
+      var _l = hS.reduce(function(mx,v,i){return v!=null?i:mx;},-1);
+      if(_l<0){ pvEl.textContent=''; pvEl.style.display='none'; return; }
+      /* Base: el ultimo dato real ANTERIOR al inicio del rango (s), no el propio
+         primer punto del rango -- asi "cuanto aumento" arranca desde el cierre
+         previo al periodo, mismo criterio que MTD (ultimo dia del mes anterior). */
+      var baseIdx=-1;
+      for(var i=(s>0?s-1:0); i>=0; i--){
+        var arr = mode==='brecha' ? brechaVals : hS;
+        if(arr[i]!=null){ baseIdx=i; break; }
+      }
+      if(baseIdx<0 && s===0){
+        /* Serie completa: no hay "antes", usar el primer dato real disponible */
+        var arr0 = mode==='brecha' ? brechaVals : hS;
+        for(var i=0;i<arr0.length;i++){ if(arr0[i]!=null){ baseIdx=i; break; } }
+      }
+      var valArr = mode==='brecha' ? brechaVals : hS;
+      if(baseIdx<0 || valArr[baseIdx]==null || valArr[_l]==null){ pvEl.textContent=''; pvEl.style.display='none'; return; }
+      var baseVal=valArr[baseIdx], curVal=valArr[_l];
+      var lbl = curPeriod==='m1td'?'M-2TD':curPeriod==='2026'?'YTD':curPeriod==='12m'?'LTM':curPeriod==='all'?'Serie completa':'Período';
+      var fechaBase = hDates[baseIdx];
+      if(mode==='brecha'){
+        /* Brecha ya es un %, mostrar la diferencia en PUNTOS porcentuales, no un % de %  */
+        var diffPts = curVal - baseVal;
+        pvEl.textContent = lbl+': brecha '+(diffPts>=0?'+':'')+diffPts.toFixed(1)+' pp desde '+fechaBase+' ('+baseVal.toFixed(1)+'% → '+curVal.toFixed(1)+'%)';
+      } else {
+        var chgPct = (curVal/baseVal-1)*100;
+        pvEl.textContent = lbl+': '+(chgPct>=0?'+':'')+chgPct.toFixed(2)+'% desde '+fechaBase+' ($'+Math.round(baseVal).toLocaleString('es-AR')+' → $'+Math.round(curVal).toLocaleString('es-AR')+')';
+      }
+      pvEl.style.display='block';
+    })();
+
     chart.update();
     var rzB=document.getElementById('resetZoomBtn'); if(rzB) rzB.style.display='none';
   }
@@ -2483,7 +2525,7 @@
 
   /* resetZoom: manually restore y-defaults + re-apply period (no chart.resetZoom()) */
   window.resetZoom=function(){
-    /* Vuelve al período por defecto (M-1 TD) */
+    /* Vuelve al período por defecto (M-2 TD) */
     curPeriod='m1td';
     document.querySelectorAll('.pbtn').forEach(function(b){ b.classList.remove('pon'); });
     var defBtn=document.querySelector('.pbtn[data-p="m1td"]');
