@@ -69,6 +69,7 @@
   .bb-sep{border:none;border-top:1px solid rgba(255,255,255,.07);margin:0;}
   /* ── Metrics strip ── */
   .bb-metrics{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;align-items:stretch;padding:7px 0;}
+  #bbMetricsHist{grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr;} /* 4 tarjetas, no 3 -- override puntual, .bb-metrics de FUTUROS sigue en 3 */
   .bb-metric{display:flex;flex-direction:column;gap:4px;padding:0 20px;min-height:56px;}
   .bb-metric:first-child{padding-left:0;}
   .bb-metric:last-child{padding-right:0;}
@@ -160,6 +161,7 @@
 
   /* KPIs: grid 3 columnas iguales, sin sub-texto en mobile */
   .bb-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:0; align-items:start; }
+  #bbMetricsHist { grid-template-columns:repeat(2,1fr); row-gap:14px; } /* 4 tarjetas: 2x2 en mobile, mas legible que 4 columnas angostas */
   .bb-vsep    { display:none; }
   .bb-metric  { padding:0 8px; min-height:auto; }
   .bb-metric:first-child { padding-left:0; }
@@ -294,6 +296,12 @@
       <div class="bb-m-val" id="cardProm">+17,2%</div>
       
     </div>
+    <div class="bb-vsep"></div>
+    <div class="bb-metric">
+      <div class="bb-m-label">Var. <span id="periodVarLabel">M-2TD</span></div>
+      <div class="bb-m-val" id="periodVarVal">—</div>
+      <div class="bb-m-sub" id="periodVarSub">—</div>
+    </div>
   </div>
 
   <!-- ── Tira de métricas horizontal — FUTUROS (mismo formato, otro contenido) ── -->
@@ -345,7 +353,6 @@
     <button id="btnGranM" onclick="setGranularity('monthly')" style="padding:3px 9px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">MENSUAL</button>
   </span>
 </div>
-<div id="periodVarRow" style="display:none;font-size:11px;color:var(--txt2);margin:-4px 0 10px 0"></div>
 
 <div id="mainChartBlock">
 <div id="winRow" class="period-row" style="padding-top:12px;margin-bottom:0;">
@@ -789,11 +796,15 @@
        valor real del dia anterior al inicio del rango como base (ultimo dia del
        periodo previo), igual que ya se hace para MTD/YTD en la cabecera. */
     (function(){
-      var pvEl=document.getElementById('periodVarRow');
-      if(!pvEl) return;
-      if(mode!=='hist' && mode!=='brecha'){ pvEl.textContent=''; pvEl.style.display='none'; return; }
+      var lblEl=document.getElementById('periodVarLabel');
+      var valEl=document.getElementById('periodVarVal');
+      var subEl=document.getElementById('periodVarSub');
+      if(!lblEl||!valEl||!subEl) return;
+      var lbl = curPeriod==='m1td'?'M-2TD':curPeriod==='2026'?'YTD':curPeriod==='12m'?'LTM':curPeriod==='all'?'Serie completa':'Período';
+      lblEl.textContent=lbl;
+      if(mode!=='hist' && mode!=='brecha'){ valEl.textContent='—'; valEl.style.color=''; subEl.textContent='—'; return; }
       var _l = hS.reduce(function(mx,v,i){return v!=null?i:mx;},-1);
-      if(_l<0){ pvEl.textContent=''; pvEl.style.display='none'; return; }
+      if(_l<0){ valEl.textContent='—'; valEl.style.color=''; subEl.textContent='—'; return; }
       /* Base: el ultimo dato real ANTERIOR al inicio del rango (s), no el propio
          primer punto del rango -- asi "cuanto aumento" arranca desde el cierre
          previo al periodo, mismo criterio que MTD (ultimo dia del mes anterior). */
@@ -808,19 +819,21 @@
         for(var i=0;i<arr0.length;i++){ if(arr0[i]!=null){ baseIdx=i; break; } }
       }
       var valArr = mode==='brecha' ? brechaVals : hS;
-      if(baseIdx<0 || valArr[baseIdx]==null || valArr[_l]==null){ pvEl.textContent=''; pvEl.style.display='none'; return; }
+      if(baseIdx<0 || valArr[baseIdx]==null || valArr[_l]==null){ valEl.textContent='—'; valEl.style.color=''; subEl.textContent='—'; return; }
       var baseVal=valArr[baseIdx], curVal=valArr[_l];
-      var lbl = curPeriod==='m1td'?'M-2TD':curPeriod==='2026'?'YTD':curPeriod==='12m'?'LTM':curPeriod==='all'?'Serie completa':'Período';
       var fechaBase = hDates[baseIdx];
       if(mode==='brecha'){
-        /* Brecha ya es un %, mostrar la diferencia en PUNTOS porcentuales, no un % de %  */
+        /* Brecha ya es un %, mostrar la diferencia en PUNTOS porcentuales, no un % de % */
         var diffPts = curVal - baseVal;
-        pvEl.textContent = lbl+': brecha '+(diffPts>=0?'+':'')+diffPts.toFixed(1)+' pp desde '+fechaBase+' ('+baseVal.toFixed(1)+'% → '+curVal.toFixed(1)+'%)';
+        valEl.textContent=(diffPts>=0?'+':'')+diffPts.toFixed(1)+' pp';
+        valEl.style.color=diffPts>=0?'var(--green)':'var(--red)';
+        subEl.textContent='desde '+fechaBase+' ('+baseVal.toFixed(1)+'% → '+curVal.toFixed(1)+'%)';
       } else {
         var chgPct = (curVal/baseVal-1)*100;
-        pvEl.textContent = lbl+': '+(chgPct>=0?'+':'')+chgPct.toFixed(2)+'% desde '+fechaBase+' ($'+Math.round(baseVal).toLocaleString('es-AR')+' → $'+Math.round(curVal).toLocaleString('es-AR')+')';
+        valEl.textContent=(chgPct>=0?'+':'')+chgPct.toFixed(2)+'%';
+        valEl.style.color=chgPct>=0?'var(--green)':'var(--red)';
+        subEl.textContent='desde '+fechaBase+' ($'+Math.round(baseVal).toLocaleString('es-AR')+')';
       }
-      pvEl.style.display='block';
     })();
 
     chart.update();
