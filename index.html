@@ -498,7 +498,7 @@
       </div>
       <!-- Nota fuente -->
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
-        Cierre ROFEX 8 sep 2026<br>
+        Cierre ROFEX 21 sep 2026<br>
         REM ago-26 a dic-27: REM BCRA agosto-2026 (dólar oficial proyectado)<br>
         Techo 2027: crawling peg ~1.6% mensual (IPC REM)<br>
         TNA = ((Futuro/Spot)−1) × 365/días · TEM = ((Futuro/Spot)^(30/días)−1)
@@ -848,7 +848,7 @@
     'NOV 26':{p10:1563,p25:1579,med:1600,p75:1622,p90:1646},
     'DIC 26':{p10:1591,p25:1605,med:1630,p75:1672,p90:1705}
   };
-  var FUT_DEFAULT = {'SEP 26':1528.5,'OCT 26':1554.0,'NOV 26':1582.0,'DIC 26':1611.0,'ENE 27':1641.0,'FEB 27':1670.0,'MAR 27':1701.5,'ABR 27':1730.0,'MAY 27':1762.0,'JUN 27':1792.5,'JUL 27':1825.5,'AGO 27':1861.5};
+  var FUT_DEFAULT = {'SEP 26':1521.0,'OCT 26':1547.0,'NOV 26':1575.0,'DIC 26':1604.0,'ENE 27':1632.5,'FEB 27':1660.0,'MAR 27':1691.0,'ABR 27':1721.0,'MAY 27':1753.5,'JUN 27':1788.0,'JUL 27':1822.5,'AGO 27':1864.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
   var futView = 'precio'; /* 'precio' | 'tasa' — toggle del grafico de FUTUROS */
@@ -898,7 +898,7 @@
   };
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260908b'; /* bump: roll mensual -- AGO26 vencio, sale de la lista; cierre 8-sep para SEP26-JUL27 */
+  var ROFEX_VERSION = '20260921a'; /* bump: cierre 21-sep para SEP26-AGO27, historial completo actualizado (Zion/planilla usuario, ene-sep 2026) */
   function precioValido(key, precio){
     /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
        muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */
@@ -2348,12 +2348,12 @@
   ,'AGO 27':1878,'SEP 27':1912,'OCT 27':1946,'NOV 27':1981,'DIC 27':2016};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
-  var FUT_DEFAULT = {'SEP 26':1528.5,'OCT 26':1554.0,'NOV 26':1582.0,'DIC 26':1611.0,'ENE 27':1641.0,'FEB 27':1670.0,'MAR 27':1701.5,'ABR 27':1730.0,'MAY 27':1762.0,'JUN 27':1792.5,'JUL 27':1825.5,'AGO 27':1861.5};
+  var FUT_DEFAULT = {'SEP 26':1521.0,'OCT 26':1547.0,'NOV 26':1575.0,'DIC 26':1604.0,'ENE 27':1632.5,'FEB 27':1660.0,'MAR 27':1691.0,'ABR 27':1721.0,'MAY 27':1753.5,'JUN 27':1788.0,'JUL 27':1822.5,'AGO 27':1864.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260908b'; /* bump: roll mensual -- AGO26 vencio, sale de la lista; cierre 8-sep para SEP26-JUL27 */
+  var ROFEX_VERSION = '20260921a'; /* bump: cierre 21-sep para SEP26-AGO27, historial completo actualizado (Zion/planilla usuario, ene-sep 2026) */
   function precioValido(key, precio){
     /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
        muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */
@@ -2730,12 +2730,12 @@
   ,'AGO 27':1878,'SEP 27':1912,'OCT 27':1946,'NOV 27':1981,'DIC 27':2016};
   var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1953.95,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
-  var FUT_DEFAULT = {'SEP 26':1528.5,'OCT 26':1554.0,'NOV 26':1582.0,'DIC 26':1611.0,'ENE 27':1641.0,'FEB 27':1670.0,'MAR 27':1701.5,'ABR 27':1730.0,'MAY 27':1762.0,'JUN 27':1792.5,'JUL 27':1825.5,'AGO 27':1861.5};
+  var FUT_DEFAULT = {'SEP 26':1521.0,'OCT 26':1547.0,'NOV 26':1575.0,'DIC 26':1604.0,'ENE 27':1632.5,'FEB 27':1660.0,'MAR 27':1691.0,'ABR 27':1721.0,'MAY 27':1753.5,'JUN 27':1788.0,'JUL 27':1822.5,'AGO 27':1864.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
   var futChartInst = null;
 
   // localStorage sobreescribe defaults; versión fuerza reset cuando cambian los defaults
-  var ROFEX_VERSION = '20260908b'; /* bump: roll mensual -- AGO26 vencio, sale de la lista; cierre 8-sep para SEP26-JUL27 */
+  var ROFEX_VERSION = '20260921a'; /* bump: cierre 21-sep para SEP26-AGO27, historial completo actualizado (Zion/planilla usuario, ene-sep 2026) */
   function precioValido(key, precio){
     /* Contratos lejanos (ENE27 en adelante) operan poco volumen: un solo print puede quedar
        muy desalineado de la curva. Si se aleja >8% del ultimo default conocido, se descarta. */
