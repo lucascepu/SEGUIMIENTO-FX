@@ -76,26 +76,41 @@ else:  # criptoya
 
     # MEP/CCL en criptoya NO son un precio simple como mayorista -- vienen anidados
     # por bono (al30, gd30, letras, bpo27) y plazo de liquidacion (ci, 24hs), cada uno
-    # con su propio price/variation/timestamp. AL30 es el bono mas liquido (los demas
-    # suelen tener timestamps viejos, de semanas atras, cuando no operan). Se usa
-    # AL30+CI como referencia (mismo criterio que el mercado usa habitualmente para
-    # "el" MEP/CCL), con 24hs como respaldo si CI no estuviera disponible.
-    def extract_bond_price(obj):
+    # con su propio price/variation/timestamp. AL30 es el bono mas liquido y siempre
+    # se usa como base. GD30 solo se promedia con AL30 cuando su timestamp esta
+    # fresco (a menos de 2hs del de AL30) -- si GD30 no opero hace dias/semanas
+    # (timestamp viejo), promediarlo a ciegas ensuciaria el dato en vez de mejorarlo,
+    # asi que en ese caso se usa unicamente AL30.
+    def get_bond_quote(obj, bond, term):
         if not isinstance(obj, dict): return None
-        for bond in ("al30", "gd30"):
-            b = obj.get(bond)
-            if not isinstance(b, dict): continue
-            for term in ("ci", "24hs"):
-                t = b.get(term)
-                if isinstance(t, dict) and t.get("price"):
-                    return round(float(t["price"]), 2)
+        b = obj.get(bond)
+        if not isinstance(b, dict): return None
+        t = b.get(term)
+        if isinstance(t, dict) and t.get("price") and t.get("timestamp"):
+            try:
+                return (float(t["price"]), float(t["timestamp"]))
+            except (TypeError, ValueError):
+                return None
         return None
+
+    def extract_bond_price(obj):
+        al30 = get_bond_quote(obj, "al30", "ci") or get_bond_quote(obj, "al30", "24hs")
+        if not al30:
+            gd30_only = get_bond_quote(obj, "gd30", "ci") or get_bond_quote(obj, "gd30", "24hs")
+            return round(gd30_only[0], 2) if gd30_only else None
+        al30_price, al30_ts = al30
+        gd30 = get_bond_quote(obj, "gd30", "ci") or get_bond_quote(obj, "gd30", "24hs")
+        if gd30:
+            gd30_price, gd30_ts = gd30
+            if abs(al30_ts - gd30_ts) <= 7200:  # 2 horas -- GD30 fresco, promediar
+                return round((al30_price + gd30_price) / 2, 2)
+        return round(al30_price, 2)  # GD30 stale o ausente -- solo AL30
 
     mep_val = None; ccl_val = None
     try:
         mep_val = extract_bond_price(data.get("mep"))
         ccl_val = extract_bond_price(data.get("ccl"))
-        print(f"[auto_update_fx] MEP criptoya (AL30/CI): {mep_val}, CCL criptoya (AL30/CI): {ccl_val}")
+        print(f"[auto_update_fx] MEP criptoya: {mep_val}, CCL criptoya: {ccl_val}")
     except Exception as e:
         print(f"[auto_update_fx] AVISO: no se pudo leer MEP/CCL ({e}), se omiten hoy")
 
