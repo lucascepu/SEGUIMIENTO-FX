@@ -305,7 +305,25 @@
   </div>
 
   <!-- ── Tira de métricas horizontal — FUTUROS (mismo formato, otro contenido) ── -->
-  <div id="futMetricsLine" style="display:none;font-size:13px;color:var(--txt2);padding:4px 0 10px 0">—</div>
+  <div class="bb-metrics" id="bbMetricsFut" style="display:none">
+    <div class="bb-metric">
+      <div class="bb-m-label" id="futMLabelUlt">Último futuro (DIC 26)</div>
+      <div class="bb-m-val" id="futMValUlt">—</div>
+      <div class="bb-m-sub" id="futMSubUlt">—</div>
+    </div>
+    <div class="bb-vsep"></div>
+    <div class="bb-metric">
+      <div class="bb-m-label" id="futMLabelFwd">Forward DIC 26</div>
+      <div class="bb-m-val" id="futMValFwd">—</div>
+      <div class="bb-m-sub">vs spot</div>
+    </div>
+    <div class="bb-vsep"></div>
+    <div class="bb-metric">
+      <div class="bb-m-label" id="futMLabelTna">TNA implícita DIC 26</div>
+      <div class="bb-m-val amber" id="futMValTna">—</div>
+      
+    </div>
+  </div>
 
   <hr class="bb-sep">
 
@@ -1237,21 +1255,32 @@
     _fs = { KEYS:KEYS, futs:futs, rems:rems, techos:techos, tasas:tasas, fmt$:fmt$, siopel:siopel };
     renderFutTable();
 
-    /* ── Linea compacta FUTUROS: contrato de referencia + forward + TNA, fijo a DIC 26 ──
-       Antes eran 3 cards separadas -- se condensa a una sola linea, FUTUROS es
-       informacion secundaria (tiene su propia tab) y no debe competir en jerarquia
-       visual con SIOPEL. */
+    /* ── Tira de métricas FUTUROS: Último futuro / Forward / TNA implícita — fijos a DIC 26 ── */
     (function renderMetricsFut(){
       var dic = tasas[KEYS.indexOf('DIC 26')];
+      /* Labels dinamicos: se arman a partir de dic.key (mismo contrato que ya selecciona
+         la linea de arriba), en vez de tener 'DIC 26' escrito a mano en el HTML. Si el
+         contrato de referencia cambia de mes en el futuro, el texto lo sigue solo. */
       var refLbl = dic ? dic.key : 'DIC 26';
-      var el = document.getElementById('futMetricsLine');
-      if(!el) return;
-      if(!dic || !siopel){ el.textContent = refLbl+': —'; return; }
-      var fwd = ((dic.fut/siopel-1)*100);
-      el.innerHTML = '<strong style="color:var(--txt)">'+refLbl+'</strong> '+fmt$(dic.fut)+
-        ' <span style="color:var(--txt3)">('+dic.dias+' días)</span>'+
-        ' &nbsp;·&nbsp; Forward <span style="color:'+(fwd>=0?'var(--green)':'var(--red)')+'">'+(fwd>=0?'+':'')+fwd.toFixed(1)+'%</span>'+
-        ' &nbsp;·&nbsp; TNA <span style="color:var(--amber)">'+(dic.tna>=0?'+':'')+dic.tna.toFixed(2)+'%</span>';
+      var elLU=document.getElementById('futMLabelUlt'); if(elLU) elLU.textContent='Último futuro ('+refLbl+')';
+      var elLF=document.getElementById('futMLabelFwd'); if(elLF) elLF.textContent='Forward '+refLbl;
+      var elLT=document.getElementById('futMLabelTna'); if(elLT) elLT.textContent='TNA implícita '+refLbl;
+
+      var elUV=document.getElementById('futMValUlt');
+      var elUS=document.getElementById('futMSubUlt');
+      if(elUV) elUV.textContent = dic ? fmt$(dic.fut) : fmt$(futPrices['DIC 26']);
+      if(elUS) elUS.textContent = dic ? (dic.dias+' días al venc.') : '—';
+
+      var elFV=document.getElementById('futMValFwd');
+      if(elFV){
+        if(dic && siopel){
+          var fwd=((dic.fut/siopel-1)*100);
+          elFV.textContent=(fwd>=0?'+':'')+fwd.toFixed(1)+'%';
+        } else elFV.textContent='—';
+      }
+
+      var elTV=document.getElementById('futMValTna');
+      if(elTV) elTV.textContent = dic ? ((dic.tna>=0?'+':'')+dic.tna.toFixed(2)+'%') : '—';
     })();
 
     /* ── Insight cuantitativo ── */
@@ -2268,11 +2297,11 @@
     if(_mcp) _mcp.style.display=isMC?'block':'none';
     if(_mc) _mc.style.display=(isF||isMC)?'none':'block';
     if(isMC) renderMcPanel();
-    /* Techo BCRA / Brecha / Prom. brecha (SIOPEL/PROYECCIÓN/BRECHA) vs linea compacta de FUTUROS */
+    /* Techo BCRA / Brecha / Prom. brecha (SIOPEL/PROYECCIÓN/BRECHA) vs Último futuro / Forward / TNA (FUTUROS) */
     var _bbmH=document.getElementById('bbMetricsHist');
-    var _bbmF=document.getElementById('futMetricsLine');
+    var _bbmF=document.getElementById('bbMetricsFut');
     if(_bbmH) _bbmH.style.display=(isF||isMC)?'none':'';
-    if(_bbmF) _bbmF.style.display=isF?'block':'none';
+    if(_bbmF) _bbmF.style.display=isF?'':'none';
     if(isF){
       (function(){
         var box=document.getElementById('futChartBox');
