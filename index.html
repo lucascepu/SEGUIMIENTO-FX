@@ -1562,7 +1562,11 @@
   var zPlug={id:'z', beforeDraw:function(c){
     var ctx=c.ctx, ca=c.chartArea, xs=c.scales.x;
     try{
-      var ia=mode==='proj'?55:347, ib=ia;
+      /* ia: indice de "hoy" para la linea divisoria -- ANTES era un indice fijo
+         escrito a mano (347) que coincidia con hoy solo por casualidad (mismo tipo
+         de bug que IDX_HIST_END, ver auditoria). Ahora se recalcula solo. */
+      var _lriHoy = hS.reduce(function(mx,v,i){return v!=null?i:mx;},-1);
+      var ia=mode==='proj'?55:(_lriHoy>=0?_lriHoy:347), ib=ia;
       var xA=(xs.getPixelForValue(ia)+xs.getPixelForValue(ib))/2;
       var xB = (mode==='proj') ? (xs.getPixelForValue(31)+xs.getPixelForValue(32))/2 : null;
       var tooClose = (xB!==null && Math.abs(xA-xB) < 55);
@@ -1574,13 +1578,24 @@
       ctx.beginPath(); ctx.moveTo(xA,ca.top); ctx.lineTo(xA,ca.bottom); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font='9px system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
-      ctx.textAlign='right'; ctx.fillText('21-SEP ←',xA-3,ca.top+13);
-      ctx.textAlign='left';
-      if(tooClose){
-        /* Los dos marcadores caen casi en el mismo punto: un solo label combinado, sin pisarse */
-        ctx.fillText('→ proyección',xA+3,ca.top+13);
+      /* Fecha de "hoy" en el label -- ANTES 'ib-SEP' escrito literal, ahora se arma
+         con hDates[_lriHoy] real, mismo formato D-MES */
+      var MESES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+      var hoyLbl = (_lriHoy>=0 && hDates[_lriHoy]) ?
+        (parseInt(hDates[_lriHoy].slice(8,10),10)+'-'+MESES3[parseInt(hDates[_lriHoy].slice(5,7),10)-1]) : '21-SEP';
+      ctx.textAlign='right'; ctx.fillText(hoyLbl+' ←',xA-3,ca.top+13);
+      /* Si la linea divisoria queda muy cerca del borde derecho (tipico en mobile,
+         donde el margen de IDX_HIST_END se ve mucho mas angosto en pixeles), el
+         texto '→ sin SIOPEL' se corta -- si no entra, se dibuja arriba de la linea
+         en vez de al costado */
+      var textoDer = tooClose ? '→ proyección' : '→ sin SIOPEL';
+      var anchoTexto = ctx.measureText(textoDer).width;
+      if(xA+3+anchoTexto > ca.right-2){
+        ctx.textAlign='right';
+        ctx.fillText(textoDer,xA-3,ca.top+26);
       } else {
-        ctx.fillText('→ sin SIOPEL',xA+3,ca.top+13);
+        ctx.textAlign='left';
+        ctx.fillText(textoDer,xA+3,ca.top+13);
       }
       if(mode==='proj' && !tooClose){
         ctx.strokeStyle='rgba(255,255,255,.32)';
@@ -2137,6 +2152,10 @@
                 var dn=parseInt(dl.split('/')[0]);
                 return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
               }
+              /* Rango corto (zoom): antes usaba sl||dl sin ningun filtro, permitia
+                 que un dia suelto (sl) quedara pegado a un marcador de mes visible.
+                 Ahora se descarta con el mismo criterio que las otras ramas. */
+              if(pegadoAMesVisible(val)) return null;
               return sl||dl||null;
             }
           }
