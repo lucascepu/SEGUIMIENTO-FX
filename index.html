@@ -2142,21 +2142,13 @@
                 }
                 return false;
               }
-              if(range>200) return null; /* rangos muy largos: solo meses, ya cubierto arriba */
-              if(range>80){
-                if(!dl) return null;
-                if(pegadoAMesVisible(val)) return null;
-                return parseInt(dl.split('/')[0])===1?dl:null;
-              }
-              if(range>40){
-                if(!dl) return null;
-                if(pegadoAMesVisible(val)) return null;
-                var dn=parseInt(dl.split('/')[0]);
-                return (dn===1||dn===8||dn===15||dn===22||dn===29||dn===30||dn===31)?dl:null;
-              }
-              /* Rango corto (zoom): antes usaba sl||dl sin ningun filtro, permitia
-                 que un dia suelto (sl) quedara pegado a un marcador de mes visible.
-                 Ahora se descarta con el mismo criterio que las otras ramas. */
+              /* Fuera de un zoom muy cercano, solo se muestran marcadores de mes (ya
+                 resueltos arriba) -- nada de dias sueltos mezclados con nombres de
+                 mes, que quedaba inconsistente (ej. 'JUL 26' junto a '31/7'). */
+              if(range>40) return null;
+              /* Rango muy corto (zoom cercano): dias individuales, formato D/M
+                 consistente. Se sigue descartando si queda pegado a un marcador de
+                 mes visible, para no superponerse. */
               if(pegadoAMesVisible(val)) return null;
               return sl||dl||null;
             }
