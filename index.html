@@ -355,6 +355,13 @@
 </div>
 
 <div id="mainChartBlock">
+<div id="techoToggleRow" style="display:flex;align-items:center;margin-bottom:2px">
+  <button id="techoToggleBtn" onclick="toggleTechoSiopel()" type="button"
+    style="display:flex;align-items:center;gap:9px;padding:8px 16px;border-radius:24px;border:1.5px solid var(--amber);background:rgba(245,195,107,.18);color:var(--amber);font-size:12px;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:background .15s,border-color .15s,color .15s">
+    <span id="techoToggleDot" style="width:10px;height:10px;border-radius:50%;background:var(--amber);display:inline-block;box-shadow:0 0 7px var(--amber)"></span>
+    TECHO BCRA: <span id="techoToggleState">VISIBLE</span>
+  </button>
+</div>
 <div id="winRow" class="period-row" style="padding-top:12px;margin-bottom:0;">
   <span class="win-label">Promedio:</span>
   <button class="pbtn pon" data-w="21"  onclick="setAvgWindow(21,this)">1M</button>
@@ -369,7 +376,7 @@
 </div>
 <div class="legend">
   <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-  <span class="leg-item"><span class="leg-line leg-d1"></span>techo oficial</span>
+  <span class="leg-item" id="legTechoItem"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
   <span class="leg-item"><span class="leg-line leg-d2"></span>prom. <span id="legWinLabel">1M</span> (móvil)</span>
   </span>
@@ -1517,6 +1524,7 @@
 
   var mode='hist';
   var viewGranularity='daily'; /* 'daily' | 'monthly' -- solo aplica con curPeriod==='all' */
+  var showTechoSiopel=true; /* toggle "Techo BCRA" en el gráfico principal SIOPEL */
 
   function monthlyAgg(valsArr){
     /* Agrupa por mes calendario usando hDates; toma el ULTIMO valor no-null DE ESE MES.
@@ -2220,8 +2228,8 @@
       var mTVals=sampleAt(hT, mS.idxs), mAVals=sampleAt(hA, mS.idxs);
       chart.data.labels=mS.labels;
       chart.data.datasets=[
-        {label:'Techo',data:mTVals,borderColor:TECH,borderWidth:2,borderDash:[6,3],
-         pointRadius:0,pointBackgroundColor:TECH,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
+        {label:'Techo',data:mTVals,borderColor:showTechoSiopel?TECH:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?2:0,borderDash:[6,3],
+         pointRadius:0,pointBackgroundColor:TECH,pointHoverRadius:showTechoSiopel?5:0,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
         {label:'SIOPEL (cierre de mes)',data:mS.vals,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:4,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.1,spanGaps:false},
@@ -2233,8 +2241,8 @@
     }else{
       chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
-        {label:'Techo',data:isH?hT:pT,borderColor:TECH,borderWidth:isP?3:2,borderDash:[6,3],
-         pointRadius:isP?tPtSc:0,pointBackgroundColor:TECH,pointHoverRadius:5,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
+        {label:'Techo',data:isH?hT:pT,borderColor:showTechoSiopel?TECH:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?(isP?3:2):0,borderDash:[6,3],
+         pointRadius:showTechoSiopel?(isP?tPtSc:0):0,pointBackgroundColor:TECH,pointHoverRadius:showTechoSiopel?5:0,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:{target:0,below:FILL},tension:.15,spanGaps:false},
@@ -2398,11 +2406,29 @@
     document.getElementById('legH').style.display=isH?'flex':'none';
     document.getElementById('legP').style.display=isP?'flex':'none';
     document.getElementById('legB').style.display=isB?'flex':'none';
+    var _ttr=document.getElementById('techoToggleRow');
+    if(_ttr) _ttr.style.display=(isH||(useMonthly&&!isB))?'flex':'none';
+    var _lti=document.getElementById('legTechoItem');
+    if(_lti) _lti.style.display=showTechoSiopel?'flex':'none';
     var _sw=document.getElementById('scenWrap'); if(_sw) _sw.style.display='none'; /* viejo, con datos hardcodeados desconectados de FUT_TECHO/FUT_REM -- mismo criterio que el grafico viejo, oculto */
     if(!isP&&_scenOpen){_scenOpen=false;var _sp=document.getElementById('scenPanel');if(_sp)_sp.style.display='none';var _st=document.getElementById('scenToggle');if(_st)_st.textContent='▼ Ver tabla de escenarios';}
   };
 
-  
+  /* ── Toggle "Techo BCRA" en el gráfico principal SIOPEL (más visible que el de MEP/CCL) ── */
+  window.toggleTechoSiopel=function(){
+    showTechoSiopel=!showTechoSiopel;
+    var btn=document.getElementById('techoToggleBtn');
+    var st=document.getElementById('techoToggleState');
+    if(btn){
+      btn.style.background = showTechoSiopel ? 'rgba(245,195,107,.18)' : 'rgba(255,255,255,.05)';
+      btn.style.borderColor = showTechoSiopel ? 'var(--amber)' : 'var(--border)';
+      btn.style.color = showTechoSiopel ? 'var(--amber)' : 'var(--txt3)';
+    }
+    var dot=document.getElementById('techoToggleDot');
+    if(dot) dot.style.background = showTechoSiopel ? 'var(--amber)' : 'var(--txt3)';
+    if(st) st.textContent = showTechoSiopel ? 'VISIBLE' : 'OCULTO';
+    window.sw(mode);
+  };
 
 
 
