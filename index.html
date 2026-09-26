@@ -588,8 +588,11 @@
 
   <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px" id="mcChartTitle">MEP / CCL / SIOPEL — serie histórica</div>
   <div style="display:flex;align-items:center;margin-bottom:14px;gap:10px">
-    <label id="mcTechoWrap" style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--txt3);cursor:pointer;user-select:none;flex-shrink:0">
-      <input type="checkbox" id="mcTechoCheck" onchange="toggleMcTecho(this)" style="accent-color:var(--accent);cursor:pointer">Techo BCRA
+    <label id="mcTechoWrap" onclick="toggleMcTecho()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;flex-shrink:0">
+      <span id="mcTechoLabel" style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);transition:color .15s">Techo BCRA</span>
+      <span id="mcTechoTrack" style="position:relative;width:32px;height:17px;border-radius:9px;background:var(--bg-card);border:1px solid var(--border);transition:background .18s,border-color .18s;flex-shrink:0">
+        <span id="mcTechoThumb" style="position:absolute;top:1px;left:1px;width:13px;height:13px;border-radius:50%;background:var(--txt3);transition:left .18s,background .18s"></span>
+      </span>
     </label>
     <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0;margin-left:auto">
       <button id="btnMcPrecio" onclick="setMcView('precio')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117">PRECIO</button>
@@ -769,10 +772,20 @@
     } else {
       delete chart.options.scales.x.min;
     }
-    chart.options.scales.x.max = (mode==='proj') ? IDX_END : IDX_HIST_END;
+    /* Margen a la derecha del último dato real: en "Serie completa" (todo el
+       histórico, gráfico muy ancho) un margen de ~1 mes de ruedas (IDX_HIST_END)
+       es una fracción chica y se ve bien. Pero en períodos acotados (M-2TD, YTD,
+       LTM) ese mismo margen fijo ocupaba un tercio del ancho visible -- un area
+       vacia enorme sin ninguna razon, ya que ahi el zoom es mucho mas cercano.
+       Se usa un margen bien mas chico (unas pocas ruedas) para esos casos. */
+    var histEndPeriodo = (curPeriod==='all') ? IDX_HIST_END : (function(){
+      var _l = hS.reduce(function(mx,v,i){return v!=null?i:mx;},-1);
+      return Math.min(hS.length-1, (_l<0?332:_l) + 4);
+    })();
+    chart.options.scales.x.max = (mode==='proj') ? IDX_END : histEndPeriodo;
     /* Auto-fit Y al rango X visible — según el modo activo */
     (function(){
-      var xMn=s>0?s:0, xMx=(mode==='proj')?IDX_END:IDX_HIST_END;
+      var xMn=s>0?s:0, xMx=(mode==='proj')?IDX_END:histEndPeriodo;
       var vals=[];
       if(mode==='brecha'){
         /* Brecha: usar porcentajes */
@@ -1871,8 +1884,20 @@
     renderMcChart();
   };
 
-  window.toggleMcTecho = function(checkbox){
-    mcShowTecho = checkbox.checked;
+  window.toggleMcTecho = function(){
+    mcShowTecho = !mcShowTecho;
+    var lbl=document.getElementById('mcTechoLabel');
+    var track=document.getElementById('mcTechoTrack');
+    var thumb=document.getElementById('mcTechoThumb');
+    if(lbl) lbl.style.color = mcShowTecho ? 'var(--amber)' : 'var(--txt3)';
+    if(track){
+      track.style.background = mcShowTecho ? 'rgba(245,195,107,.28)' : 'var(--bg-card)';
+      track.style.borderColor = mcShowTecho ? 'var(--amber)' : 'var(--border)';
+    }
+    if(thumb){
+      thumb.style.left = mcShowTecho ? '16px' : '1px';
+      thumb.style.background = mcShowTecho ? 'var(--amber)' : 'var(--txt3)';
+    }
     window.setMcView(mcView); /* reconstruye leyenda + grafico con/sin la linea de techo */
   };
 
@@ -2012,7 +2037,7 @@
        pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:3,
        pointRadius:hPt,pointBackgroundColor:DOLAR,
-       fill:{target:0,below:FILL},tension:.15,spanGaps:false},
+       fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.15,spanGaps:false},
       {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:hA,borderColor:AVGC,borderWidth:1,
        borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'REM',data:N(46),borderColor:REMC,borderWidth:1.5,
@@ -2128,15 +2153,19 @@
               var sl=hLbl[val]||'';
               if(!dl&&!sl) return null;
               var isMonth=/^[A-Z]/.test(dl);
-              /* Marcadores de mes visibles en el rango actual, con el mismo salteo
-                 'uno si, uno no' SIEMPRE (antes solo aplicaba en range>200 -- por eso
-                 en rangos intermedios como M-2TD podian mostrarse todos los meses
-                 pegados a etiquetas de dia sueltas, superponiendose). */
+              /* Marcadores de mes visibles en el rango actual. El salteo 'uno si,
+                 uno no' solo tiene sentido cuando hay MUCHOS meses a la vista (Serie
+                 completa, ~1 año y medio) -- ahi mostrarlos todos se amontona. Pero en
+                 periodos acotados (M-2TD ~3 meses, YTD, LTM) hay de sobra espacio para
+                 mostrar cada mes: saltear igual dejaba, por ejemplo, "JUL 26 ... SEP 26"
+                 sin ningun rastro de AGO en el medio -- referencia incompleta del rango
+                 mostrado. Ahora el salteo se activa solo si hay mas de 12 meses visibles. */
               var visibles = MONTH_MARKER_IDXS.filter(function(idx){ return idx>=mn && idx<=mx; });
+              var monthSkip = visibles.length>12 ? 2 : 1;
               if(isMonth){
                 var pos = visibles.indexOf(val);
                 if(pos<0) return null;
-                return (pos%2===0) ? dl : null;
+                return (pos%monthSkip===0) ? dl : null;
               }
               /* No es mes: una etiqueta de dia suelta (solo existen para mayo-jun 2026,
                  densidad especial). Si queda pegada (1 indice de distancia) a un
@@ -2144,7 +2173,7 @@
                  colisionen visualmente. */
               function pegadoAMesVisible(idx){
                 for(var k=0;k<visibles.length;k++){
-                  if(k%2!==0) continue; /* solo cuentan los meses que realmente se muestran */
+                  if(k%monthSkip!==0) continue; /* solo cuentan los meses que realmente se muestran */
                   if(Math.abs(visibles[k]-idx)<=1) return true;
                 }
                 return false;
@@ -2231,7 +2260,7 @@
          pointRadius:0,pointBackgroundColor:TECH,pointHoverRadius:showTechoSiopel?5:0,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
         {label:'SIOPEL (cierre de mes)',data:mS.vals,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:4,pointBackgroundColor:DOLAR,
-         fill:{target:0,below:FILL},tension:.1,spanGaps:false},
+         fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.1,spanGaps:false},
         {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:mAVals,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.1,spanGaps:true}
       ];
@@ -2244,7 +2273,7 @@
          pointRadius:showTechoSiopel?(isP?tPtSc:0):0,pointBackgroundColor:TECH,pointHoverRadius:showTechoSiopel?5:0,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
-         fill:{target:0,below:FILL},tension:.15,spanGaps:false},
+         fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.15,spanGaps:false},
         {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
         {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
