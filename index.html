@@ -370,9 +370,9 @@
 <div class="chart-wrap">
 <div id="hoverBar"></div>
   <label id="techoToggleRow" class="techo-toggle-fixed" onclick="toggleTechoSiopel()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
-    <span id="techoToggleLabel" style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--amber);transition:color .15s">Techo BCRA</span>
-    <span id="techoToggleTrack" style="position:relative;width:32px;height:17px;border-radius:9px;background:rgba(245,195,107,.28);border:1px solid var(--amber);transition:background .18s,border-color .18s;flex-shrink:0">
-      <span id="techoToggleThumb" style="position:absolute;top:1px;left:16px;width:13px;height:13px;border-radius:50%;background:var(--amber);transition:left .18s,background .18s"></span>
+    <span id="techoToggleLabel" style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);transition:color .15s">Techo BCRA</span>
+    <span id="techoToggleTrack" style="position:relative;width:32px;height:17px;border-radius:9px;background:var(--bg-card);border:1px solid var(--border);transition:background .18s,border-color .18s;flex-shrink:0">
+      <span id="techoToggleThumb" style="position:absolute;top:1px;left:1px;width:13px;height:13px;border-radius:50%;background:var(--txt3);transition:left .18s,background .18s"></span>
     </span>
   </label>
   <canvas id="mc3"></canvas>
@@ -592,7 +592,7 @@
 
   <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px" id="mcChartTitle">MEP / CCL / SIOPEL — serie histórica</div>
   <div style="display:flex;align-items:center;margin-bottom:14px;gap:10px">
-    <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0;margin-left:auto">
+    <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
       <button id="btnMcPrecio" onclick="setMcView('precio')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117">PRECIO</button>
       <button id="btnMcBrecha" onclick="setMcView('brecha')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">BRECHA VS OFICIAL</button>
     </div>
@@ -1542,7 +1542,7 @@
 
   var mode='hist';
   var viewGranularity='daily'; /* 'daily' | 'monthly' -- solo aplica con curPeriod==='all' */
-  var showTechoSiopel=true; /* toggle "Techo BCRA" en el gráfico principal SIOPEL */
+  var showTechoSiopel=false; /* toggle "Techo BCRA" en el gráfico principal SIOPEL -- apagado por defecto */
 
   function monthlyAgg(valsArr){
     /* Agrupa por mes calendario usando hDates; toma el ULTIMO valor no-null DE ESE MES.
@@ -1792,6 +1792,10 @@
       options:{
         responsive:true, maintainAspectRatio:false, animation:{duration:0},
         interaction:{mode:'index', intersect:false},
+        /* top:26 -- deja espacio libre arriba para que las lineas (MEP/CCL/SIOPEL)
+           no queden tapadas por el switch fijo "Techo BCRA" (.techo-toggle-fixed)
+           anclado en la esquina superior derecha del contenedor del gráfico. */
+        layout:{padding:{top:26}},
         plugins:{
           legend:{display:false},
           tooltip:{
@@ -2058,7 +2062,11 @@
     options:{
       responsive:true,
       maintainAspectRatio:false,
-      layout:{padding:{right:18,left:4,top:8,bottom:4}},
+      /* top:26 (antes 8) -- deja espacio libre arriba para que el rótulo "25-SEP ←
+         / → sin SIOPEL" que dibuja zPlug no quede tapado por (ni tapando) el
+         switch fijo de "Techo BCRA" (.techo-toggle-fixed) que se superpone en
+         la esquina superior derecha del gráfico. */
+      layout:{padding:{right:18,left:4,top:26,bottom:4}},
       
       interaction:{mode:'nearest',intersect:false},
       plugins:{
