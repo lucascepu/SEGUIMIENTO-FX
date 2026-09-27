@@ -381,7 +381,7 @@
   <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
   <span class="leg-item" id="legTechoItem"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
-  <span class="leg-item" id="legPromItem"><span class="leg-line leg-d2"></span>prom. <span id="legWinLabel">1M</span> (móvil)</span>
+  <span class="leg-item" id="legPromItem"><span class="leg-line leg-d2"></span>nivel implícito · brecha prom. <span id="legWinLabel">1M</span></span>
   </span>
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
@@ -2048,7 +2048,7 @@
       {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:3,
        pointRadius:hPt,pointBackgroundColor:DOLAR,
        fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.15,spanGaps:false},
-      {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:hA,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1:0,
+      {label:'Nivel implícito · brecha prom. '+document.getElementById('winLabel').textContent,data:hA,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1:0,
        borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'REM',data:N(46),borderColor:REMC,borderWidth:1.5,
        borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -2112,13 +2112,16 @@
             } else if(dsLabel.indexOf('echo')>-1||dsLabel.indexOf('Techo')>-1){
               /* Techo */
               out+='<span style="color:var(--txt3)">Techo</span> <span style="color:var(--amber);font-weight:600">$'+fmt(v)+'</span>';
+            } else if(dsLabel.indexOf('Prom')>-1||dsLabel.indexOf('rolling')>-1||dsLabel.indexOf('Nivel')>-1){
+              /* Promedio rolling / Nivel implícito por brecha promedio: % si es
+                 brecha, $ si es precio -- se revisa ANTES que el check de
+                 "Brecha", porque el nombre "Nivel implícito · brecha prom. X"
+                 contiene la palabra "brecha" y quedaría mal clasificado. */
+              var isBrechaMode=(mode==='brecha');
+              out+='<span style="color:var(--txt3)">'+dsLabel+'</span> <span style="color:var(--txt);font-weight:600">'+(isBrechaMode?'+'+fmt(v)+'%':'$'+fmt(v))+'</span>';
             } else if(dsLabel.indexOf('recha')>-1||dsLabel.indexOf('Brecha')>-1){
               /* Brecha % */
               out+='<span style="color:var(--txt3)">Brecha</span> <span style="color:var(--green);font-weight:600">+'+fmt(v)+'%</span>';
-            } else if(dsLabel.indexOf('Prom')>-1||dsLabel.indexOf('rolling')>-1||dsLabel.indexOf('Nivel')>-1){
-              /* Promedio rolling: % si es brecha, $ si es precio */
-              var isBrechaMode=(mode==='brecha');
-              out+='<span style="color:var(--txt3)">'+dsLabel+'</span> <span style="color:var(--txt);font-weight:600">'+(isBrechaMode?'+'+fmt(v)+'%':'$'+fmt(v))+'</span>';
             } else {
               /* Cualquier otro (REM, etc.) */
               out+='<span style="color:var(--txt3)">'+dsLabel+'</span> <span style="color:var(--txt);font-weight:600">$'+fmt(v)+'</span>';
@@ -2268,7 +2271,7 @@
         {label:'SIOPEL (cierre de mes)',data:mS.vals,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:4,pointBackgroundColor:DOLAR,
          fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.1,spanGaps:false},
-        {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:mAVals,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,
+        {label:'Nivel implícito · brecha prom. '+document.getElementById('winLabel').textContent,data:mAVals,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.1,spanGaps:true}
       ];
       chart.options.scales.y.min=1000;
@@ -2281,7 +2284,7 @@
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.15,spanGaps:false},
-        {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:isH?hA:pA,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,
+        {label:'Nivel implícito · brecha prom. '+document.getElementById('winLabel').textContent,data:isH?hA:pA,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
         {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -2573,11 +2576,19 @@
     if(typeof chart!=='undefined'){
       chart.data.datasets.forEach(function(ds){
         if(!ds.label) return;
-        if(ds.label.indexOf('Prom')!==-1||ds.label.indexOf('rolling')!==-1){
-          if(mode==='brecha') ds.data=avgRef;
-          else if(mode==='proj') ds.data=pA;
-          else ds.data=hA;
-          ds.label='Prom. '+wl+' ('+curR+'%)';
+        if(ds.label.indexOf('Prom')!==-1||ds.label.indexOf('rolling')!==-1||ds.label.indexOf('Nivel')!==-1){
+          if(mode==='brecha'){
+            /* Vista BRECHA: promedio directo de la brecha %, sin relación con
+               el toggle de Techo BCRA. */
+            ds.data=avgRef;
+            ds.label='Prom. '+wl+' ('+curR+'%)';
+          } else {
+            /* Vista SIOPEL/PROYECCIÓN: "Nivel implícito" -- precio derivado del
+               Techo (hA/pA), mismo nombre que se usa al armar el gráfico en
+               sw(), para que no cambie de nombre al tocar 1M/3M/6M. */
+            ds.data=(mode==='proj')?pA:hA;
+            ds.label='Nivel implícito · brecha prom. '+wl+' ('+curR+'%)';
+          }
         }
       });
       chart.update('none');
