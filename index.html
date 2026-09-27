@@ -381,7 +381,7 @@
   <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
   <span class="leg-item" id="legTechoItem"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
-  <span class="leg-item"><span class="leg-line leg-d2"></span>prom. <span id="legWinLabel">1M</span> (móvil)</span>
+  <span class="leg-item" id="legPromItem"><span class="leg-line leg-d2"></span>prom. <span id="legWinLabel">1M</span> (móvil)</span>
   </span>
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
@@ -2048,7 +2048,7 @@
       {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:3,
        pointRadius:hPt,pointBackgroundColor:DOLAR,
        fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.15,spanGaps:false},
-      {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:hA,borderColor:AVGC,borderWidth:1,
+      {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:hA,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1:0,
        borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'REM',data:N(46),borderColor:REMC,borderWidth:1.5,
        borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -2268,7 +2268,7 @@
         {label:'SIOPEL (cierre de mes)',data:mS.vals,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:4,pointBackgroundColor:DOLAR,
          fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.1,spanGaps:false},
-        {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:mAVals,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:mAVals,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.1,spanGaps:true}
       ];
       chart.options.scales.y.min=1000;
@@ -2281,7 +2281,7 @@
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.15,spanGaps:false},
-        {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:isH?hA:pA,borderColor:AVGC,borderWidth:1.5,
+        {label:'Prom. '+document.getElementById('winLabel').textContent+' (móvil)',data:isH?hA:pA,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
         {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
          borderDash:[4,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
@@ -2445,6 +2445,13 @@
     if(_ttr) _ttr.style.display=(isH||(useMonthly&&!isB))?'flex':'none';
     var _lti=document.getElementById('legTechoItem');
     if(_lti) _lti.style.display=showTechoSiopel?'flex':'none';
+    /* "Prom. (móvil)" se calcula a partir del Techo (precio implícito si la
+       brecha estuviera en su promedio de N ruedas) -- no es un promedio del
+       precio de SIOPEL en si. Ocultarla junto con el Techo evita mostrar una
+       línea que en el fondo sigue dependiendo de un dato que el usuario pidió
+       no ver. */
+    var _lpi=document.getElementById('legPromItem');
+    if(_lpi) _lpi.style.display=showTechoSiopel?'flex':'none';
     var _sw=document.getElementById('scenWrap'); if(_sw) _sw.style.display='none'; /* viejo, con datos hardcodeados desconectados de FUT_TECHO/FUT_REM -- mismo criterio que el grafico viejo, oculto */
     if(!isP&&_scenOpen){_scenOpen=false;var _sp=document.getElementById('scenPanel');if(_sp)_sp.style.display='none';var _st=document.getElementById('scenToggle');if(_st)_st.textContent='▼ Ver tabla de escenarios';}
   };
