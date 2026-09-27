@@ -1920,8 +1920,9 @@
     var futMonths = ['SEP 26','OCT 26','NOV 26','DIC 26','ENE 27','FEB 27','MAR 27','ABR 27','MAY 27','JUN 27','JUL 27','AGO 27']
       .filter(function(m){ return typeof FUT_REM!=='undefined' && FUT_REM[m]!=null; });
 
-    /* ── Meses pasados reales: ultimos 6 cierres de mes de SIOPEL, sin repetir el primer mes futuro ── */
-    var realAgg = monthlyAgg(hS); /* {labels, vals, idxs} -- cierre real de cada mes calendario */
+    /* ── Meses pasados reales: ultimos 6 cierres de mes de SIOPEL ── */
+    var realAgg = monthlyAgg(hS); /* {labels, vals, idxs} -- cierre real de cada mes calendario (el
+       mes en curso incluye el ULTIMO dato real disponible, no necesariamente fin de mes) */
     /* monthlyAgg devuelve labels en MAYUSCULA ('SEP 26'); normalizar a formato Titulo ('Sep 26')
        para que coincida con el formato de futMonths y la deteccion de mes duplicado funcione */
     var realLabels = realAgg.labels.map(function(l){
@@ -1929,10 +1930,21 @@
     });
     var realVals = realAgg.vals.slice();
     var realIdxs = realAgg.idxs.slice();
-    if(realLabels.length && futMonths.length){
+    /* Si el mes en curso (ultimo real, ej. "Sep 26") coincide con el primer mes
+       proyectado (FUT_REM/FUT_DEFAULT/FUT_TECHO arrancan tambien en "SEP 26"),
+       ANTES se descartaba el punto real para evitar una etiqueta de mes
+       duplicada en el eje X -- eso borraba silenciosamente el dato real del mes
+       en curso (ej. los 25 dias reales de septiembre), dejando la sensacion de
+       que ese mes ya era "proyeccion" cuando en realidad hay datos reales.
+       Ahora se mantiene el punto real y, en cambio, se saca ESE mes de la
+       serie proyectada (ver mas abajo), para no duplicar ni perder informacion. */
+    var curRealMonthFmt = realLabels.length ? realLabels[realLabels.length-1] : null;
+    if(futMonths.length){
       var firstFutLbl = futMonths[0];
       var firstFutLblFmt = firstFutLbl.split(' ')[0].charAt(0)+firstFutLbl.split(' ')[0].slice(1).toLowerCase()+' '+firstFutLbl.split(' ')[1];
-      if(realLabels[realLabels.length-1]===firstFutLblFmt){ realLabels.pop(); realVals.pop(); realIdxs.pop(); }
+      if(curRealMonthFmt===firstFutLblFmt){
+        futMonths = futMonths.slice(1); /* ese mes ya se muestra como real */
+      }
     }
     var PAST_N = 6;
     if(realLabels.length > PAST_N){ realLabels = realLabels.slice(-PAST_N); realVals = realVals.slice(-PAST_N); realIdxs = realIdxs.slice(-PAST_N); }
