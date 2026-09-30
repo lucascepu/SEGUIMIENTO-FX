@@ -55,6 +55,35 @@ def get_ambito_ref(indicador, fecha):
                 return None
     return None  # Ámbito aún no publicó el cierre de esta fecha
 
+def get_ambito_live(indicador, fecha):
+    """
+    Fallback cuando historico-general todavía no tiene el cierre de "fecha":
+    trae el último valor operado de Ámbito (mismo proveedor y metodología que
+    la Referencia oficial, solo que capturado antes de que la publiquen como
+    tal). Es preferible a recalcular nosotros el precio desde bonos AL30/GD30
+    (eso fue justamente lo que generó el outlier del 28-sep con GD30 ilíquido).
+    Solo devuelve el valor si el "fecha" que informa Ámbito es la misma rueda
+    que estamos buscando (si no, es el cierre de un día anterior sin actualizar
+    y no corresponde usarlo).
+    """
+    url = f"https://mercados.ambito.com/{indicador}/variacion"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data_live = json.loads(resp.read())
+    except Exception as e:
+        print(f"[auto_update_fx] AVISO: Ámbito live ({indicador}) no respondió: {e}")
+        return None
+    dmy = fecha.strftime("%d/%m/%Y")
+    fecha_reportada = str(data_live.get("fecha", ""))
+    if not fecha_reportada.startswith(dmy):
+        print(f"[auto_update_fx] AVISO: Ámbito live ({indicador}) todavía en la rueda anterior ({fecha_reportada}), no corresponde a {dmy}")
+        return None
+    try:
+        return round(float(str(data_live["valor"]).replace('.', '').replace(',', '.')), 2)
+    except (KeyError, ValueError, AttributeError):
+        return None
+
 # ── Obtener precio ────────────────────────────────────────────────────────────
 if source == 'mae':
     api_key = os.environ.get("MAE_API_KEY", "")
@@ -131,26 +160,38 @@ else:  # criptoya
                 return round((al30_price + gd30_price) / 2, 2)
         return round(al30_price, 2)  # GD30 stale o ausente -- solo AL30
 
-    # Fuente primaria: Ámbito Financiero (cierre de referencia oficial, el mismo
-    # que usa el usuario para auditar). Si Ámbito todavía no publicó el cierre
-    # de "fecha" (suele tardar más que el horario de este workflow), cae al
-    # precio de bonos AL30/GD30 de criptoya como estimación provisoria -- ese
-    # valor puede quedar desalineado con el cierre real (ver auditoría de
-    # sep-2026) y en tal caso se corrige a mano cuando Ámbito lo publique.
+    # Orden de fuentes para MEP/CCL, de mejor a peor:
+    #  1) Ámbito historico-general: el cierre de Referencia oficial ya publicado.
+    #  2) Ámbito /variacion (último valor operado de la misma rueda): mismo
+    #     proveedor y metodología que el cierre oficial, solo que capturado
+    #     antes de que Ámbito lo publique como Referencia -- mucho más fiel
+    #     que recalcular nosotros el precio desde bonos.
+    #  3) Precio de bonos AL30/GD30 de criptoya: último recurso si Ámbito no
+    #     responde. Puede desalinearse del cierre real cuando GD30 opera poco
+    #     ese día (fue la causa del outlier de CCL del 28-sep-2026); si se usa
+    #     este nivel, corregir a mano cuando Ámbito publique el cierre real.
     mep_val = get_ambito_ref("dolarrava/mep", fecha)
     ccl_val = get_ambito_ref("dolarrava/cl", fecha)
     if mep_val is not None and ccl_val is not None:
-        print(f"[auto_update_fx] MEP Ámbito: {mep_val}, CCL Ámbito: {ccl_val}")
+        print(f"[auto_update_fx] MEP Ámbito (cierre): {mep_val}, CCL Ámbito (cierre): {ccl_val}")
     else:
-        print(f"[auto_update_fx] AVISO: Ámbito sin cierre de {fecha_iso} todavía, uso fallback criptoya (bonos)")
-        try:
-            mep_fb = extract_bond_price(data.get("mep"))
-            ccl_fb = extract_bond_price(data.get("ccl"))
-            mep_val = mep_val if mep_val is not None else mep_fb
-            ccl_val = ccl_val if ccl_val is not None else ccl_fb
-            print(f"[auto_update_fx] MEP criptoya (fallback): {mep_val}, CCL criptoya (fallback): {ccl_val}")
-        except Exception as e:
-            print(f"[auto_update_fx] AVISO: no se pudo leer MEP/CCL de ningún lado ({e}), se omiten hoy")
+        print(f"[auto_update_fx] AVISO: Ámbito sin cierre de {fecha_iso} todavía, pruebo Ámbito en vivo")
+        if mep_val is None:
+            mep_val = get_ambito_live("dolarrava/mep", fecha)
+        if ccl_val is None:
+            ccl_val = get_ambito_live("dolarrava/cl", fecha)
+        if mep_val is not None and ccl_val is not None:
+            print(f"[auto_update_fx] MEP Ámbito (en vivo): {mep_val}, CCL Ámbito (en vivo): {ccl_val}")
+        else:
+            print(f"[auto_update_fx] AVISO: Ámbito no disponible, uso fallback criptoya (bonos AL30/GD30)")
+            try:
+                mep_fb = extract_bond_price(data.get("mep"))
+                ccl_fb = extract_bond_price(data.get("ccl"))
+                mep_val = mep_val if mep_val is not None else mep_fb
+                ccl_val = ccl_val if ccl_val is not None else ccl_fb
+                print(f"[auto_update_fx] MEP criptoya (fallback): {mep_val}, CCL criptoya (fallback): {ccl_val}")
+            except Exception as e:
+                print(f"[auto_update_fx] AVISO: no se pudo leer MEP/CCL de ningún lado ({e}), se omiten hoy")
 
 # ── Validar ───────────────────────────────────────────────────────────────────
 if not (1000 < siopel < 5000):
