@@ -106,6 +106,7 @@
   .leg-d4{border-top:1.5px dashed var(--dkblue);}
   .leg-d5{border-top:1.5px dashed var(--teal);}
   .leg-d6{border-top:1.5px dashed var(--coral);}
+  .leg-d7{border-top:2px dashed rgba(120,174,222,.55);}
   /* chart container includes space for x-axis labels */
   .chart-wrap{position:relative;width:100%;height:500px;margin-top:10px;}
   /* Techo BCRA toggle: posición fija arriba a la derecha del gráfico, idéntica en
@@ -382,6 +383,7 @@
   <span class="leg-item" id="legTechoItem"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
   <span class="leg-item" id="legPromItem"><span class="leg-line leg-d2"></span>nivel implícito · brecha prom. <span id="legWinLabel">1M</span></span>
+  <span class="leg-item" id="legProvItem" style="display:none"><span class="leg-line leg-d7"></span>provisorio (intradía)</span>
   </span>
   <span id="legP" style="display:none;align-items:center;gap:14px;flex-wrap:wrap">
     <span class="leg-item"><span class="leg-line leg-d3"></span>REM consenso</span>
@@ -694,6 +696,42 @@
   var AVG_ROLL=15.0;
   var NH=hS.length;
   var hPt=N(NH); hPt[354]=7;
+
+  /* ── Punto "provisorio" (precio en vivo / cierre provisorio aún sin confirmar
+     por el cron diario) -- ver badge EN VIVO/PROVISORIO más abajo. hProv es una
+     copia de hS con, como mucho, 2 valores no-nulos: el último cierre real
+     (para anclar el segmento) y el precio en vivo en el indice siguiente. Se
+     dibuja como una serie aparte, tenue y punteada, para no confundirla con el
+     dato oficial. _provPrice guarda el ultimo precio recibido (null = no hay
+     nada que mostrar); refreshProvisorio() la recalcula y, si el grafico
+     historico esta activo, actualiza el dataset 'Provisorio' en vivo. El label
+     NO lleva la palabra "SIOPEL" a proposito -- el tooltip (ver 'external'
+     mas abajo) clasifica por substring y "SIOPEL" ya esta tomado por el
+     dataset oficial (calcularia una brecha vs Techo que no corresponde aca). */
+  var hProv=N(NH), hProvPt=N(NH).fill(0);
+  var _provPrice=null;
+  function refreshProvisorio(){
+    var _lri=hS.reduce(function(mx,v,i){return v!=null?i:mx;},-1);
+    for(var i=0;i<hProv.length;i++){ hProv[i]=null; hProvPt[i]=0; }
+    var hayProv=(_provPrice!=null && _lri>=0 && _lri+1<hProv.length);
+    if(hayProv){
+      hProv[_lri]=hS[_lri];        // ancla el segmento en el ultimo cierre real
+      hProv[_lri+1]=_provPrice;    // punto provisorio
+      hProvPt[_lri+1]=4;
+    }
+    window._hayProvisorio=hayProv;
+    var _legProv=document.getElementById('legProvItem');
+    var ds=(typeof chart!=='undefined' && chart && chart.data && chart.data.datasets) ?
+      chart.data.datasets.filter(function(d){return d.label==='Provisorio';})[0] : null;
+    if(ds){
+      ds.data=hProv.slice(); ds.pointRadius=hProvPt.slice();
+      chart.update('none');
+      if(_legProv) _legProv.style.display=hayProv?'flex':'none';
+    } else if(_legProv){
+      _legProv.style.display='none';
+    }
+  }
+  window.setProvisorio=function(price){ _provPrice=price; refreshProvisorio(); };
 
   /* ── PERIOD SELECTOR ── */
   var hDates=['2025-04-01','2025-04-03','2025-04-04','2025-04-07','2025-04-08','2025-04-09','2025-04-10','2025-04-11','2025-04-14','2025-04-15','2025-04-16','2025-04-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25','2025-04-28','2025-04-29','2025-04-30','2025-05-05','2025-05-06','2025-05-07','2025-05-08','2025-05-09','2025-05-12','2025-05-13','2025-05-14','2025-05-15','2025-05-16','2025-05-19','2025-05-20','2025-05-21','2025-05-22','2025-05-23','2025-05-27','2025-05-28','2025-05-29','2025-05-30','2025-06-02','2025-06-03','2025-06-04','2025-06-05','2025-06-06','2025-06-09','2025-06-10','2025-06-11','2025-06-12','2025-06-13','2025-06-17','2025-06-18','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-07','2025-07-08','2025-07-10','2025-07-11','2025-07-14','2025-07-15','2025-07-16','2025-07-17','2025-07-18','2025-07-21','2025-07-22','2025-07-23','2025-07-24','2025-07-25','2025-07-28','2025-07-29','2025-07-30','2025-07-31','2025-08-01','2025-08-04','2025-08-05','2025-08-06','2025-08-07','2025-08-08','2025-08-11','2025-08-12','2025-08-13','2025-08-14','2025-08-18','2025-08-19','2025-08-20','2025-08-21','2025-08-22','2025-08-25','2025-08-26','2025-08-27','2025-08-28','2025-08-29','2025-09-02','2025-09-03','2025-09-04','2025-09-05','2025-09-08','2025-09-09','2025-09-10','2025-09-11','2025-09-12','2025-09-15','2025-09-16','2025-09-17','2025-09-18','2025-09-19','2025-09-22','2025-09-23','2025-09-24','2025-09-25','2025-09-26','2025-09-29','2025-09-30','2025-10-01','2025-10-02','2025-10-03','2025-10-06','2025-10-07','2025-10-08','2025-10-09','2025-10-14','2025-10-15','2025-10-16','2025-10-17','2025-10-20','2025-10-21','2025-10-22','2025-10-23','2025-10-24','2025-10-27','2025-10-28','2025-10-29','2025-10-30','2025-10-31','2025-11-03','2025-11-04','2025-11-05','2025-11-07','2025-11-10','2025-11-12','2025-11-13','2025-11-14','2025-11-17','2025-11-18','2025-11-19','2025-11-20','2025-11-25','2025-11-26','2025-11-28','2025-12-01','2025-12-02','2025-12-03','2025-12-04','2025-12-05','2025-12-09','2025-12-10','2025-12-11','2025-12-12','2025-12-15','2025-12-16','2025-12-17','2025-12-18','2025-12-19','2025-12-22','2025-12-23','2025-12-26','2025-12-29','2025-12-30','2026-01-02','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-09','2026-01-12','2026-01-13','2026-01-14','2026-01-15','2026-01-16','2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-18','2026-02-19','2026-02-20','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-25','2026-03-26','2026-03-27','2026-03-30','2026-03-31','2026-04-01','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-06','2026-07-07','2026-07-08','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-27','2026-07-28','2026-07-29','2026-07-30','2026-07-31','2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07','2026-08-10','2026-08-11','2026-08-12','2026-08-13','2026-08-14','2026-08-18','2026-08-19','2026-08-20','2026-08-21','2026-08-24','2026-08-25','2026-08-26','2026-08-27','2026-08-28','2026-08-31','2026-09-01','2026-09-02','2026-09-03','2026-09-04','2026-09-07','2026-09-08','2026-09-09','2026-09-10','2026-09-11','2026-09-14','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-09-21','2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02','2026-10-05','2026-10-06','2026-10-07','2026-10-08','2026-10-09','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-19','2026-10-20','2026-10-21','2026-10-22','2026-10-23','2026-10-26','2026-10-27','2026-10-28','2026-10-29','2026-10-30','2026-11-02','2026-11-03','2026-11-04','2026-11-05','2026-11-06','2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13','2026-11-16','2026-11-17','2026-11-18','2026-11-19','2026-11-24','2026-11-25','2026-11-26','2026-11-27','2026-11-30','2026-12-01','2026-12-02','2026-12-03','2026-12-04','2026-12-09','2026-12-10','2026-12-11','2026-12-14','2026-12-15','2026-12-16','2026-12-17','2026-12-18','2026-12-21','2026-12-22','2026-12-23','2026-12-24','2026-12-28','2026-12-29','2026-12-30','2026-12-31'];
@@ -1616,7 +1654,7 @@
          donde el margen de IDX_HIST_END se ve mucho mas angosto en pixeles), el
          texto '→ sin SIOPEL' se corta -- si no entra, se dibuja arriba de la linea
          en vez de al costado */
-      var textoDer = tooClose ? '→ proyección' : '→ sin SIOPEL';
+      var textoDer = tooClose ? '→ proyección' : (window._hayProvisorio ? '→ provisorio' : '→ sin SIOPEL');
       var anchoTexto = ctx.measureText(textoDer).width;
       if(xA+3+anchoTexto > ca.right-2){
         ctx.textAlign='right';
@@ -2296,6 +2334,9 @@
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
          fill:showTechoSiopel?{target:0,below:FILL}:false,tension:.15,spanGaps:false},
+        {label:'Provisorio',data:isH?hProv:N(pS.length),borderColor:'rgba(120,174,222,.55)',borderWidth:1.5,
+         borderDash:[4,3],pointRadius:isH?hProvPt:0,pointBackgroundColor:'rgba(120,174,222,.55)',
+         pointBorderColor:'rgba(120,174,222,.8)',pointHoverRadius:isH?6:0,fill:false,tension:0,spanGaps:false},
         {label:'Nivel implícito · brecha prom. '+document.getElementById('winLabel').textContent,data:isH?hA:pA,borderColor:showTechoSiopel?AVGC:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,
          borderDash:[2,3],pointRadius:0,fill:false,tension:.15,spanGaps:true},
         {label:'REM',data:isH?N(NH):pREM,borderColor:REMC,borderWidth:1.5,
@@ -2469,6 +2510,7 @@
     if(_lpi) _lpi.style.display=showTechoSiopel?'flex':'none';
     var _sw=document.getElementById('scenWrap'); if(_sw) _sw.style.display='none'; /* viejo, con datos hardcodeados desconectados de FUT_TECHO/FUT_REM -- mismo criterio que el grafico viejo, oculto */
     if(!isP&&_scenOpen){_scenOpen=false;var _sp=document.getElementById('scenPanel');if(_sp)_sp.style.display='none';var _st=document.getElementById('scenToggle');if(_st)_st.textContent='▼ Ver tabla de escenarios';}
+    refreshProvisorio();
   };
 
   /* ── Toggle "Techo BCRA" en el gráfico principal SIOPEL (switch discreto, coherente con el resto del diseño) ── */
@@ -3105,6 +3147,7 @@
       badge.classList.add('visible');
       badge.classList.remove('closed');
       positionBadge();
+      if(typeof window.setProvisorio==='function') window.setProvisorio(lastLivePrice);
     }
 
     function resetToOfficial(){
@@ -3121,6 +3164,7 @@
       if(!hSesHoy && lastLivePrice && lastLivePriceDate===todayIso){
         return; /* dejar lo que ya se mostro en vivo hoy, no retroceder */
       }
+      if(typeof window.setProvisorio==='function') window.setProvisorio(null);
       var heroPrice = document.getElementById('siopelVal');
       if(heroPrice) heroPrice.textContent = fmt(hS[_lri]);
       var elDS = document.getElementById('deltaSiopelSub');
@@ -3249,6 +3293,7 @@
           labelEl.innerHTML='<span class="live-dot"></span>EN VIVO';
           badge.classList.remove('closed');
           showBadge();
+          if(typeof window.setProvisorio==='function') window.setProvisorio(lastLivePrice);
         })
         .catch(function(e){ console.warn('[live] fetch error:', e); });
     }
