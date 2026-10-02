@@ -173,28 +173,11 @@ if IS_FIRST_WRITE_TODAY and not HAS_GAP:
         new_pPt_idx = old_pPt_idx + 1
         replace_one(f'pPt[{old_pPt_idx}]=7', f'pPt[{new_pPt_idx}]=7', f"pPt {old_pPt_idx}→{new_pPt_idx}")
 
-# ── 5. ia (zona sombreada) ─────────────────────────────────────────────────
-if IS_FIRST_WRITE_TODAY and not HAS_GAP:
-    m_ia = re.search(r"var ia=mode==='proj'\?(\d+):(\d+), ib=ia;", content)
-    if m_ia:
-        old_ia_proj, old_ia_hist = m_ia.group(1), m_ia.group(2)
-        new_ia_proj = str(int(old_ia_proj) + 1)
-        new_ia_hist = str(LRI_NEW)
-        replace_one(
-            f"var ia=mode==='proj'?{old_ia_proj}:{old_ia_hist}, ib=ia;",
-            f"var ia=mode==='proj'?{new_ia_proj}:{new_ia_hist}, ib=ia;",
-            f"ia hist {old_ia_hist}→{new_ia_hist}, proj {old_ia_proj}→{new_ia_proj}"
-        )
-
-# ── 6. Label chart ─────────────────────────────────────────────────────────
-if IS_FIRST_WRITE_TODAY and not HAS_GAP:
-    m_lbl = re.search(r"ctx\.fillText\('(\d+-\w+) ←'", content)
-    if m_lbl:
-        replace_one(
-            f"ctx.fillText('{m_lbl.group(1)} ←',xA-3,ca.top+13);",
-            f"ctx.fillText('{HOY_CHART} ←',xA-3,ca.top+13);",
-            f"label chart {m_lbl.group(1)}→{HOY_CHART}"
-        )
+# (Pasos 5 y 6 -- "ia zona sombreada" y "label chart" -- se eliminaron: el
+# plugin zPlug en index.html hace años que calcula _lriHoy y el label del
+# eje dinámicamente en JS, a partir de hS[] y hDates[], así que estos dos
+# parches de texto habían quedado como no-ops silenciosos que no hacían
+# nada en cada corrida.)
 
 # ── 7. Hero HTML ────────────────────────────────────────────────────────────
 # siopelVal

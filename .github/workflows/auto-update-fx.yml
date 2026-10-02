@@ -14,6 +14,10 @@ on:
         required: false
         default: ''
 
+concurrency:
+  group: auto-update-fx
+  cancel-in-progress: false
+
 jobs:
   update-fx:
     runs-on: ubuntu-latest
@@ -52,7 +56,21 @@ jobs:
           git add index.html futurosHistorico.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "Sin cambios — ya actualizado o no hubo rueda hoy."
-          else
-            git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (SIOPEL criptoya.com)"
-            git push
+            exit 0
           fi
+          FUENTE="${FX_SOURCE:-criptoya.com}"
+          git commit -m "auto: FX $(TZ='America/Argentina/Buenos_Aires' date +%Y-%m-%d) (SIOPEL ${FUENTE})"
+          # Reintentar con rebase por si otra corrida (manual o programada) pisó
+          # el remoto entre el checkout y este punto -- evita que el push falle
+          # en silencio por estar desactualizado.
+          for i in 1 2 3; do
+            if git push; then
+              break
+            fi
+            echo "push falló (intento $i), haciendo pull --rebase y reintentando..."
+            git pull --rebase origin main
+            if [ "$i" = "3" ]; then
+              echo "::error::No se pudo pushear después de 3 intentos."
+              exit 1
+            fi
+          done
