@@ -268,6 +268,6 @@ El workflow queda **verde** (no es un error). El dashboard mantiene el último d
 Esta app **no calcula bandas**: lee `bandas-bcra.json`, publicado por `lucascepu/rem-tracker`.
 - Orden de lectura: `https://rem-tracker.vercel.app/data/bandas-bcra.json` → respaldo GitHub (mismo archivo) → última copia válida en el navegador (se informa su antigüedad) → «dato no disponible».
 - Se valida `schema_version` (1.x), estructura y conteos. Se consulta con `cache: 'no-cache'`, por lo que las actualizaciones de REM Tracker llegan sin republicar esta app.
-- Techo/piso 2026+: `official_daily` (OFICIAL) y `projected_daily` (PROYECTADO). Fechas sin registro en el feed quedan vacías (no se interpolan). Antes de 2026 se conserva la serie histórica embebida (régimen anterior, ya cerrada).
+- Techo 2026+: `official_daily` y `projected_daily`. Fechas sin registro en el feed quedan vacías (no se interpolan). Antes de 2026 se conserva la serie histórica embebida (régimen anterior, ya cerrada).
 - FUTUROS: `FUT_TECHO` y `FUT_REM` salen de `monthly_ceiling` y de las medianas REM publicadas (`rem_vintages`), sin interpolar.
 - El script diario (`update_fx_diario.py`) ya no lee ni escribe techo/brecha: solo SIOPEL y MEP/CCL.

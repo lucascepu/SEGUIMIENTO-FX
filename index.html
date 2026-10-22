@@ -299,16 +299,6 @@ window.BANDS_FEED_READY=(function(){
   .fut-field select:focus, .fut-field input:focus { border-color:var(--blue); }
   .fut-note { font-size:10px; color:var(--txt3); margin-top:6px; }
   .chart-wrap-fut { height:220px; margin-bottom:14px; }
-  /* Bandas BCRA (feed REM Tracker) */
-  .bp-warn { font-size:11px; color:var(--amber); line-height:1.5; }
-  .bp-badge { display:inline-block; padding:1px 7px; border-radius:5px; font-size:9px; font-weight:700; letter-spacing:.05em; border:1px solid var(--border); }
-  .bp-ok { color:var(--green); border-color:rgba(95,159,132,.4); background:rgba(95,159,132,.08); }
-  .bp-est { color:var(--amber); border-color:rgba(194,155,85,.4); background:rgba(194,155,85,.08); }
-  .bp-proj { color:var(--blue); border-color:rgba(107,159,209,.4); background:rgba(107,159,209,.08); }
-  #bandsFutBox table { border-collapse:collapse; width:100%; font-size:12px; }
-  #bandsFutBox th { font-size:10px; color:var(--txt3); font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:8px 10px; text-align:right; border-bottom:1px solid var(--border); white-space:nowrap; }
-  #bandsFutBox td { padding:8px 10px; text-align:right; border-bottom:1px solid var(--border); color:var(--txt2); white-space:nowrap; }
-  #bandsFutBox th:first-child, #bandsFutBox td:first-child { text-align:left; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -430,7 +420,7 @@ window.BANDS_FEED_READY=(function(){
 <div class="chart-wrap">
 <div id="hoverBar"></div>
   <label id="techoToggleRow" class="techo-toggle-fixed" onclick="toggleTechoSiopel()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
-    <span id="techoToggleLabel" style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);transition:color .15s">Bandas BCRA</span>
+    <span id="techoToggleLabel" style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);transition:color .15s">Techo BCRA</span>
     <span id="techoToggleTrack" style="position:relative;width:32px;height:17px;border-radius:9px;background:var(--bg-card);border:1px solid var(--border);transition:background .18s,border-color .18s;flex-shrink:0">
       <span id="techoToggleThumb" style="position:absolute;top:1px;left:1px;width:13px;height:13px;border-radius:50%;background:var(--txt3);transition:left .18s,background .18s"></span>
     </span>
@@ -439,9 +429,7 @@ window.BANDS_FEED_READY=(function(){
 </div>
 <div class="legend">
   <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-  <span class="leg-item" id="legTechoItem"><span class="leg-line" style="border-top:2px solid var(--amber)"></span>techo oficial</span>
-  <span class="leg-item" id="legTechoPItem"><span class="leg-line leg-d1"></span>techo proyectado</span>
-  <span class="leg-item" id="legPisoItem"><span class="leg-line" style="border-top:2px solid #9AA7B5"></span>piso oficial</span>
+  <span class="leg-item" id="legTechoItem"><span class="leg-line leg-d1"></span>techo oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
   <span class="leg-item" id="legPromItem"><span class="leg-line leg-d2"></span>nivel implícito · brecha prom. <span id="legWinLabel">1M</span></span>
   <span class="leg-item" id="legProvItem" style="display:none"><span class="leg-line leg-d7"></span>provisorio (intradía)</span>
@@ -698,12 +686,6 @@ window.BANDS_FEED_READY=(function(){
   </div>
 </div>
 
-<div id="bandsFutBox" style="display:none;margin:22px 0 6px">
-  <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Vista futura · Techo BCRA al cierre de mes (feed REM Tracker)</div>
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow-x:auto" id="bandsFutTbl"></div>
-  <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="bandsFutNote"></div>
-</div>
-
 <p class="footnote" id="footerNote">
 
   SIOPEL: datos reales abr 2025–<span id="footerFecha">13 jul 2026</span>. Bandas BCRA: fuente única REM Tracker (bandas-bcra.json) — oficiales (Excel BCRA, regla IPC INDEC T-2) y proyectadas con IPC REM; las proyecciones no están confirmadas por el BCRA.
@@ -730,7 +712,7 @@ window.BANDS_FEED_READY=(function(){
 <script type="text/plain" id="appMain">
 (function(){
   var gc='rgba(255,255,255,.04)', tc='rgba(255,255,255,.80)';
-  var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)', PISO='#9AA7B5';
+  var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)';
   var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#7EC8E3', SCB='#5DCAA5', SCC='#F0997B';
   function N(n){ return new Array(n).fill(null); }
 
@@ -843,18 +825,12 @@ window.BANDS_FEED_READY=(function(){
     B.vintage=(d.assumptions||{}).vintage_used||null;B.implied=d.implied_inflation||null;
     return B;
   })();
-  var hTO=[],hTP=[],hPO=[]; /* techo oficial · techo proyectado · piso oficial (alineados a hDates) */
-  (function(){
+  (function(){ /* 2026 en adelante: el techo sale SOLO del feed (oficial o proyectado); se descartan los valores embebidos */
     for(var i=0;i<hDates.length;i++){
-      var dt=hDates[i];hTO.push(null);hTP.push(null);hPO.push(null);
-      if(dt<'2026-01-02'){hTO[i]=hT[i];continue;}
-      hT[i]=null; /* se descartan los valores embebidos de 2026 en adelante */
-      var o=BANDS.official[dt],p=BANDS.projected[dt];
-      if(o){hTO[i]=o.techo;hPO[i]=o.piso;hT[i]=o.techo;}
-      else if(p){hTP[i]=p.techo;hT[i]=p.techo;}
+      var dt=hDates[i]; if(dt<'2026-01-02') continue;
+      var r=BANDS.official[dt]||BANDS.projected[dt];
+      hT[i]=r?r.techo:null;
     }
-    var li=BANDS.lastOfficial?hDates.indexOf(BANDS.lastOfficial):-1;
-    if(li>=0&&hTO[li]!=null)hTP[li]=hTO[li]; /* la línea proyectada arranca en el último valor oficial */
   })();
   var IDX_HIST_END = (function(){
     /* Fin de la zona historica visible SIOPEL/BRECHA -- ANTES era un indice fijo
@@ -966,7 +942,6 @@ window.BANDS_FEED_READY=(function(){
         for(var i=xMn;i<=xMx;i++){
           if(hS[i]!=null) vals.push(hS[i]);
           if(showTechoSiopel && hT[i]!=null) vals.push(hT[i]);
-          if(showTechoSiopel && hPO[i]!=null) vals.push(hPO[i]);
         }
         if(!vals.length) return;
         var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
@@ -2377,7 +2352,7 @@ window.BANDS_FEED_READY=(function(){
   var chart=new Chart(document.getElementById('mc3'),{
     type:'line', plugins:[zPlug, monthlyLabelsPlugin],
     data:{labels:hDispLbl, datasets:[
-      {label:'Techo',data:hTO,borderColor:TECH,borderWidth:1.5,
+      {label:'Techo',data:hT,borderColor:TECH,borderWidth:1.5,borderDash:[6,3],
        pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:3,
        pointRadius:hPt,pointBackgroundColor:DOLAR,
@@ -2391,9 +2366,7 @@ window.BANDS_FEED_READY=(function(){
       {label:'Brecha 15%',data:N(46),borderColor:SCB,borderWidth:1.5,
        borderDash:[5,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
       {label:'Brecha 5%',data:N(46),borderColor:SCC,borderWidth:1.5,
-       borderDash:[6,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
-      {label:'Techo proyectado',data:hTP,borderColor:TECH,borderWidth:1.5,borderDash:[6,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
-      {label:'Piso BCRA',data:hPO,borderColor:PISO,borderWidth:1.2,pointRadius:0,fill:false,tension:0,spanGaps:true}
+       borderDash:[6,3],pointRadius:0,fill:false,tension:.2,spanGaps:false}
     ]},
     options:{
       responsive:true,
@@ -2615,7 +2588,7 @@ window.BANDS_FEED_READY=(function(){
     }else{
       chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
-        {label:'Techo',data:isH?hTO:pT,borderColor:showTechoSiopel?TECH:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?(isP?3:2):0,borderDash:isH?[]:[6,3],
+        {label:'Techo',data:isH?hT:pT,borderColor:showTechoSiopel?TECH:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?(isP?3:2):0,borderDash:[6,3],
          pointRadius:showTechoSiopel?(isP?tPtSc:0):0,pointBackgroundColor:TECH,pointHoverRadius:showTechoSiopel?5:0,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
@@ -2631,9 +2604,7 @@ window.BANDS_FEED_READY=(function(){
          borderDash:[7,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
         
         {label:'Brecha 5%',data:isH?N(NH):pSCC,borderColor:SCC,borderWidth:1.5,
-         borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
-        {label:'Techo proyectado',data:isH?hTP:N(pS.length),borderColor:showTechoSiopel?TECH:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?2:0,borderDash:[6,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
-        {label:'Piso BCRA',data:isH?hPO:N(pS.length),borderColor:showTechoSiopel?PISO:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,pointRadius:0,fill:false,tension:0,spanGaps:true}
+         borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false}
       ];
       chart.options.scales.y.min=isB?undefined:isH?1000:1300;
       chart.options.scales.y.max=isB?undefined:isH?1900:2100;
@@ -2680,7 +2651,6 @@ window.BANDS_FEED_READY=(function(){
     var _bbmH=document.getElementById('bbMetricsHist');
     var _bbmF=document.getElementById('bbMetricsFut');
     if(_bbmH) _bbmH.style.display=(isF||isMC)?'none':'';
-    var _bfb=document.getElementById('bandsFutBox'); if(_bfb) _bfb.style.display=isF?'block':'none';
     if(_bbmF) _bbmF.style.display=isF?'':'none';
     if(isF){
       (function(){
@@ -2790,7 +2760,6 @@ window.BANDS_FEED_READY=(function(){
     if(_ttr) _ttr.style.display=(isH||(useMonthly&&!isB))?'flex':'none';
     var _lti=document.getElementById('legTechoItem');
     if(_lti) _lti.style.display=showTechoSiopel?'flex':'none';
-    ['legTechoPItem','legPisoItem'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display=(showTechoSiopel&&isH)?'flex':'none'; });
     /* "Prom. (móvil)" se calcula a partir del Techo (precio implícito si la
        brecha estuviera en su promedio de N ruedas) -- no es un promedio del
        precio de SIOPEL en si. Ocultarla junto con el Techo evita mostrar una
@@ -2990,29 +2959,7 @@ window.BANDS_FEED_READY=(function(){
     if(eT) eT.textContent=techo!=null?bpF2(techo):'—';
     if(eB) eB.textContent=(techo!=null&&sio!=null)?bpSg((techo-sio)/sio*100,2,'%'):'—';
   }
-  function renderBandsFut(){
-    var box=document.getElementById('bandsFutTbl'), note=document.getElementById('bandsFutNote');
-    if(!box) return;
-    if(!BANDS.ok){ box.innerHTML='<div class="bp-warn" style="padding:12px">Dato no disponible: sin conexión con el feed de REM Tracker.</div>'; if(note) note.textContent=''; return; }
-    var rows=Object.keys(BANDS.monthly).sort().filter(function(k){return k>='2026-09';}).map(function(k){return BANDS.monthly[k];});
-    var MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-    var html='<table><thead><tr><th>Mes</th><th>Techo (cierre de mes)</th><th>Estado</th><th>IPC usado</th><th>TC REM (prom. mensual)</th><th>Techo vs REM</th></tr></thead><tbody>';
-    rows.forEach(function(m){
-      var fk=MES[+m.month.slice(5,7)-1]+' '+m.month.slice(2,4), rem=BANDS.futRem[fk];
-      var dm=m.date.slice(8,10)+'/'+m.date.slice(5,7), ult=m.last_official_trading_day;
-      html+='<tr><td><b>'+fk+'</b><div style="font-size:10px;color:var(--txt3)">cierre '+dm+'</div></td>'+
-        '<td><b style="color:var(--amber)">'+bpF2(m.techo)+'</b>'+(ult&&m.status!=='OFICIAL'?'<div style="font-size:10px;color:var(--txt3)">última rueda oficial '+ult.date.slice(8,10)+'/'+ult.date.slice(5,7)+': '+bpF2(ult.techo)+'</div>':'')+'</td>'+
-        '<td>'+bpBadge(m.status)+'</td>'+
-        '<td>'+(m.ipc_rate_pct==null?'—':m.ipc_rate_pct.toLocaleString('es-AR',{maximumFractionDigits:4})+'%')+'<div style="font-size:10px;color:var(--txt3)">'+(m.ipc_origin||'')+' · '+(m.ipc_month||'')+'</div></td>'+
-        '<td>'+(rem!=null?bpF2(rem):'<span style="color:var(--txt3)">sin dato REM</span>')+'</td>'+
-        '<td>'+(rem!=null?bpSg((m.techo/rem-1)*100,1,'%'):'—')+'</td></tr>';
-    });
-    box.innerHTML=html+'</tbody></table>';
-    if(note) note.innerHTML='El REM proyecta un tipo de cambio <b>promedio mensual</b>; el techo es el valor al <b>último día calendario</b> del mes (puede no coincidir con una rueda oficial). Los meses sin mediana mensual publicada en el REM no se interpolan. '+
-      (BANDS.implied?'«Implícito»: tasa mensual derivada de la inflación interanual esperada a '+BANDS.implied.horizon+' ('+BANDS.implied.yoy_pct+'%), supuesto calculado y no un pronóstico publicado. ':'')+
-      'Las proyecciones son cálculos de REM Tracker y no están confirmadas por el BCRA.';
-  }
-  renderBandsPanel(); renderBandsFut();
+  renderBandsPanel();
 
 
   /* ── ZOOM & AXIS DRAG INTERACTIONS ── */
