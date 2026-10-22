@@ -597,7 +597,19 @@
     <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
       <button id="btnMcPrecio" onclick="setMcView('precio')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#0d1117">PRECIO</button>
       <button id="btnMcBrecha" onclick="setMcView('brecha')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">BRECHA VS OFICIAL</button>
+      <button id="btnMcCanje" onclick="setMcView('canje')" style="padding:4px 10px;font-size:10px;font-weight:600;border:none;cursor:pointer;background:var(--bg-card);color:var(--txt3)">CANJE CCL/MEP</button>
     </div>
+  </div>
+  <div id="mcCanjeCtl" style="display:none;align-items:center;flex-wrap:wrap;gap:6px 8px;margin-bottom:12px">
+    <button id="btnMcR1M"  onclick="setMcCanjeRange('1M')"  style="padding:4px 12px;font-size:10px;font-weight:600;border-radius:4px;cursor:pointer">1M</button>
+    <button id="btnMcR3M"  onclick="setMcCanjeRange('3M')"  style="padding:4px 12px;font-size:10px;font-weight:600;border-radius:4px;cursor:pointer">3M</button>
+    <button id="btnMcR6M"  onclick="setMcCanjeRange('6M')"  style="padding:4px 12px;font-size:10px;font-weight:600;border-radius:4px;cursor:pointer">6M</button>
+    <button id="btnMcR12M" onclick="setMcCanjeRange('12M')" style="padding:4px 12px;font-size:10px;font-weight:600;border-radius:4px;cursor:pointer">12M</button>
+    <span style="font-size:10px;color:var(--txt3);margin-left:6px">Rango:</span>
+    <input type="date" id="mcCanjeDesde" title="Desde" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--txt);color-scheme:dark;outline:none">
+    <span style="font-size:11px;color:var(--txt3)">→</span>
+    <input type="date" id="mcCanjeHasta" title="Hasta" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--txt);color-scheme:dark;outline:none">
+    <button id="btnMcAplicar" onclick="applyMcCanjeRange()" style="padding:4px 12px;font-size:10px;font-weight:600;border-radius:4px;cursor:pointer;border:1px solid rgba(245,195,107,.5);background:rgba(245,195,107,.1);color:var(--amber)">Aplicar</button>
   </div>
   <div style="position:relative;width:100%;height:300px;margin-bottom:8px">
     <label id="mcTechoWrap" class="techo-toggle-fixed" onclick="toggleMcTecho()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
@@ -608,6 +620,7 @@
     </label>
     <canvas id="mcCanvas"></canvas>
   </div>
+  <div id="mcCanjeFoot" style="display:none;text-align:right;font-size:10px;color:var(--txt3);margin-bottom:6px"></div>
   <div style="display:flex;gap:16px;padding-left:4px;flex-wrap:wrap" id="mcLegend">
     <span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px">
       <span style="width:20px;height:2px;background:#78AEDE;display:inline-block;border-radius:1px"></span>SIOPEL (oficial)
@@ -1785,6 +1798,7 @@
   function renderMcChart(){
     var canvas = document.getElementById('mcCanvas');
     if(!canvas || typeof hDatesMC==='undefined') return;
+    if(mcView==='canje'){ renderMcCanje(canvas); return; }
 
     var labels = hDatesMC.map(function(d){ var p=d.split('-'); return parseInt(p[2])+'/'+parseInt(p[1]); });
     var siopelSeries = hDatesMC.map(function(d){ return findSiopelForDate(d); });
@@ -1909,17 +1923,173 @@
     };
   }
 
+  /* ══ Canje CCL/MEP: serie = (CCL/MEP − 1)·100 por rueda, con media (μ) y bandas ±1σ/±2σ
+     calculadas SOLO sobre la ventana visible (cambia al cambiar el rango). ══ */
+  var mcCanjeRange = '6M';   /* '1M' | '3M' | '6M' | '12M' | 'custom' */
+  var mcCanjeFrom = null, mcCanjeTo = null;  /* ISO, solo si range==='custom' */
+
+  function mcFmtDMY(iso){ var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0].slice(2); }
+  function mcIsoMinusMonths(iso, m){
+    var d=new Date(+iso.slice(0,4), +iso.slice(5,7)-1, +iso.slice(8,10));
+    d.setMonth(d.getMonth()-m);
+    var mm=d.getMonth()+1, dd=d.getDate();
+    return d.getFullYear()+'-'+(mm<10?'0':'')+mm+'-'+(dd<10?'0':'')+dd;
+  }
+  /* Indices [i0,i1] de hDatesMC que cubre el rango actual (-1 si no hay datos) */
+  function mcCanjeIdx(){
+    var n=hDatesMC.length, i, i0=0, i1=n-1;
+    if(mcCanjeRange==='custom'){
+      i0=-1; i1=-1;
+      for(i=0;i<n;i++){ if(!mcCanjeFrom || hDatesMC[i]>=mcCanjeFrom){ i0=i; break; } }
+      for(i=n-1;i>=0;i--){ if(!mcCanjeTo || hDatesMC[i]<=mcCanjeTo){ i1=i; break; } }
+    } else {
+      var meses={'1M':1,'3M':3,'6M':6,'12M':12}[mcCanjeRange]||6;
+      var desde=mcIsoMinusMonths(hDatesMC[n-1], meses);
+      for(i=0;i<n;i++){ if(hDatesMC[i]>=desde){ i0=i; break; } }
+    }
+    return [i0,i1];
+  }
+
+  function mcCanjeSyncButtons(){
+    ['1M','3M','6M','12M'].forEach(function(r){
+      var b=document.getElementById('btnMcR'+r); if(!b) return;
+      var on = (mcCanjeRange===r);
+      b.style.background = on ? 'var(--amber)' : 'transparent';
+      b.style.color = on ? '#0d1117' : 'var(--txt2)';
+      b.style.border = '1px solid ' + (on ? 'var(--amber)' : 'var(--border)');
+    });
+    var dEl=document.getElementById('mcCanjeDesde'), hEl=document.getElementById('mcCanjeHasta');
+    if(dEl && hEl){
+      dEl.min=hEl.min=hDatesMC[0]; dEl.max=hEl.max=hDatesMC[hDatesMC.length-1];
+      if(mcCanjeRange!=='custom'){ dEl.value=''; hEl.value=''; }
+    }
+  }
+
+  window.setMcCanjeRange = function(r){
+    mcCanjeRange = r; mcCanjeFrom = mcCanjeTo = null;
+    mcCanjeSyncButtons();
+    renderMcChart();
+  };
+
+  window.applyMcCanjeRange = function(){
+    var f=(document.getElementById('mcCanjeDesde')||{}).value||'';
+    var t=(document.getElementById('mcCanjeHasta')||{}).value||'';
+    var foot=document.getElementById('mcCanjeFoot');
+    function msg(txt){ if(foot){ foot.style.display='block'; foot.innerHTML='<span style="color:var(--red,#f47067)">'+txt+'</span>'; } }
+    if(!f && !t){ msg('Elegí al menos una fecha (desde o hasta).'); return; }
+    if(f && t && f>t){ msg('La fecha "desde" es posterior a "hasta".'); return; }
+    var prev=[mcCanjeRange,mcCanjeFrom,mcCanjeTo];
+    mcCanjeRange='custom'; mcCanjeFrom=f||null; mcCanjeTo=t||null;
+    var ix=mcCanjeIdx();
+    if(ix[0]<0 || ix[1]<0 || ix[1]-ix[0]+1<3){
+      mcCanjeRange=prev[0]; mcCanjeFrom=prev[1]; mcCanjeTo=prev[2];
+      msg('Ese rango tiene menos de 3 ruedas con datos (serie: '+mcFmtDMY(hDatesMC[0])+' → '+mcFmtDMY(hDatesMC[hDatesMC.length-1])+').');
+      return;
+    }
+    mcCanjeSyncButtons();
+    renderMcChart();
+  };
+
+  function renderMcCanje(canvas){
+    var ix=mcCanjeIdx(), i0=ix[0], i1=ix[1];
+    if(i0<0 || i1<0 || i1<i0) return;
+    var dates=hDatesMC.slice(i0,i1+1);
+    var mepW=hMEP.slice(i0,i1+1), cclW=hCCL.slice(i0,i1+1);
+    var vals=cclW.map(function(c,i){ return (c/mepW[i]-1)*100; });
+    var n=vals.length;
+    var mu=vals.reduce(function(a,b){return a+b;},0)/n;
+    var sd=n>1 ? Math.sqrt(vals.reduce(function(a,b){return a+(b-mu)*(b-mu);},0)/(n-1)) : 0;
+    var lastV=vals[n-1];
+    var AMB='#F5C36B';
+    var ptR=vals.map(function(_,i){ return i===n-1 ? 5 : 0; });
+    function flat(v){ return vals.map(function(){ return v; }); }
+    function ref(label,v,color,dash){
+      return {label:label, data:flat(v), borderColor:color, borderWidth:1, borderDash:dash, pointRadius:0,
+              pointHoverRadius:0, fill:false, tension:0, _refVal:v};
+    }
+    var datasets=[
+      {label:'Canje CCL/MEP', data:vals, borderColor:AMB, borderWidth:2, tension:.25, fill:false,
+       pointRadius:ptR, pointBackgroundColor:AMB, pointBorderColor:'#fff3d6', pointBorderWidth:1, pointHoverRadius:4},
+      ref('μ',  mu,        'rgba(173,186,199,.6)', [4,4]),
+      ref('+1σ', mu+sd,    'rgba(245,195,107,.55)', []),
+      ref('−1σ', mu-sd,    'rgba(245,195,107,.55)', []),
+      ref('+2σ', mu+2*sd,  'rgba(245,195,107,.4)',  [4,4]),
+      ref('−2σ', mu-2*sd,  'rgba(245,195,107,.4)',  [4,4])
+    ];
+    var vMin=Math.min.apply(null,vals.concat([mu-2*sd])), vMax=Math.max.apply(null,vals.concat([mu+2*sd]));
+    var pad=(vMax-vMin)*0.06 || 0.2;
+    var f2=function(v){ return v.toFixed(2); };
+    var lblPlugin={ id:'canjeRefLabels', afterDatasetsDraw:function(ch){
+      var ctx=ch.ctx, ca=ch.chartArea;
+      /* etiquetas en el margen derecho (fuera del area del grafico) para que la linea no las tape */
+      ctx.save(); ctx.font='9px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+      for(var k=1;k<ch.data.datasets.length;k++){
+        var d=ch.data.datasets[k], y=ch.scales.y.getPixelForValue(d._refVal);
+        ctx.fillStyle = k===1 ? 'rgba(173,186,199,.9)' : 'rgba(245,195,107,.85)';
+        ctx.fillText(d.label+' '+f2(d._refVal)+'%', ca.right+6, y);
+      }
+      ctx.restore();
+    }};
+
+    if(mcChart){ mcChart.destroy(); mcChart=null; }
+    /* desactivar los gestos de pinch de las otras vistas (sus closures apuntan a otro dataset) */
+    canvas.ontouchstart=canvas.ontouchmove=canvas.ontouchend=canvas.ondblclick=null;
+    canvas.style.touchAction='';
+    mcChart=new Chart(canvas,{
+      type:'line',
+      data:{labels:dates.map(mcFmtDMY), datasets:datasets},
+      plugins:[lblPlugin],
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:{duration:0},
+        interaction:{mode:'index', intersect:false},
+        layout:{padding:{top:10,right:62}},
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            filter:function(it){ return it.datasetIndex===0; },
+            callbacks:{
+              label:function(c){ return '  Canje: '+(c.raw>=0?'+':'')+c.raw.toFixed(2)+'%'; },
+              afterLabel:function(c){
+                return '  MEP $'+mepW[c.dataIndex].toLocaleString('es-AR',{minimumFractionDigits:2})+
+                       ' · CCL $'+cclW[c.dataIndex].toLocaleString('es-AR',{minimumFractionDigits:2});
+              }
+            }
+          }
+        },
+        scales:{
+          x:{ticks:{color:'#adbac7',font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:6}, grid:{color:'rgba(255,255,255,.06)'}},
+          y:{suggestedMin:vMin-pad, suggestedMax:vMax+pad,
+             ticks:{color:'#adbac7',font:{size:11},callback:function(v){ return v.toFixed(2)+'%'; }},
+             grid:{color:'rgba(255,255,255,.06)'}}
+        }
+      }
+    });
+    var foot=document.getElementById('mcCanjeFoot');
+    if(foot){
+      foot.style.display='block';
+      foot.innerHTML=n+' ruedas · '+mcFmtDMY(dates[0])+' → '+mcFmtDMY(dates[n-1])+
+        ' · actual <b style="color:'+AMB+'">'+f2(lastV)+'%</b>';
+    }
+  }
+
   window.setMcView = function(v){
     mcView = v;
-    var bP=document.getElementById('btnMcPrecio'), bB=document.getElementById('btnMcBrecha');
+    var bP=document.getElementById('btnMcPrecio'), bB=document.getElementById('btnMcBrecha'), bC=document.getElementById('btnMcCanje');
     if(bP){ bP.style.background=v==='precio'?'var(--accent)':'var(--bg-card)'; bP.style.color=v==='precio'?'#0d1117':'var(--txt3)'; }
     if(bB){ bB.style.background=v==='brecha'?'var(--accent)':'var(--bg-card)'; bB.style.color=v==='brecha'?'#0d1117':'var(--txt3)'; }
+    if(bC){ bC.style.background=v==='canje'?'var(--accent)':'var(--bg-card)'; bC.style.color=v==='canje'?'#0d1117':'var(--txt3)'; }
     var techoWrap=document.getElementById('mcTechoWrap');
     if(techoWrap) techoWrap.style.display = v==='precio' ? 'flex' : 'none';
+    var ctl=document.getElementById('mcCanjeCtl'), cfoot=document.getElementById('mcCanjeFoot');
+    if(ctl) ctl.style.display = v==='canje' ? 'flex' : 'none';
+    if(cfoot && v!=='canje') cfoot.style.display='none';
+    if(v==='canje') mcCanjeSyncButtons();
     var title=document.getElementById('mcChartTitle');
-    if(title) title.textContent = v==='precio' ? 'MEP / CCL / SIOPEL — serie histórica' : 'Brecha MEP/CCL vs oficial — serie histórica';
+    if(title) title.textContent = v==='precio' ? 'MEP / CCL / SIOPEL — serie histórica' : (v==='canje' ? 'Canje CCL/MEP — serie histórica' : 'Brecha MEP/CCL vs oficial — serie histórica');
     var legend=document.getElementById('mcLegend');
-    if(legend){
+    if(legend && v==='canje'){
+      legend.innerHTML='';
+    } else if(legend){
       var techoLeg = mcShowTecho ? '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;display:inline-block;border-radius:1px;background:repeating-linear-gradient(90deg,rgba(245,195,107,.6) 0,rgba(245,195,107,.6) 6px,transparent 6px,transparent 9px)"></span>Techo BCRA</span>' : '';
       legend.innerHTML = v==='precio' ?
         '<span style="font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px"><span style="width:20px;height:2px;background:#78AEDE;display:inline-block;border-radius:1px"></span>SIOPEL (oficial)</span>'+
