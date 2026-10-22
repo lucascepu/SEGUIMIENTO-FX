@@ -1405,7 +1405,7 @@ window.REMT=(function(){
       if(crossoverIdx>=0){
         var crossMes=KEYS[crossoverIdx];
         msg='La prima implícita del mercado cae '+(Math.abs(parseFloat(diff)).toFixed(1))+'pp entre '+KEYS[0]+' ('+
-            (first>0?'+':'')+first+'%) y '+KEYS[KEYS.length-1]+' ('+last2+'%). '+
+            (first>0?'+':'')+first+'%) y '+KEYS[spreadsAll.length-1]+' ('+last2+'%). '+
             'El spread pasa a negativo en '+crossMes+': el mercado converge al consenso del REM.';
       } else if(last2>0 && first>0){
         msg='El mercado se mantiene más alcista que el REM en toda la curva. '+
