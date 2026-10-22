@@ -5,29 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIOPEL vs Techo de Banda – 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<!-- Fuente única de IPC real/proyectado, REM y bandas: rem-tracker (si no carga, se usan los valores de respaldo embebidos más abajo) -->
-<script src="https://rem-tracker.vercel.app/data/rem-history.js"></script>
-<script src="https://rem-tracker.vercel.app/data/bands-history.js"></script>
-<script src="https://rem-tracker.vercel.app/data/bands-model.js"></script>
+<!-- Bandas BCRA: la ÚNICA fuente es el feed de REM Tracker (bandas-bcra.json). Esta app NO calcula bandas.
+     Orden: URL principal → respaldo GitHub (mismo archivo) → última copia válida local (indicando antigüedad). -->
 <script>
-/* REMT = techo de fin de mes (FUT_TECHO) y TC REM publicado (FUT_REM) calculados por rem-tracker.
-   Solo valores publicados del REM: sin interpolar. Si falla la carga, REMT queda null y rigen los respaldos. */
-window.REMT=(function(){
-  try{
-    var R=window.REM_HISTORY,B=window.BANDS_HISTORY,M=window.BandsModel;
-    if(!R||!B||!M||!B.rows||!B.rows.length)return null;
-    var m=M.create({rows:B.rows,rem:R}),MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-    var key=function(ym){return MES[+ym.slice(5,7)-1]+' '+ym.slice(2,4)};
-    var techo={},rem={},rows=m.monthly('rem','2026-06','2027-08');
-    rows.forEach(function(r){if(r.techo!=null&&isFinite(r.techo))techo[key(r.ym)]=r.techo});
-    var vk=Object.keys(R.vintages).sort().reverse();
-    rows.forEach(function(r){for(var i=0;i<vk.length;i++){var p=R.vintages[vk[i]].tcPath;if(p&&isFinite(p[r.ym])){rem[key(r.ym)]=p[r.ym];break}}});
-    var v=m.vintage;
-    if(v&&v.next12&&isFinite(v.next12.tc))rem[key(v.next12.horizon)]=v.next12.tc;
-    if(v&&v.annual&&isFinite(v.annual.tc_dec27))rem['DIC 27']=v.annual.tc_dec27;
-    if(Object.keys(techo).length<12)return null;
-    return{techo:techo,rem:rem,vintage:v?v.label:null,lastOfficial:m.lastOfficial};
-  }catch(e){return null}
+window.BANDS_FEED=null;
+window.BANDS_FEED_READY=(function(){
+  var URLS=[
+    {u:'https://rem-tracker.vercel.app/data/bandas-bcra.json',label:'REM Tracker (Vercel)'},
+    {u:'https://raw.githubusercontent.com/lucascepu/rem-tracker/main/data/bandas-bcra.json',label:'REM Tracker (respaldo GitHub)'}
+  ];
+  var KEY='bandasBcraFeed.v1',TIMEOUT=3500;
+  var ISO=/^\d{4}-\d{2}-\d{2}$/;
+  function num(x){return typeof x==='number'&&isFinite(x);}
+  function validRows(a,withEnd){
+    if(!Array.isArray(a)||!a.length)return false;
+    var f=a[0],l=a[a.length-1];
+    return ISO.test(f.date)&&ISO.test(l.date)&&f.date<=l.date&&num(f.piso)&&num(f.techo)&&num(l.piso)&&num(l.techo);
+  }
+  function valid(j){
+    if(!j||typeof j!=='object')return false;
+    if(!/^1\./.test(String(j.schema_version)))return false;
+    if(!validRows(j.official_daily)||!validRows(j.projected_daily)||!Array.isArray(j.monthly_ceiling)||!j.monthly_ceiling.length)return false;
+    var c=j.counts||{};
+    if(c.official_daily!=null&&c.official_daily!==j.official_daily.length)return false;
+    if(c.projection_weekdays!=null&&c.projection_weekdays!==j.projected_daily.length)return false;
+    return true;
+  }
+  function getJSON(u){
+    return new Promise(function(res,rej){
+      var done=false,ctl=('AbortController' in window)?new AbortController():null;
+      var t=setTimeout(function(){if(done)return;done=true;if(ctl)ctl.abort();rej(new Error('timeout'));},TIMEOUT);
+      fetch(u,{cache:'no-cache',signal:ctl?ctl.signal:undefined}).then(function(r){
+        if(!r.ok)throw new Error('HTTP '+r.status);return r.json();
+      }).then(function(j){if(done)return;done=true;clearTimeout(t);valid(j)?res(j):rej(new Error('feed inválido'));},
+        function(e){if(done)return;done=true;clearTimeout(t);rej(e);});
+    });
+  }
+  function fromCache(){
+    try{var c=JSON.parse(localStorage.getItem(KEY)||'null');
+      if(c&&c.data&&valid(c.data))return{data:c.data,source:'copia local (sin conexión con REM Tracker)',fetchedAt:c.savedAt,stale:true};}catch(e){}
+    return null;
+  }
+  function save(j){try{localStorage.setItem(KEY,JSON.stringify({savedAt:Date.now(),data:j}));}catch(e){}}
+  function attempt(i){
+    if(i>=URLS.length)return Promise.resolve(fromCache());
+    return getJSON(URLS[i].u).then(function(j){save(j);return{data:j,source:URLS[i].label,fetchedAt:Date.now(),stale:false};},function(){return attempt(i+1);});
+  }
+  return attempt(0).then(function(r){window.BANDS_FEED=r;return r;},function(){return null;});
 })();
 </script>
 <style>
@@ -275,6 +299,23 @@ window.REMT=(function(){
   .fut-field select:focus, .fut-field input:focus { border-color:var(--blue); }
   .fut-note { font-size:10px; color:var(--txt3); margin-top:6px; }
   .chart-wrap-fut { height:220px; margin-bottom:14px; }
+  /* Bandas BCRA (feed REM Tracker) */
+  .bands-panel { border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin:14px 0 4px; background:var(--bg-card); }
+  .bands-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px 14px; }
+  .bp-l { font-size:9px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--txt3); }
+  .bp-v { font-size:16px; font-weight:700; margin-top:2px; white-space:nowrap; }
+  .bp-sub { font-size:10px; color:var(--txt3); margin-top:2px; line-height:1.4; }
+  .bp-foot { font-size:10px; color:var(--txt3); margin-top:10px; line-height:1.5; border-top:1px solid var(--border); padding-top:8px; }
+  .bp-warn { font-size:11px; color:var(--amber); line-height:1.5; }
+  .bp-badge { display:inline-block; padding:1px 7px; border-radius:5px; font-size:9px; font-weight:700; letter-spacing:.05em; border:1px solid var(--border); }
+  .bp-ok { color:var(--green); border-color:rgba(95,159,132,.4); background:rgba(95,159,132,.08); }
+  .bp-est { color:var(--amber); border-color:rgba(194,155,85,.4); background:rgba(194,155,85,.08); }
+  .bp-proj { color:var(--blue); border-color:rgba(107,159,209,.4); background:rgba(107,159,209,.08); }
+  #bandsFutBox table { border-collapse:collapse; width:100%; font-size:12px; }
+  #bandsFutBox th { font-size:10px; color:var(--txt3); font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:8px 10px; text-align:right; border-bottom:1px solid var(--border); white-space:nowrap; }
+  #bandsFutBox td { padding:8px 10px; text-align:right; border-bottom:1px solid var(--border); color:var(--txt2); white-space:nowrap; }
+  #bandsFutBox th:first-child, #bandsFutBox td:first-child { text-align:left; }
+  @media(max-width:720px){ .bands-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .bp-v { font-size:15px; } }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -312,13 +353,13 @@ window.REMT=(function(){
   <div class="bb-metrics" id="bbMetricsHist">
     <div class="bb-metric">
       <div class="bb-m-label">Techo BCRA</div>
-      <div class="bb-m-val amber" id="techoVal">$1.942,50</div>
+      <div class="bb-m-val amber" id="techoVal">—</div>
       <div class="bb-m-sub" id="deltaTechoSub">—</div>
     </div>
     <div class="bb-vsep"></div>
     <div class="bb-metric">
       <div class="bb-m-label">Brecha al techo</div>
-      <div class="bb-m-val green" id="cardBrecha">+27.13%</div>
+      <div class="bb-m-val green" id="cardBrecha">—</div>
       <div class="bb-m-sub" id="pctRow">hist <span id="pctHist">—</span> · 6M <span id="pct6m">—</span></div>
     </div>
     <div class="bb-vsep"></div>
@@ -334,6 +375,8 @@ window.REMT=(function(){
       <div class="bb-m-sub" id="periodVarSub">—</div>
     </div>
   </div>
+
+  <div id="bandsPanel" class="bands-panel"></div>
 
   <!-- ── Tira de métricas horizontal — FUTUROS (mismo formato, otro contenido) ── -->
   <div class="bb-metrics" id="bbMetricsFut" style="display:none">
@@ -396,7 +439,7 @@ window.REMT=(function(){
 <div class="chart-wrap">
 <div id="hoverBar"></div>
   <label id="techoToggleRow" class="techo-toggle-fixed" onclick="toggleTechoSiopel()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
-    <span id="techoToggleLabel" style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);transition:color .15s">Techo BCRA</span>
+    <span id="techoToggleLabel" style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);transition:color .15s">Bandas BCRA</span>
     <span id="techoToggleTrack" style="position:relative;width:32px;height:17px;border-radius:9px;background:var(--bg-card);border:1px solid var(--border);transition:background .18s,border-color .18s;flex-shrink:0">
       <span id="techoToggleThumb" style="position:absolute;top:1px;left:1px;width:13px;height:13px;border-radius:50%;background:var(--txt3);transition:left .18s,background .18s"></span>
     </span>
@@ -405,7 +448,9 @@ window.REMT=(function(){
 </div>
 <div class="legend">
   <span id="legH" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-  <span class="leg-item" id="legTechoItem"><span class="leg-line leg-d1"></span>techo oficial</span>
+  <span class="leg-item" id="legTechoItem"><span class="leg-line" style="border-top:2px solid var(--amber)"></span>techo oficial</span>
+  <span class="leg-item" id="legTechoPItem"><span class="leg-line leg-d1"></span>techo proyectado</span>
+  <span class="leg-item" id="legPisoItem"><span class="leg-line" style="border-top:2px solid #9AA7B5"></span>piso oficial</span>
   <span class="leg-item"><span class="leg-line leg-solid"></span>SIOPEL (Divisa Venta)</span>
   <span class="leg-item" id="legPromItem"><span class="leg-line leg-d2"></span>nivel implícito · brecha prom. <span id="legWinLabel">1M</span></span>
   <span class="leg-item" id="legProvItem" style="display:none"><span class="leg-line leg-d7"></span>provisorio (intradía)</span>
@@ -662,9 +707,15 @@ window.REMT=(function(){
   </div>
 </div>
 
+<div id="bandsFutBox" style="display:none;margin:22px 0 6px">
+  <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Vista futura · Techo BCRA al cierre de mes (feed REM Tracker)</div>
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow-x:auto" id="bandsFutTbl"></div>
+  <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="bandsFutNote"></div>
+</div>
+
 <p class="footnote" id="footerNote">
 
-  SIOPEL: datos reales abr 2025–<span id="footerFecha">13 jul 2026</span>. Techo: crawling peg BCRA (IPC INDEC T-2); valores oficiales BCRA hasta nov-26; desde dic-26 proyectado con IPC REM (fuente única: rem-tracker.vercel.app).
+  SIOPEL: datos reales abr 2025–<span id="footerFecha">13 jul 2026</span>. Bandas BCRA: fuente única REM Tracker (bandas-bcra.json) — oficiales (Excel BCRA, regla IPC INDEC T-2) y proyectadas con IPC REM; las proyecciones no están confirmadas por el BCRA.
   Brecha = (techo − SIOPEL) / SIOPEL. Proyecciones: REM BCRA (septiembre-2026).
 </p>
 <div class="glosario">
@@ -685,10 +736,10 @@ window.REMT=(function(){
   </div><!-- /glosarioBody -->
 </div>
 
-<script>
+<script type="text/plain" id="appMain">
 (function(){
   var gc='rgba(255,255,255,.04)', tc='rgba(255,255,255,.80)';
-  var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)';
+  var TECH='#F5C36B', DOLAR='#78AEDE', FILL='rgba(120,174,222,.14)', PISO='#9AA7B5';
   var AVGC='#B4B2A9', REMC='#AFA9EC', SCA='#7EC8E3', SCB='#5DCAA5', SCC='#F0997B';
   function N(n){ return new Array(n).fill(null); }
 
@@ -774,6 +825,46 @@ window.REMT=(function(){
   /* ── PERIOD SELECTOR ── */
   var hDates=['2025-04-01','2025-04-03','2025-04-04','2025-04-07','2025-04-08','2025-04-09','2025-04-10','2025-04-11','2025-04-14','2025-04-15','2025-04-16','2025-04-21','2025-04-22','2025-04-23','2025-04-24','2025-04-25','2025-04-28','2025-04-29','2025-04-30','2025-05-05','2025-05-06','2025-05-07','2025-05-08','2025-05-09','2025-05-12','2025-05-13','2025-05-14','2025-05-15','2025-05-16','2025-05-19','2025-05-20','2025-05-21','2025-05-22','2025-05-23','2025-05-27','2025-05-28','2025-05-29','2025-05-30','2025-06-02','2025-06-03','2025-06-04','2025-06-05','2025-06-06','2025-06-09','2025-06-10','2025-06-11','2025-06-12','2025-06-13','2025-06-17','2025-06-18','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-07','2025-07-08','2025-07-10','2025-07-11','2025-07-14','2025-07-15','2025-07-16','2025-07-17','2025-07-18','2025-07-21','2025-07-22','2025-07-23','2025-07-24','2025-07-25','2025-07-28','2025-07-29','2025-07-30','2025-07-31','2025-08-01','2025-08-04','2025-08-05','2025-08-06','2025-08-07','2025-08-08','2025-08-11','2025-08-12','2025-08-13','2025-08-14','2025-08-18','2025-08-19','2025-08-20','2025-08-21','2025-08-22','2025-08-25','2025-08-26','2025-08-27','2025-08-28','2025-08-29','2025-09-02','2025-09-03','2025-09-04','2025-09-05','2025-09-08','2025-09-09','2025-09-10','2025-09-11','2025-09-12','2025-09-15','2025-09-16','2025-09-17','2025-09-18','2025-09-19','2025-09-22','2025-09-23','2025-09-24','2025-09-25','2025-09-26','2025-09-29','2025-09-30','2025-10-01','2025-10-02','2025-10-03','2025-10-06','2025-10-07','2025-10-08','2025-10-09','2025-10-14','2025-10-15','2025-10-16','2025-10-17','2025-10-20','2025-10-21','2025-10-22','2025-10-23','2025-10-24','2025-10-27','2025-10-28','2025-10-29','2025-10-30','2025-10-31','2025-11-03','2025-11-04','2025-11-05','2025-11-07','2025-11-10','2025-11-12','2025-11-13','2025-11-14','2025-11-17','2025-11-18','2025-11-19','2025-11-20','2025-11-25','2025-11-26','2025-11-28','2025-12-01','2025-12-02','2025-12-03','2025-12-04','2025-12-05','2025-12-09','2025-12-10','2025-12-11','2025-12-12','2025-12-15','2025-12-16','2025-12-17','2025-12-18','2025-12-19','2025-12-22','2025-12-23','2025-12-26','2025-12-29','2025-12-30','2026-01-02','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-09','2026-01-12','2026-01-13','2026-01-14','2026-01-15','2026-01-16','2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-18','2026-02-19','2026-02-20','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-25','2026-03-26','2026-03-27','2026-03-30','2026-03-31','2026-04-01','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-06','2026-07-07','2026-07-08','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-27','2026-07-28','2026-07-29','2026-07-30','2026-07-31','2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07','2026-08-10','2026-08-11','2026-08-12','2026-08-13','2026-08-14','2026-08-18','2026-08-19','2026-08-20','2026-08-21','2026-08-24','2026-08-25','2026-08-26','2026-08-27','2026-08-28','2026-08-31','2026-09-01','2026-09-02','2026-09-03','2026-09-04','2026-09-07','2026-09-08','2026-09-09','2026-09-10','2026-09-11','2026-09-14','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-09-21','2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02','2026-10-05','2026-10-06','2026-10-07','2026-10-08','2026-10-09','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-19','2026-10-20','2026-10-21','2026-10-22','2026-10-23','2026-10-26','2026-10-27','2026-10-28','2026-10-29','2026-10-30','2026-11-02','2026-11-03','2026-11-04','2026-11-05','2026-11-06','2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13','2026-11-16','2026-11-17','2026-11-18','2026-11-19','2026-11-24','2026-11-25','2026-11-26','2026-11-27','2026-11-30','2026-12-01','2026-12-02','2026-12-03','2026-12-04','2026-12-09','2026-12-10','2026-12-11','2026-12-14','2026-12-15','2026-12-16','2026-12-17','2026-12-18','2026-12-21','2026-12-22','2026-12-23','2026-12-24','2026-12-28','2026-12-29','2026-12-30','2026-12-31'];
   var IDX_DEC1=154, IDX_MAY1=251, IDX_END=414; /* fin de hT (dic-26) — usado solo por PROYECCIÓN */
+
+  /* ══ BANDAS BCRA — fuente única: feed de REM Tracker. Aquí NO se calcula ninguna banda: solo se lee y se alinea por fecha. ══
+     · 2026 en adelante: official_daily (OFICIAL) y projected_daily (PROYECTADO), tal como los publica el feed.
+     · Antes de 2026 se conserva la serie histórica embebida (banda previa al régimen actual, ya cerrada y fuera del feed).
+     · Las fechas sin registro en el feed quedan en null: no se completan ni interpolan. */
+  var BANDS=(function(){
+    var F=window.BANDS_FEED,B={ok:false,official:{},projected:{},monthly:{},lastOfficial:null,futTecho:{},futRem:{},futStatus:{},futIpc:{},source:null,stale:false,fetchedAt:null,snapshot:null,vintage:null,implied:null};
+    if(!F||!F.data)return B;
+    var d=F.data,MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    function key(ym){return MES[+ym.slice(5,7)-1]+' '+ym.slice(2,4);}
+    d.official_daily.forEach(function(r){B.official[r.date]=r;if(!B.lastOfficial||r.date>B.lastOfficial)B.lastOfficial=r.date;});
+    d.projected_daily.forEach(function(r){B.projected[r.date]=r;});
+    d.monthly_ceiling.forEach(function(r){
+      B.monthly[r.month]=r;
+      if(r.month<'2026-06')return; /* la vista futura/futuros arranca en JUN 26 */
+      var k=key(r.month);B.futTecho[k]=r.techo;B.futStatus[k]=r.status;B.futIpc[k]={rate:r.ipc_rate_pct,month:r.ipc_month,origin:r.ipc_origin};
+      if(r.rem_fx_mean!=null)B.futRem[k]=r.rem_fx_mean;
+    });
+    /* TC REM de meses sin rem_fx_mean en el mes: última mediana publicada en cualquier relevamiento (sin interpolar) */
+    (d.rem_vintages||[]).slice().reverse().forEach(function(v){
+      var p=v.monthly_fx_mean_path||{};
+      Object.keys(p).forEach(function(ym){var k=key(ym);if(ym>='2026-06'&&B.monthly[ym]&&B.futRem[k]==null)B.futRem[k]=p[ym];});
+    });
+    B.ok=true;B.source=F.source;B.stale=!!F.stale;B.fetchedAt=F.fetchedAt;B.snapshot=d.date_of_snapshot||null;
+    B.vintage=(d.assumptions||{}).vintage_used||null;B.implied=d.implied_inflation||null;
+    return B;
+  })();
+  var hTO=[],hTP=[],hPO=[]; /* techo oficial · techo proyectado · piso oficial (alineados a hDates) */
+  (function(){
+    for(var i=0;i<hDates.length;i++){
+      var dt=hDates[i];hTO.push(null);hTP.push(null);hPO.push(null);
+      if(dt<'2026-01-02'){hTO[i]=hT[i];continue;}
+      hT[i]=null; /* se descartan los valores embebidos de 2026 en adelante */
+      var o=BANDS.official[dt],p=BANDS.projected[dt];
+      if(o){hTO[i]=o.techo;hPO[i]=o.piso;hT[i]=o.techo;}
+      else if(p){hTP[i]=p.techo;hT[i]=p.techo;}
+    }
+    var li=BANDS.lastOfficial?hDates.indexOf(BANDS.lastOfficial):-1;
+    if(li>=0&&hTO[li]!=null)hTP[li]=hTO[li]; /* la línea proyectada arranca en el último valor oficial */
+  })();
   var IDX_HIST_END = (function(){
     /* Fin de la zona historica visible SIOPEL/BRECHA -- ANTES era un indice fijo
        escrito a mano (con un comentario "actualizar cada mes") que se quedo
@@ -884,6 +975,7 @@ window.REMT=(function(){
         for(var i=xMn;i<=xMx;i++){
           if(hS[i]!=null) vals.push(hS[i]);
           if(showTechoSiopel && hT[i]!=null) vals.push(hT[i]);
+          if(showTechoSiopel && hPO[i]!=null) vals.push(hPO[i]);
         }
         if(!vals.length) return;
         var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
@@ -972,14 +1064,19 @@ window.REMT=(function(){
   })();
 
   var sSiopelActual=[1489,1488,1488.5,1486.5,1492,1488,1482,1471.5,1474.5,1476,1478,1481,1477.5,1483,1489,1497,1497,1498,1496,1488,1485,1495,1496,1496.5,1499.5,1498.5,1495.5,1490.5,1491.5,1492,1487.5,1495,1497.00,1497.00,1499.00,1510.00,1511.50,1514.00,1512.00,1512.00,1508.50,1513.00,1511.00,1508.00,1511.50,1511.50,1512.00,1513.50,1513.00,1508.50,1507.50,1506.50,1513.50,1510.00,1514.50,1514.00,1514.00,1516.00,1519.50,1525.50,1524.50,1522.00,1517.00,1524.50,1520.00,1520.00,1520.00,1517.00,1515.50,1517.00,1512.50,1513.00,1513.00,1518.00,1524.50,1525.00,1526.00,1528.00];
-  var pT=[1808.13,1809.35,1810.56,1814.21,1815.42,1816.64,1822.74,1823.96,1825.19,1826.41,1827.63,1831.31,1832.54,1833.77,1835,1836.23,1839.93,1841.16,1842.4,1843.63,1844.87,1848.23,1849.36,1850.48,1851.6,1852.73,1856.1,1857.23,1858.36,1859.49,1860.62,1865.14,1919.4,1953.95,1989.12,2022.94];
+  var pLbl=['1/7','2/7','3/7','6/7','7/7','8/7','13/7','14/7','15/7','16/7','17/7','20/7','21/7','22/7','23/7','24/7','27/7','28/7','29/7','30/7','31/7','3/8','4/8','5/8','6/8','7/8','10/8','11/8','12/8','13/8','14/8','18/8','Sep','Oct','Nov','Dic 26'];
+  var pT=pLbl.map(function(l){ /* techo desde el feed: fechas d/m → official_daily; Sep/Oct/Nov/Dic → cierre mensual (monthly_ceiling) */
+    var mm=/^(\d+)\/(\d+)$/.exec(l);
+    if(mm){ var o=BANDS.official['2026-'+('0'+mm[2]).slice(-2)+'-'+('0'+mm[1]).slice(-2)]; return o?o.techo:null; }
+    var ym={'Sep':'2026-09','Oct':'2026-10','Nov':'2026-11','Dic 26':'2026-12'}[l], r=ym?BANDS.monthly[ym]:null;
+    return r?r.techo:null;
+  });
   var pS=sSiopelActual.concat(N(4));
-  var pA=pT.map(function(t){ return Math.round(t/1.157); });
+  var pA=pT.map(function(t){ return t==null?null:Math.round(t/1.157); });
   var pREM=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1530,1545,1580,1614];
   var pSCA=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1587,1628,1667,1704];
   var pSCB=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1688,1732,1774,1813];
   var pSCC=[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,1860,1909,1955,1998];
-  var pLbl=['1/7','2/7','3/7','6/7','7/7','8/7','13/7','14/7','15/7','16/7','17/7','20/7','21/7','22/7','23/7','24/7','27/7','28/7','29/7','30/7','31/7','3/8','4/8','5/8','6/8','7/8','10/8','11/8','12/8','13/8','14/8','18/8','Sep','Oct','Nov','Dic 26'];
 
   var pShow=new Set(['8/5','29/5','1/6','4/6','5/6','8/6','9/6','10/6','30/6','1/7','31/7',
     'Ago','Sep','Oct','Nov','Dic 26']);
@@ -994,18 +1091,14 @@ window.REMT=(function(){
 
   /* ── BRECHA MODE DATA ── */
   var IDX_BRECHA_START=8; /* 14-abr-2025: primer dia con banda normalizada */
-  var brechaVals=hS.map(function(s,i){return (s!=null&&i>=IDX_BRECHA_START)?Math.round((hT[i]-s)/s*1000)/10:null;});
+  var brechaVals=hS.map(function(s,i){return (s!=null&&hT[i]!=null&&i>=IDX_BRECHA_START)?Math.round((hT[i]-s)/s*1000)/10:null;});
   var avgRef=new Array(NH).fill(null); /* calculado dinámicamente por setAvgWindow */
 
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
-  var FUT_REM   = (window.REMT&&window.REMT.rem)||{
-    'JUN 26':1422,'JUL 26':1482,'AGO 26':1512,'SEP 26':1530,
-    'OCT 26':1545,'NOV 26':1580,'DIC 26':1614
-  ,'ENE 27':1644,'FEB 27':1672,'MAR 27':1704,'ABR 27':1742,'MAY 27':1781,'JUN 27':1821,'JUL 27':1861
-  ,'AGO 27':1903,'SEP 27':1945,'OCT 27':1966,'NOV 27':1987,'DIC 27':2008};
-  var FUT_TECHO = (window.REMT&&window.REMT.techo)||{'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
+  var FUT_REM   = BANDS.futRem; /* medianas REM publicadas (feed); sin interpolar */
+  var FUT_TECHO = BANDS.futTecho; /* feed REM Tracker; sin valores propios */
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
-  /* REM septiembre-2026 (BCRA, publ. 6-oct-2026) -- Cuadro 10.4, TC nominal promedio mensual dias habiles. Abr-27..Dic-27 (interpolados) son solo respaldo si rem-tracker no carga; con rem-tracker se usan unicamente los valores publicados (sep-27 a 12 meses y dic-27) */
+  /* REM: medianas mensuales de TC publicadas en los relevamientos (vía feed de REM Tracker). Sin interpolar. */
   /* MEP/CCL -- fuente Zion (normaliza Ambito Financiero + ArgentinaDatos), 1-ene a 11-sep-2026 */
   var hDatesMC=['2026-01-01','2026-01-02','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-09','2026-01-12','2026-01-13','2026-01-14','2026-01-15','2026-01-16','2026-01-19','2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-16','2026-02-17','2026-02-18','2026-02-19','2026-02-20','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-15','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-06','2026-07-07','2026-07-08','2026-07-09','2026-07-10','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-27','2026-07-28','2026-07-29','2026-07-30','2026-07-31','2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07','2026-08-10','2026-08-11','2026-08-12','2026-08-13','2026-08-14','2026-08-17','2026-08-18','2026-08-19','2026-08-20','2026-08-21','2026-08-24','2026-08-25','2026-08-26','2026-08-27','2026-08-28','2026-08-31','2026-09-01','2026-09-02','2026-09-03','2026-09-04','2026-09-07','2026-09-08','2026-09-09','2026-09-10','2026-09-11','2026-09-14','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-09-21','2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02','2026-10-05','2026-10-06','2026-10-07','2026-10-08','2026-10-09','2026-10-12','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-19','2026-10-20','2026-10-21','2026-10-22'];
   var hMEP=[1480.74,1506.21,1501.49,1498.06,1494.56,1494.11,1489.42,1487.89,1487.11,1481.74,1473.83,1472.15,1466.7,1471.72,1463.7,1458.81,1469.38,1468.93,1464.66,1462.35,1458.88,1460.32,1450.23,1460.38,1457.29,1460.8,1447.99,1438.54,1432.85,1431.68,1417.81,1423.6,1423.6,1423.6,1415.69,1409.07,1402.08,1394.84,1405.08,1425.86,1437.58,1419.54,1413.54,1434.11,1427.7,1433.21,1437.53,1430.17,1422.12,1413.8,1415.52,1424.34,1424.92,1417.3,1420.38,1421.08,1422.13,1415.68,1415.68,1404.55,1401.28,1429.73,1432.51,1422.84,1434.04,1434.04,1434.04,1429.57,1430.16,1424.45,1420.86,1412.5,1404.47,1412.09,1398.53,1406.23,1412.53,1414.73,1414.42,1419.84,1424.4,1438.34,1461.73,1447.18,1435.6,1442.43,1442.43,1440.54,1429.65,1427.88,1427.48,1427.13,1425.02,1418.91,1425.77,1418.81,1426.5,1428.41,1433.99,1431.71,1426.11,1431.92,1431.92,1432.61,1429.73,1432.63,1434.42,1438.6,1451.54,1461.18,1456.92,1458.79,1467.09,1457.96,1452.3,1449.23,1450.36,1450.36,1453.73,1461.63,1468.31,1477.03,1484.64,1506.68,1505.75,1499.38,1499.3,1509.87,1521.37,1521.03,1529.77,1524.53,1525.47,1529.19,1529.66,1529.66,1523.44,1519.76,1507.57,1514.11,1512.49,1519.39,1512.35,1509.85,1513.61,1519.12,1532.63,1533.04,1533.5,1524.06,1508.43,1517.67,1527.87,1520.94,1518.45,1520.28,1524.77,1526.26,1523.84,1525.19,1520.94,1514.78,1514.78,1517.76,1522.29,1524.57,1535.08,1538.43,1538.74,1542.96,1536.34,1537.49,1535.52,1532.71,1534.3,1528.13,1525.39,1528.21,1527.81,1532.55,1536.39,1538.16,1534.1,1532.45,1537.56,1533.83,1538.32,1534.44,1536.51,1541.89,1544.35,1552.5,1555.31,1549.36,1542.56,1552.44,1549.26,1538.39,1541.11,1539.01,1538.27,1539.28,1539.28,1539.94,1534.88,1532.15,1536.73,1540.8,1545.68,1547.78,1549.42];
@@ -1483,7 +1576,7 @@ window.REMT=(function(){
       var col1,col2,col3;
       if(futColGroup==='a'){
         var spPct = (fut!=null && rem!=null) ? ((fut/rem-1)*100).toFixed(1) : null;
-        var dist  = fut!=null ? ((techo/fut-1)*100).toFixed(1) : null;
+        var dist  = (fut!=null && techo!=null) ? ((techo/fut-1)*100).toFixed(1) : null;
         var spVal = spPct!=null ? parseFloat(spPct) : 0;
         var spCol = spPct==null?'var(--txt3)': spVal<0?'var(--teal)':'var(--coral)';
         col1='<td style="padding:'+cp+';text-align:right;color:var(--txt2);white-space:nowrap;">'+fmt$(rem)+'</td>';
@@ -1615,7 +1708,7 @@ window.REMT=(function(){
     /* Also keep monthlySiopelSub if it exists */
     if(el) el.innerHTML=parts.join('<span style="color:var(--txt3);margin:0 5px">·</span>');
   })();
-  var curBr=lri>=0?Math.round((hT[lri]-hS[lri])/hS[lri]*1000)/10:23.2;
+  var curBr=(lri>=0&&hT[lri]!=null)?Math.round((hT[lri]-hS[lri])/hS[lri]*1000)/10:null;
   var curRef=new Array(NH).fill(curBr);
   var bPt=N(NH); if(lri>=0)bPt[lri]=7;
 
@@ -2293,7 +2386,7 @@ window.REMT=(function(){
   var chart=new Chart(document.getElementById('mc3'),{
     type:'line', plugins:[zPlug, monthlyLabelsPlugin],
     data:{labels:hDispLbl, datasets:[
-      {label:'Techo',data:hT,borderColor:TECH,borderWidth:1.5,borderDash:[6,3],
+      {label:'Techo',data:hTO,borderColor:TECH,borderWidth:1.5,
        pointRadius:0,fill:false,tension:.15,spanGaps:true},
       {label:'SIOPEL',data:hS,borderColor:DOLAR,borderWidth:3,
        pointRadius:hPt,pointBackgroundColor:DOLAR,
@@ -2307,7 +2400,9 @@ window.REMT=(function(){
       {label:'Brecha 15%',data:N(46),borderColor:SCB,borderWidth:1.5,
        borderDash:[5,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
       {label:'Brecha 5%',data:N(46),borderColor:SCC,borderWidth:1.5,
-       borderDash:[6,3],pointRadius:0,fill:false,tension:.2,spanGaps:false}
+       borderDash:[6,3],pointRadius:0,fill:false,tension:.2,spanGaps:false},
+      {label:'Techo proyectado',data:hTP,borderColor:TECH,borderWidth:1.5,borderDash:[6,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
+      {label:'Piso BCRA',data:hPO,borderColor:PISO,borderWidth:1.2,pointRadius:0,fill:false,tension:0,spanGaps:true}
     ]},
     options:{
       responsive:true,
@@ -2489,7 +2584,7 @@ window.REMT=(function(){
            fill:true,backgroundColor:'rgba(55,138,221,.1)',tension:.2,spanGaps:false},
           {label:'Prom. '+document.getElementById('winLabel').textContent,data:mAvgVals,borderColor:AVGC,borderWidth:1.5,
            borderDash:[3,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
-          {label:'Nivel actual ('+curBr+'%)',data:mCurVals,borderColor:TECH,borderWidth:1.5,
+          {label:'Nivel actual ('+(curBr==null?'s/d':curBr+'%')+')',data:mCurVals,borderColor:TECH,borderWidth:1.5,
            borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
         ];
       } else {
@@ -2500,7 +2595,7 @@ window.REMT=(function(){
          fill:true,backgroundColor:'rgba(55,138,221,.1)',tension:.3,spanGaps:false},
         {label:'Prom. '+document.getElementById('winLabel').textContent,data:avgRef,borderColor:AVGC,borderWidth:1.5,
          borderDash:[3,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
-        {label:'Nivel actual ('+curBr+'%)',data:curRef,borderColor:TECH,borderWidth:1.5,
+        {label:'Nivel actual ('+(curBr==null?'s/d':curBr+'%')+')',data:curRef,borderColor:TECH,borderWidth:1.5,
          borderDash:[2,4],pointRadius:0,fill:false,tension:0,spanGaps:true}
       ];
       }
@@ -2529,7 +2624,7 @@ window.REMT=(function(){
     }else{
       chart.data.labels=isH?hDispLbl:pDispLbl;
       chart.data.datasets=[
-        {label:'Techo',data:isH?hT:pT,borderColor:showTechoSiopel?TECH:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?(isP?3:2):0,borderDash:[6,3],
+        {label:'Techo',data:isH?hTO:pT,borderColor:showTechoSiopel?TECH:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?(isP?3:2):0,borderDash:isH?[]:[6,3],
          pointRadius:showTechoSiopel?(isP?tPtSc:0):0,pointBackgroundColor:TECH,pointHoverRadius:showTechoSiopel?5:0,pointHoverBackgroundColor:TECH,fill:false,tension:0,spanGaps:true},
         {label:'SIOPEL',data:isH?hS:pS,borderColor:DOLAR,borderWidth:2.5,
          pointRadius:isH?hPt:pPt,pointBackgroundColor:DOLAR,
@@ -2545,7 +2640,9 @@ window.REMT=(function(){
          borderDash:[7,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
         
         {label:'Brecha 5%',data:isH?N(NH):pSCC,borderColor:SCC,borderWidth:1.5,
-         borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false}
+         borderDash:[6,3],pointRadius:isH?0:pPtSc,fill:false,tension:.2,spanGaps:false},
+        {label:'Techo proyectado',data:isH?hTP:N(pS.length),borderColor:showTechoSiopel?TECH:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?2:0,borderDash:[6,3],pointRadius:0,fill:false,tension:0,spanGaps:true},
+        {label:'Piso BCRA',data:isH?hPO:N(pS.length),borderColor:showTechoSiopel?PISO:'rgba(0,0,0,0)',borderWidth:showTechoSiopel?1.5:0,pointRadius:0,fill:false,tension:0,spanGaps:true}
       ];
       chart.options.scales.y.min=isB?undefined:isH?1000:1300;
       chart.options.scales.y.max=isB?undefined:isH?1900:2100;
@@ -2592,6 +2689,8 @@ window.REMT=(function(){
     var _bbmH=document.getElementById('bbMetricsHist');
     var _bbmF=document.getElementById('bbMetricsFut');
     if(_bbmH) _bbmH.style.display=(isF||isMC)?'none':'';
+    var _bpn=document.getElementById('bandsPanel'); if(_bpn) _bpn.style.display=(isF||isMC)?'none':'';
+    var _bfb=document.getElementById('bandsFutBox'); if(_bfb) _bfb.style.display=isF?'block':'none';
     if(_bbmF) _bbmF.style.display=isF?'':'none';
     if(isF){
       (function(){
@@ -2701,6 +2800,7 @@ window.REMT=(function(){
     if(_ttr) _ttr.style.display=(isH||(useMonthly&&!isB))?'flex':'none';
     var _lti=document.getElementById('legTechoItem');
     if(_lti) _lti.style.display=showTechoSiopel?'flex':'none';
+    ['legTechoPItem','legPisoItem'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display=(showTechoSiopel&&isH)?'flex':'none'; });
     /* "Prom. (móvil)" se calcula a partir del Techo (precio implícito si la
        brecha estuviera en su promedio de N ruedas) -- no es un promedio del
        precio de SIOPEL en si. Ocultarla junto con el Techo evita mostrar una
@@ -2759,12 +2859,8 @@ window.REMT=(function(){
     /* current value for card */
   
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
-  var FUT_REM   = (window.REMT&&window.REMT.rem)||{
-    'JUN 26':1422,'JUL 26':1482,'AGO 26':1512,'SEP 26':1530,
-    'OCT 26':1545,'NOV 26':1580,'DIC 26':1614
-  ,'ENE 27':1644,'FEB 27':1672,'MAR 27':1704,'ABR 27':1742,'MAY 27':1781,'JUN 27':1821,'JUL 27':1861
-  ,'AGO 27':1903,'SEP 27':1945,'OCT 27':1966,'NOV 27':1987,'DIC 27':2008};
-  var FUT_TECHO = (window.REMT&&window.REMT.techo)||{'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
+  var FUT_REM   = BANDS.futRem; /* medianas REM publicadas (feed); sin interpolar */
+  var FUT_TECHO = BANDS.futTecho; /* feed REM Tracker; sin valores propios */
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   var FUT_DEFAULT = {'SEP 26':1521.0,'OCT 26':1547.0,'NOV 26':1575.0,'DIC 26':1604.0,'ENE 27':1632.5,'FEB 27':1660.0,'MAR 27':1691.0,'ABR 27':1721.0,'MAY 27':1753.5,'JUN 27':1788.0,'JUL 27':1822.5,'AGO 27':1864.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
@@ -2862,8 +2958,8 @@ window.REMT=(function(){
     var l=actuals[0], p=actuals[1];
     var ds=+(l.s-p.s).toFixed(2);
     var pct=+(ds/p.s*100).toFixed(2);
-    var bl=(l.t-l.s)/l.s*100, bp=(p.t-p.s)/p.s*100;
-    var db=+(bl-bp).toFixed(1);
+    var bl=(l.t!=null)?(l.t-l.s)/l.s*100:null, bp=(p.t!=null)?(p.t-p.s)/p.s*100:null;
+    var db=(bl!=null&&bp!=null)?+(bl-bp).toFixed(1):null;
     var sg=function(v){return v>0?'+':''};
     var ar=function(v){return v>0?'▲':'▼'};
     var cls=function(v){return v>0?'dUp':'dDn'};
@@ -2885,11 +2981,76 @@ window.REMT=(function(){
     }
 
     var elDT=document.getElementById('deltaTechoSub');
-    if(elDT&&actuals.length>=2){
+    if(elDT&&actuals.length>=2&&actuals[0].t!=null&&actuals[1].t!=null){
       var _dt=+(actuals[0].t-actuals[1].t).toFixed(2);
       elDT.innerHTML='<span class="dUp">▲ +'+fmt$(_dt)+'</span> crawling peg';
     }
   })();
+
+
+  /* ══ PANEL DE BANDAS BCRA (diario) y VISTA FUTURA — todo leído del feed de REM Tracker, sin recalcular ══ */
+  function bpF2(v){ return v==null?'—':'$'+v.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function bpSg(v,d,u){ return v==null?'—':(v>=0?'+':'−')+Math.abs(v).toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d})+(u||''); }
+  function bpBadge(st){ var c=st==='OFICIAL'?'bp-ok':(st==='ESTIMADO TÉCNICO'?'bp-est':'bp-proj'); return '<span class="bp-badge '+c+'">'+st+'</span>'; }
+  function bpFeedLine(){
+    if(!BANDS.ok) return '';
+    var txt='Fuente: <b>REM Tracker</b> · bandas-bcra.json · '+BANDS.source+(BANDS.vintage?' · relevamiento REM '+BANDS.vintage:'')+(BANDS.snapshot?' · datos al '+BANDS.snapshot.split('-').reverse().join('/'):'');
+    if(BANDS.stale&&BANDS.fetchedAt){
+      var h=Math.max(0,Math.round((Date.now()-BANDS.fetchedAt)/3600000)), a=h>=48?Math.round(h/24)+' días':h+' h';
+      txt+='<br><span class="bp-warn">⚠ Sin conexión con REM Tracker: se usa la última copia válida guardada hace '+a+'.</span>';
+    } else if(BANDS.snapshot){
+      var ref=null; for(var q2=hS.length-1;q2>=0;q2--){ if(hS[q2]!=null){ ref=hDates[q2]; break; } }
+      if(ref&&BANDS.lastOfficial&&ref>BANDS.lastOfficial&&!BANDS.projected[ref]) txt+='<br><span class="bp-warn">⚠ El feed no cubre la fecha del último SIOPEL ('+ref+'): posible dato desactualizado.</span>';
+    }
+    return txt;
+  }
+  function renderBandsPanel(){
+    var el=document.getElementById('bandsPanel'), eT=document.getElementById('techoVal'), eB=document.getElementById('cardBrecha');
+    if(!el) return;
+    if(!BANDS.ok){
+      el.innerHTML='<div class="bp-warn">Bandas BCRA: dato no disponible. No se pudo leer el feed de REM Tracker y no hay una copia local válida.</div>';
+      if(eT) eT.textContent='—'; if(eB) eB.textContent='—'; return;
+    }
+    var li=-1; for(var q=hS.length-1;q>=0;q--){ if(hS[q]!=null){ li=q; break; } }  /* último SIOPEL con dato */
+    var d=li>=0?hDates[li]:null, sio=li>=0?hS[li]:null;
+    var o=d?BANDS.official[d]:null, p=d?BANDS.projected[d]:null, r=o||p;
+    var techo=r?r.techo:null, piso=o?o.piso:null;
+    var dif=(techo!=null&&sio!=null)?sio-techo:null, difP=(techo!=null&&sio!=null)?(sio/techo-1)*100:null;
+    var st=o?'OFICIAL':(p?p.status:null);
+    if(eT) eT.textContent=techo!=null?bpF2(techo):'—';
+    if(eB) eB.textContent=(techo!=null&&sio!=null)?bpSg((techo-sio)/sio*100,2,'%'):'—';
+    el.innerHTML='<div class="bands-grid">'+
+      '<div><div class="bp-l">Fecha</div><div class="bp-v">'+(d?d.split('-').reverse().join('/'):'—')+'</div><div class="bp-sub">'+(st?bpBadge(st):'sin dato de bandas para esta fecha')+'</div></div>'+
+      '<div><div class="bp-l">SIOPEL</div><div class="bp-v" style="color:var(--blue)">'+bpF2(sio)+'</div></div>'+
+      '<div><div class="bp-l">Techo '+(o?'oficial':'')+'</div><div class="bp-v" style="color:var(--amber)">'+bpF2(techo)+'</div></div>'+
+      '<div><div class="bp-l">Piso '+(o?'oficial':'')+'</div><div class="bp-v">'+bpF2(piso)+'</div></div>'+
+      '<div><div class="bp-l">SIOPEL − techo</div><div class="bp-v">'+(dif==null?'—':(dif>=0?'+':'−')+bpF2(Math.abs(dif)))+'</div></div>'+
+      '<div><div class="bp-l">% respecto del techo</div><div class="bp-v">'+bpSg(difP,2,'%')+'</div><div class="bp-sub">(SIOPEL / techo − 1)</div></div>'+
+    '</div><div class="bp-foot">'+bpFeedLine()+'</div>';
+  }
+  function renderBandsFut(){
+    var box=document.getElementById('bandsFutTbl'), note=document.getElementById('bandsFutNote');
+    if(!box) return;
+    if(!BANDS.ok){ box.innerHTML='<div class="bp-warn" style="padding:12px">Dato no disponible: sin conexión con el feed de REM Tracker.</div>'; if(note) note.textContent=''; return; }
+    var rows=Object.keys(BANDS.monthly).sort().filter(function(k){return k>='2026-09';}).map(function(k){return BANDS.monthly[k];});
+    var MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    var html='<table><thead><tr><th>Mes</th><th>Techo (cierre de mes)</th><th>Estado</th><th>IPC usado</th><th>TC REM (prom. mensual)</th><th>Techo vs REM</th></tr></thead><tbody>';
+    rows.forEach(function(m){
+      var fk=MES[+m.month.slice(5,7)-1]+' '+m.month.slice(2,4), rem=BANDS.futRem[fk];
+      var dm=m.date.slice(8,10)+'/'+m.date.slice(5,7), ult=m.last_official_trading_day;
+      html+='<tr><td><b>'+fk+'</b><div style="font-size:10px;color:var(--txt3)">cierre '+dm+'</div></td>'+
+        '<td><b style="color:var(--amber)">'+bpF2(m.techo)+'</b>'+(ult&&m.status!=='OFICIAL'?'<div style="font-size:10px;color:var(--txt3)">última rueda oficial '+ult.date.slice(8,10)+'/'+ult.date.slice(5,7)+': '+bpF2(ult.techo)+'</div>':'')+'</td>'+
+        '<td>'+bpBadge(m.status)+'</td>'+
+        '<td>'+(m.ipc_rate_pct==null?'—':m.ipc_rate_pct.toLocaleString('es-AR',{maximumFractionDigits:4})+'%')+'<div style="font-size:10px;color:var(--txt3)">'+(m.ipc_origin||'')+' · '+(m.ipc_month||'')+'</div></td>'+
+        '<td>'+(rem!=null?bpF2(rem):'<span style="color:var(--txt3)">sin dato REM</span>')+'</td>'+
+        '<td>'+(rem!=null?bpSg((m.techo/rem-1)*100,1,'%'):'—')+'</td></tr>';
+    });
+    box.innerHTML=html+'</tbody></table>';
+    if(note) note.innerHTML='El REM proyecta un tipo de cambio <b>promedio mensual</b>; el techo es el valor al <b>último día calendario</b> del mes (puede no coincidir con una rueda oficial). Los meses sin mediana mensual publicada en el REM no se interpolan. '+
+      (BANDS.implied?'«Implícito»: tasa mensual derivada de la inflación interanual esperada a '+BANDS.implied.horizon+' ('+BANDS.implied.yoy_pct+'%), supuesto calculado y no un pronóstico publicado. ':'')+
+      'Las proyecciones son cálculos de REM Tracker y no están confirmadas por el BCRA.';
+  }
+  renderBandsPanel(); renderBandsFut();
 
 
   /* ── ZOOM & AXIS DRAG INTERACTIONS ── */
@@ -3149,12 +3310,8 @@ window.REMT=(function(){
 
 
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
-  var FUT_REM   = (window.REMT&&window.REMT.rem)||{
-    'JUN 26':1422,'JUL 26':1482,'AGO 26':1512,'SEP 26':1530,
-    'OCT 26':1545,'NOV 26':1580,'DIC 26':1614
-  ,'ENE 27':1644,'FEB 27':1672,'MAR 27':1704,'ABR 27':1742,'MAY 27':1781,'JUN 27':1821,'JUL 27':1861
-  ,'AGO 27':1903,'SEP 27':1945,'OCT 27':1966,'NOV 27':1987,'DIC 27':2008};
-  var FUT_TECHO = (window.REMT&&window.REMT.techo)||{'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
+  var FUT_REM   = BANDS.futRem; /* medianas REM publicadas (feed); sin interpolar */
+  var FUT_TECHO = BANDS.futTecho; /* feed REM Tracker; sin valores propios */
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   var FUT_DEFAULT = {'SEP 26':1521.0,'OCT 26':1547.0,'NOV 26':1575.0,'DIC 26':1604.0,'ENE 27':1632.5,'FEB 27':1660.0,'MAR 27':1691.0,'ABR 27':1721.0,'MAY 27':1753.5,'JUN 27':1788.0,'JUL 27':1822.5,'AGO 27':1864.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
@@ -3506,6 +3663,12 @@ window.REMT=(function(){
     setInterval(checkForUpdates, 120000); /* cada 2 min, siempre -- no solo en horario de mercado */
   })();
 
+})();
+</script>
+<script>
+(function(){
+  function boot(){var src=document.getElementById('appMain'),el=document.createElement('script');el.text=src.textContent;document.body.appendChild(el);}
+  (window.BANDS_FEED_READY||Promise.resolve()).then(boot,boot);
 })();
 </script>
 </div><!-- /container -->

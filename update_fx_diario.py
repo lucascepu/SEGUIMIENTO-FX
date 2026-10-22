@@ -47,11 +47,9 @@ def get_arr_str(name):
     return m.group(1), m.start(1), m.end(1)
 
 hDates_str, _, _ = get_arr_str('hDates')
-hT_str, _, _     = get_arr_str('hT')
 hS_str, hS_s, hS_e = get_arr_str('hS')
 
 hDates = [x.strip().strip("'") for x in hDates_str.split(',')]
-hT     = [None if x.strip()=='null' else float(x.strip()) for x in hT_str.split(',')]
 hS     = [None if x.strip()=='null' else float(x.strip()) for x in hS_str.split(',')]
 
 # ── Encontrar índice de hoy ─────────────────────────────────────────────────
@@ -82,17 +80,14 @@ if hS[LRI_NEW] is not None:
         print(f"ADVERTENCIA: hS[{LRI_NEW}]={hS[LRI_NEW]} ya tiene valor. ¿Ya se actualizó hoy?")
         sys.exit(1)
 
-TECHO_HOY = hT[LRI_NEW]
+# El techo/piso ya NO se leen ni escriben acá: la fuente única es el feed de REM Tracker (bandas-bcra.json), que la página consume en vivo.
 SIOPEL_ANT = hS[LRI_PREV]
 DELTA = NUEVO_SIOPEL - SIOPEL_ANT
 DELTA_PCT = DELTA / SIOPEL_ANT * 100
-BRECHA = (TECHO_HOY - NUEVO_SIOPEL) / NUEVO_SIOPEL * 100
 
 print(f"── Resumen ─────────────────────────────")
 print(f"  Fecha:    {HOY} (idx {LRI_NEW})")
 print(f"  SIOPEL:   {SIOPEL_ANT} → {NUEVO_SIOPEL} ({DELTA:+.2f}, {DELTA_PCT:+.2f}%)")
-print(f"  Techo:    {TECHO_HOY}")
-print(f"  Brecha:   {BRECHA:.2f}%")
 print(f"  LRI:      {LRI_PREV} → {LRI_NEW}")
 
 # ── Fecha formateada para el hero ────────────────────────────────────────────
@@ -101,8 +96,6 @@ MESES = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','D
 HOY_LABEL = f"{HOY_DT.day} {MESES[HOY_DT.month]} {HOY_DT.year}"
 HOY_CHART = f"{HOY_DT.day}-{MESES[HOY_DT.month].upper()}"
 SIOPEL_FMT = f"${NUEVO_SIOPEL:,.2f}".replace(',','X').replace('.',',').replace('X','.')
-TECHO_FMT  = f"${TECHO_HOY:,.2f}".replace(',','X').replace('.',',').replace('X','.')
-BRECHA_FMT = f"+{BRECHA:.2f}%" if BRECHA >= 0 else f"{BRECHA:.2f}%"
 
 # ── Función de reemplazo seguro ──────────────────────────────────────────────
 errors = []
@@ -190,15 +183,7 @@ m_date = re.search(r'id="siopelDate">([^<]+)<', content)
 if m_date:
     replace_one(f'id="siopelDate">{m_date.group(1)}<', f'id="siopelDate">{HOY_LABEL}<', "siopelDate")
 
-# techoVal
-m_techo = re.search(r'id="techoVal">(\$[\d\.,]+)<', content)
-if m_techo:
-    replace_one(f'id="techoVal">{m_techo.group(1)}<', f'id="techoVal">{TECHO_FMT}<', "techoVal")
-
-# cardBrecha
-m_brecha = re.search(r'id="cardBrecha">([^<]+)<', content)
-if m_brecha:
-    replace_one(f'id="cardBrecha">{m_brecha.group(1)}<', f'id="cardBrecha">{BRECHA_FMT}<', "cardBrecha")
+# techoVal / cardBrecha: los completa la página desde el feed de REM Tracker (no se escriben acá)
 
 # ── 8. MEP/CCL (opcional, best-effort -- no bloquea el resto si no vino el dato) ──
 if MEP_VAL is not None and CCL_VAL is not None:
@@ -229,4 +214,4 @@ if errors:
 # ── Escribir ────────────────────────────────────────────────────────────────
 open(HTML, 'w', encoding='utf-8').write(content)
 print(f"\n✓ index.html actualizado correctamente")
-print(f"  Verificar: lri={LRI_NEW}, delta={DELTA:+.2f}, brecha={BRECHA:.2f}%")
+print(f"  Verificar: lri={LRI_NEW}, delta={DELTA:+.2f}")
