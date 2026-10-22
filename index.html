@@ -118,6 +118,7 @@ window.BANDS_FEED_READY=(function(){
   .bb-sep{border:none;border-top:1px solid rgba(255,255,255,.07);margin:0;}
   /* ── Metrics strip ── */
   .bb-metrics{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;align-items:stretch;padding:7px 0;}
+  #bbMetricsMc{grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr 1px 1fr;}
   #bbMetricsHist{grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr;} /* 4 tarjetas, no 3 -- override puntual, .bb-metrics de FUTUROS sigue en 3 */
   .bb-metric{display:flex;flex-direction:column;gap:4px;padding:0 20px;min-height:56px;}
   .bb-metric:first-child{padding-left:0;}
@@ -216,6 +217,9 @@ window.BANDS_FEED_READY=(function(){
 
   /* KPIs: grid 3 columnas iguales, sin sub-texto en mobile */
   .bb-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:0; align-items:start; }
+  #bbMetricsMc { grid-template-columns:repeat(2,1fr); row-gap:14px; } /* 5 tarjetas: 2 columnas en mobile */
+  #bbMetricsMc .bb-metric:last-child { grid-column:1 / -1; }
+  #bbMetricsMc .bb-metric { padding:0; }
   #bbMetricsHist { grid-template-columns:repeat(2,1fr); row-gap:14px; } /* 4 tarjetas: 2x2 en mobile, mas legible que 4 columnas angostas */
   .bb-vsep    { display:none; }
   .bb-metric  { padding:0 8px; min-height:auto; }
@@ -377,6 +381,36 @@ window.BANDS_FEED_READY=(function(){
       <div class="bb-m-label" id="futMLabelTna">TNA implícita DIC 26</div>
       <div class="bb-m-val amber" id="futMValTna">—</div>
       
+    </div>
+  </div>
+
+  <!-- ── Tira de métricas horizontal — MEP/CCL (mismo formato; mismos ids que usaba el panel) ── -->
+  <div class="bb-metrics" id="bbMetricsMc" style="display:none">
+    <div class="bb-metric">
+      <div class="bb-m-label">MEP</div>
+      <div class="bb-m-val" id="mepVal">—</div>
+      <div class="bb-m-sub" id="mepDelta">—</div>
+    </div>
+    <div class="bb-vsep"></div>
+    <div class="bb-metric">
+      <div class="bb-m-label">CCL</div>
+      <div class="bb-m-val" id="cclVal">—</div>
+      <div class="bb-m-sub" id="cclDelta">—</div>
+    </div>
+    <div class="bb-vsep"></div>
+    <div class="bb-metric">
+      <div class="bb-m-label">Brecha MEP vs oficial</div>
+      <div class="bb-m-val" id="mcBrechaMep">—</div>
+    </div>
+    <div class="bb-vsep"></div>
+    <div class="bb-metric">
+      <div class="bb-m-label">Brecha CCL vs oficial</div>
+      <div class="bb-m-val" id="mcBrechaCcl">—</div>
+    </div>
+    <div class="bb-vsep"></div>
+    <div class="bb-metric">
+      <div class="bb-m-label">Canje CCL/MEP</div>
+      <div class="bb-m-val" id="mcCanje">—</div>
     </div>
   </div>
 
@@ -613,34 +647,6 @@ window.BANDS_FEED_READY=(function(){
 </div><!-- /futPanel -->
 
 <div id="mcPanel" style="display:none">
-  <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px">
-    <div>
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase">MEP</div>
-      <div class="bb-price" id="mepVal" style="font-size:32px">$1.538,16</div>
-      <div class="bb-delta" id="mepDelta">—</div>
-    </div>
-    <div>
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase">CCL</div>
-      <div class="bb-price" id="cclVal" style="font-size:32px">$1.595,68</div>
-      <div class="bb-delta" id="cclDelta">—</div>
-    </div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">
-    <div>
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.06em;text-transform:uppercase">Brecha MEP vs oficial</div>
-      <div class="bb-m-val" id="mcBrechaMep" style="font-size:19px">—</div>
-    </div>
-    <div>
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.06em;text-transform:uppercase">Brecha CCL vs oficial</div>
-      <div class="bb-m-val" id="mcBrechaCcl" style="font-size:19px">—</div>
-    </div>
-    <div>
-      <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.06em;text-transform:uppercase">Canje CCL/MEP</div>
-      <div class="bb-m-val" id="mcCanje" style="font-size:19px">—</div>
-    </div>
-  </div>
-
   <div style="font-size:10px;font-weight:600;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px" id="mcChartTitle">MEP / CCL / SIOPEL — serie histórica</div>
   <div style="display:flex;align-items:center;flex-wrap:wrap;margin-bottom:14px;gap:8px 10px">
     <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
@@ -2660,6 +2666,8 @@ window.BANDS_FEED_READY=(function(){
     var _bbmF=document.getElementById('bbMetricsFut');
     if(_bbmH) _bbmH.style.display=(isF||isMC)?'none':'';
     if(_bbmF) _bbmF.style.display=isF?'':'none';
+    var _bbmM=document.getElementById('bbMetricsMc');
+    if(_bbmM) _bbmM.style.display=isMC?'':'none';
     if(isF){
       (function(){
         var box=document.getElementById('futChartBox');
