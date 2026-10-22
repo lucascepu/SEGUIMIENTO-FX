@@ -300,12 +300,6 @@ window.BANDS_FEED_READY=(function(){
   .fut-note { font-size:10px; color:var(--txt3); margin-top:6px; }
   .chart-wrap-fut { height:220px; margin-bottom:14px; }
   /* Bandas BCRA (feed REM Tracker) */
-  .bands-panel { border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin:14px 0 4px; background:var(--bg-card); }
-  .bands-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px 14px; }
-  .bp-l { font-size:9px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--txt3); }
-  .bp-v { font-size:16px; font-weight:700; margin-top:2px; white-space:nowrap; }
-  .bp-sub { font-size:10px; color:var(--txt3); margin-top:2px; line-height:1.4; }
-  .bp-foot { font-size:10px; color:var(--txt3); margin-top:10px; line-height:1.5; border-top:1px solid var(--border); padding-top:8px; }
   .bp-warn { font-size:11px; color:var(--amber); line-height:1.5; }
   .bp-badge { display:inline-block; padding:1px 7px; border-radius:5px; font-size:9px; font-weight:700; letter-spacing:.05em; border:1px solid var(--border); }
   .bp-ok { color:var(--green); border-color:rgba(95,159,132,.4); background:rgba(95,159,132,.08); }
@@ -315,7 +309,6 @@ window.BANDS_FEED_READY=(function(){
   #bandsFutBox th { font-size:10px; color:var(--txt3); font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:8px 10px; text-align:right; border-bottom:1px solid var(--border); white-space:nowrap; }
   #bandsFutBox td { padding:8px 10px; text-align:right; border-bottom:1px solid var(--border); color:var(--txt2); white-space:nowrap; }
   #bandsFutBox th:first-child, #bandsFutBox td:first-child { text-align:left; }
-  @media(max-width:720px){ .bands-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .bp-v { font-size:15px; } }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -375,8 +368,6 @@ window.BANDS_FEED_READY=(function(){
       <div class="bb-m-sub" id="periodVarSub">—</div>
     </div>
   </div>
-
-  <div id="bandsPanel" class="bands-panel"></div>
 
   <!-- ── Tira de métricas horizontal — FUTUROS (mismo formato, otro contenido) ── -->
   <div class="bb-metrics" id="bbMetricsFut" style="display:none">
@@ -2689,7 +2680,6 @@ window.BANDS_FEED_READY=(function(){
     var _bbmH=document.getElementById('bbMetricsHist');
     var _bbmF=document.getElementById('bbMetricsFut');
     if(_bbmH) _bbmH.style.display=(isF||isMC)?'none':'';
-    var _bpn=document.getElementById('bandsPanel'); if(_bpn) _bpn.style.display=(isF||isMC)?'none':'';
     var _bfb=document.getElementById('bandsFutBox'); if(_bfb) _bfb.style.display=isF?'block':'none';
     if(_bbmF) _bbmF.style.display=isF?'':'none';
     if(isF){
@@ -2992,41 +2982,13 @@ window.BANDS_FEED_READY=(function(){
   function bpF2(v){ return v==null?'—':'$'+v.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function bpSg(v,d,u){ return v==null?'—':(v>=0?'+':'−')+Math.abs(v).toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d})+(u||''); }
   function bpBadge(st){ var c=st==='OFICIAL'?'bp-ok':(st==='ESTIMADO TÉCNICO'?'bp-est':'bp-proj'); return '<span class="bp-badge '+c+'">'+st+'</span>'; }
-  function bpFeedLine(){
-    if(!BANDS.ok) return '';
-    var txt='Fuente: <b>REM Tracker</b> · bandas-bcra.json · '+BANDS.source+(BANDS.vintage?' · relevamiento REM '+BANDS.vintage:'')+(BANDS.snapshot?' · datos al '+BANDS.snapshot.split('-').reverse().join('/'):'');
-    if(BANDS.stale&&BANDS.fetchedAt){
-      var h=Math.max(0,Math.round((Date.now()-BANDS.fetchedAt)/3600000)), a=h>=48?Math.round(h/24)+' días':h+' h';
-      txt+='<br><span class="bp-warn">⚠ Sin conexión con REM Tracker: se usa la última copia válida guardada hace '+a+'.</span>';
-    } else if(BANDS.snapshot){
-      var ref=null; for(var q2=hS.length-1;q2>=0;q2--){ if(hS[q2]!=null){ ref=hDates[q2]; break; } }
-      if(ref&&BANDS.lastOfficial&&ref>BANDS.lastOfficial&&!BANDS.projected[ref]) txt+='<br><span class="bp-warn">⚠ El feed no cubre la fecha del último SIOPEL ('+ref+'): posible dato desactualizado.</span>';
-    }
-    return txt;
-  }
-  function renderBandsPanel(){
-    var el=document.getElementById('bandsPanel'), eT=document.getElementById('techoVal'), eB=document.getElementById('cardBrecha');
-    if(!el) return;
-    if(!BANDS.ok){
-      el.innerHTML='<div class="bp-warn">Bandas BCRA: dato no disponible. No se pudo leer el feed de REM Tracker y no hay una copia local válida.</div>';
-      if(eT) eT.textContent='—'; if(eB) eB.textContent='—'; return;
-    }
-    var li=-1; for(var q=hS.length-1;q>=0;q--){ if(hS[q]!=null){ li=q; break; } }  /* último SIOPEL con dato */
+  function renderBandsPanel(){ /* solo completa la tira existente: Techo BCRA y Brecha al techo (valores del feed) */
+    var eT=document.getElementById('techoVal'), eB=document.getElementById('cardBrecha');
+    var li=-1; for(var q=hS.length-1;q>=0;q--){ if(hS[q]!=null){ li=q; break; } }
     var d=li>=0?hDates[li]:null, sio=li>=0?hS[li]:null;
-    var o=d?BANDS.official[d]:null, p=d?BANDS.projected[d]:null, r=o||p;
-    var techo=r?r.techo:null, piso=o?o.piso:null;
-    var dif=(techo!=null&&sio!=null)?sio-techo:null, difP=(techo!=null&&sio!=null)?(sio/techo-1)*100:null;
-    var st=o?'OFICIAL':(p?p.status:null);
+    var r=d?(BANDS.official[d]||BANDS.projected[d]):null, techo=r?r.techo:null;
     if(eT) eT.textContent=techo!=null?bpF2(techo):'—';
     if(eB) eB.textContent=(techo!=null&&sio!=null)?bpSg((techo-sio)/sio*100,2,'%'):'—';
-    el.innerHTML='<div class="bands-grid">'+
-      '<div><div class="bp-l">Fecha</div><div class="bp-v">'+(d?d.split('-').reverse().join('/'):'—')+'</div><div class="bp-sub">'+(st?bpBadge(st):'sin dato de bandas para esta fecha')+'</div></div>'+
-      '<div><div class="bp-l">SIOPEL</div><div class="bp-v" style="color:var(--blue)">'+bpF2(sio)+'</div></div>'+
-      '<div><div class="bp-l">Techo '+(o?'oficial':'')+'</div><div class="bp-v" style="color:var(--amber)">'+bpF2(techo)+'</div></div>'+
-      '<div><div class="bp-l">Piso '+(o?'oficial':'')+'</div><div class="bp-v">'+bpF2(piso)+'</div></div>'+
-      '<div><div class="bp-l">SIOPEL − techo</div><div class="bp-v">'+(dif==null?'—':(dif>=0?'+':'−')+bpF2(Math.abs(dif)))+'</div></div>'+
-      '<div><div class="bp-l">% respecto del techo</div><div class="bp-v">'+bpSg(difP,2,'%')+'</div><div class="bp-sub">(SIOPEL / techo − 1)</div></div>'+
-    '</div><div class="bp-foot">'+bpFeedLine()+'</div>';
   }
   function renderBandsFut(){
     var box=document.getElementById('bandsFutTbl'), note=document.getElementById('bandsFutNote');
