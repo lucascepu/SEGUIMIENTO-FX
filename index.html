@@ -5,6 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIOPEL vs Techo de Banda – 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- Fuente única de IPC real/proyectado, REM y bandas: rem-tracker (si no carga, se usan los valores de respaldo embebidos más abajo) -->
+<script src="https://rem-tracker.vercel.app/data/rem-history.js"></script>
+<script src="https://rem-tracker.vercel.app/data/bands-history.js"></script>
+<script src="https://rem-tracker.vercel.app/data/bands-model.js"></script>
+<script>
+/* REMT = techo de fin de mes (FUT_TECHO) y TC REM publicado (FUT_REM) calculados por rem-tracker.
+   Solo valores publicados del REM: sin interpolar. Si falla la carga, REMT queda null y rigen los respaldos. */
+window.REMT=(function(){
+  try{
+    var R=window.REM_HISTORY,B=window.BANDS_HISTORY,M=window.BandsModel;
+    if(!R||!B||!M||!B.rows||!B.rows.length)return null;
+    var m=M.create({rows:B.rows,rem:R}),MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    var key=function(ym){return MES[+ym.slice(5,7)-1]+' '+ym.slice(2,4)};
+    var techo={},rem={},rows=m.monthly('rem','2026-06','2027-08');
+    rows.forEach(function(r){if(r.techo!=null&&isFinite(r.techo))techo[key(r.ym)]=r.techo});
+    var vk=Object.keys(R.vintages).sort().reverse();
+    rows.forEach(function(r){for(var i=0;i<vk.length;i++){var p=R.vintages[vk[i]].tcPath;if(p&&isFinite(p[r.ym])){rem[key(r.ym)]=p[r.ym];break}}});
+    var v=m.vintage;
+    if(v&&v.next12&&isFinite(v.next12.tc))rem[key(v.next12.horizon)]=v.next12.tc;
+    if(v&&v.annual&&isFinite(v.annual.tc_dec27))rem['DIC 27']=v.annual.tc_dec27;
+    if(Object.keys(techo).length<12)return null;
+    return{techo:techo,rem:rem,vintage:v?v.label:null,lastOfficial:m.lastOfficial};
+  }catch(e){return null}
+})();
+</script>
 <style>
   :root {
     /* fondos */
@@ -522,7 +547,7 @@
       <div style="font-size:10px;color:var(--txt3);margin-top:8px;line-height:1.5" id="futNota">
         Cierre ROFEX 21 sep 2026<br>
         REM oct-26 a dic-27: REM BCRA septiembre-2026 (dólar oficial proyectado)<br>
-        Techo hasta nov-26: valores oficiales BCRA; desde dic-26 proyectado con IPC REM<br>
+        Techo hasta nov-26: valores oficiales BCRA; desde dic-26 proyectado con IPC REM (rem-tracker)<br>
         TNA = ((Futuro/Spot)−1) × 365/días · TEM = ((Futuro/Spot)^(30/días)−1)
       </div>
     </div>
@@ -639,7 +664,7 @@
 
 <p class="footnote" id="footerNote">
 
-  SIOPEL: datos reales abr 2025–<span id="footerFecha">13 jul 2026</span>. Techo: crawling peg BCRA (IPC INDEC T-2); valores oficiales BCRA hasta nov-26; desde dic-26 proyectado con IPC REM septiembre-2026.
+  SIOPEL: datos reales abr 2025–<span id="footerFecha">13 jul 2026</span>. Techo: crawling peg BCRA (IPC INDEC T-2); valores oficiales BCRA hasta nov-26; desde dic-26 proyectado con IPC REM (fuente única: rem-tracker.vercel.app).
   Brecha = (techo − SIOPEL) / SIOPEL. Proyecciones: REM BCRA (septiembre-2026).
 </p>
 <div class="glosario">
@@ -973,14 +998,14 @@
   var avgRef=new Array(NH).fill(null); /* calculado dinámicamente por setAvgWindow */
 
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
-  var FUT_REM   = {
+  var FUT_REM   = (window.REMT&&window.REMT.rem)||{
     'JUN 26':1422,'JUL 26':1482,'AGO 26':1512,'SEP 26':1530,
     'OCT 26':1545,'NOV 26':1580,'DIC 26':1614
   ,'ENE 27':1644,'FEB 27':1672,'MAR 27':1704,'ABR 27':1742,'MAY 27':1781,'JUN 27':1821,'JUL 27':1861
   ,'AGO 27':1903,'SEP 27':1945,'OCT 27':1966,'NOV 27':1987,'DIC 27':2008};
-  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
+  var FUT_TECHO = (window.REMT&&window.REMT.techo)||{'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
-  /* REM septiembre-2026 (BCRA, publ. 6-oct-2026) -- Cuadro 10.4, TC nominal promedio mensual dias habiles. Abr-27..Dic-27 interpolados entre MAR-27, el dato a 12 meses (sep-27) y dic-27 */
+  /* REM septiembre-2026 (BCRA, publ. 6-oct-2026) -- Cuadro 10.4, TC nominal promedio mensual dias habiles. Abr-27..Dic-27 (interpolados) son solo respaldo si rem-tracker no carga; con rem-tracker se usan unicamente los valores publicados (sep-27 a 12 meses y dic-27) */
   /* MEP/CCL -- fuente Zion (normaliza Ambito Financiero + ArgentinaDatos), 1-ene a 11-sep-2026 */
   var hDatesMC=['2026-01-01','2026-01-02','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-09','2026-01-12','2026-01-13','2026-01-14','2026-01-15','2026-01-16','2026-01-19','2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-16','2026-02-17','2026-02-18','2026-02-19','2026-02-20','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-15','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-06','2026-07-07','2026-07-08','2026-07-09','2026-07-10','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-27','2026-07-28','2026-07-29','2026-07-30','2026-07-31','2026-08-03','2026-08-04','2026-08-05','2026-08-06','2026-08-07','2026-08-10','2026-08-11','2026-08-12','2026-08-13','2026-08-14','2026-08-17','2026-08-18','2026-08-19','2026-08-20','2026-08-21','2026-08-24','2026-08-25','2026-08-26','2026-08-27','2026-08-28','2026-08-31','2026-09-01','2026-09-02','2026-09-03','2026-09-04','2026-09-07','2026-09-08','2026-09-09','2026-09-10','2026-09-11','2026-09-14','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-09-21','2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02','2026-10-05','2026-10-06','2026-10-07','2026-10-08','2026-10-09','2026-10-12','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-19','2026-10-20','2026-10-21','2026-10-22'];
   var hMEP=[1480.74,1506.21,1501.49,1498.06,1494.56,1494.11,1489.42,1487.89,1487.11,1481.74,1473.83,1472.15,1466.7,1471.72,1463.7,1458.81,1469.38,1468.93,1464.66,1462.35,1458.88,1460.32,1450.23,1460.38,1457.29,1460.8,1447.99,1438.54,1432.85,1431.68,1417.81,1423.6,1423.6,1423.6,1415.69,1409.07,1402.08,1394.84,1405.08,1425.86,1437.58,1419.54,1413.54,1434.11,1427.7,1433.21,1437.53,1430.17,1422.12,1413.8,1415.52,1424.34,1424.92,1417.3,1420.38,1421.08,1422.13,1415.68,1415.68,1404.55,1401.28,1429.73,1432.51,1422.84,1434.04,1434.04,1434.04,1429.57,1430.16,1424.45,1420.86,1412.5,1404.47,1412.09,1398.53,1406.23,1412.53,1414.73,1414.42,1419.84,1424.4,1438.34,1461.73,1447.18,1435.6,1442.43,1442.43,1440.54,1429.65,1427.88,1427.48,1427.13,1425.02,1418.91,1425.77,1418.81,1426.5,1428.41,1433.99,1431.71,1426.11,1431.92,1431.92,1432.61,1429.73,1432.63,1434.42,1438.6,1451.54,1461.18,1456.92,1458.79,1467.09,1457.96,1452.3,1449.23,1450.36,1450.36,1453.73,1461.63,1468.31,1477.03,1484.64,1506.68,1505.75,1499.38,1499.3,1509.87,1521.37,1521.03,1529.77,1524.53,1525.47,1529.19,1529.66,1529.66,1523.44,1519.76,1507.57,1514.11,1512.49,1519.39,1512.35,1509.85,1513.61,1519.12,1532.63,1533.04,1533.5,1524.06,1508.43,1517.67,1527.87,1520.94,1518.45,1520.28,1524.77,1526.26,1523.84,1525.19,1520.94,1514.78,1514.78,1517.76,1522.29,1524.57,1535.08,1538.43,1538.74,1542.96,1536.34,1537.49,1535.52,1532.71,1534.3,1528.13,1525.39,1528.21,1527.81,1532.55,1536.39,1538.16,1534.1,1532.45,1537.56,1533.83,1538.32,1534.44,1536.51,1541.89,1544.35,1552.5,1555.31,1549.36,1542.56,1552.44,1549.26,1538.39,1541.11,1539.01,1538.27,1539.28,1539.28,1539.94,1534.88,1532.15,1536.73,1540.8,1545.68,1547.78,1549.42];
@@ -1366,7 +1391,7 @@
     var ins=document.getElementById('futInsight');
     var spreadsAll=[];
     KEYS.forEach(function(k,i){
-      if(futs[i]!=null) spreadsAll.push(((futs[i]/rems[i]-1)*100));
+      if(futs[i]!=null && rems[i]!=null) spreadsAll.push(((futs[i]/rems[i]-1)*100));
     });
     if(ins && spreadsAll.length>=2){
       var first=spreadsAll[0].toFixed(1), last2=spreadsAll[spreadsAll.length-1].toFixed(1);
@@ -1457,7 +1482,7 @@
       tr.onclick=function(){ toggleFocus(k); };
       var col1,col2,col3;
       if(futColGroup==='a'){
-        var spPct = fut!=null ? ((fut/rem-1)*100).toFixed(1) : null;
+        var spPct = (fut!=null && rem!=null) ? ((fut/rem-1)*100).toFixed(1) : null;
         var dist  = fut!=null ? ((techo/fut-1)*100).toFixed(1) : null;
         var spVal = spPct!=null ? parseFloat(spPct) : 0;
         var spCol = spPct==null?'var(--txt3)': spVal<0?'var(--teal)':'var(--coral)';
@@ -2734,12 +2759,12 @@
     /* current value for card */
   
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
-  var FUT_REM   = {
+  var FUT_REM   = (window.REMT&&window.REMT.rem)||{
     'JUN 26':1422,'JUL 26':1482,'AGO 26':1512,'SEP 26':1530,
     'OCT 26':1545,'NOV 26':1580,'DIC 26':1614
   ,'ENE 27':1644,'FEB 27':1672,'MAR 27':1704,'ABR 27':1742,'MAY 27':1781,'JUN 27':1821,'JUL 27':1861
   ,'AGO 27':1903,'SEP 27':1945,'OCT 27':1966,'NOV 27':1987,'DIC 27':2008};
-  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
+  var FUT_TECHO = (window.REMT&&window.REMT.techo)||{'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   var FUT_DEFAULT = {'SEP 26':1521.0,'OCT 26':1547.0,'NOV 26':1575.0,'DIC 26':1604.0,'ENE 27':1632.5,'FEB 27':1660.0,'MAR 27':1691.0,'ABR 27':1721.0,'MAY 27':1753.5,'JUN 27':1788.0,'JUL 27':1822.5,'AGO 27':1864.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
@@ -3124,12 +3149,12 @@
 
 
   /* ── FUTUROS ─────────────────────────────────────────────────────────── */
-  var FUT_REM   = {
+  var FUT_REM   = (window.REMT&&window.REMT.rem)||{
     'JUN 26':1422,'JUL 26':1482,'AGO 26':1512,'SEP 26':1530,
     'OCT 26':1545,'NOV 26':1580,'DIC 26':1614
   ,'ENE 27':1644,'FEB 27':1672,'MAR 27':1704,'ABR 27':1742,'MAY 27':1781,'JUN 27':1821,'JUL 27':1861
   ,'AGO 27':1903,'SEP 27':1945,'OCT 27':1966,'NOV 27':1987,'DIC 27':2008};
-  var FUT_TECHO = {'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
+  var FUT_TECHO = (window.REMT&&window.REMT.techo)||{'JUN 26':1806.92,'JUL 26':1844.87,'AGO 26':1879.92,'SEP 26':1919.4,'OCT 26':1952.03,'NOV 26':1989.12,'DIC 26':2022.94,'ENE 27':2057.33,'FEB 27':2094.37,'MAR 27':2121.06,'ABR 27':2148.09,'MAY 27':2175.46,'JUN 27':2203.18,'JUL 27':2231.25,'AGO 27':2259.68};
   // FUT_DEFAULT: fallback manual de futuros ROFEX. Fecha real del ultimo cierre cargado: ver 'Cierre ROFEX' en pantalla (#futNota) y ROFEX_VERSION mas abajo -- NO depender de un comentario fijo aca, se desactualiza.
   var FUT_DEFAULT = {'SEP 26':1521.0,'OCT 26':1547.0,'NOV 26':1575.0,'DIC 26':1604.0,'ENE 27':1632.5,'FEB 27':1660.0,'MAR 27':1691.0,'ABR 27':1721.0,'MAY 27':1753.5,'JUN 27':1788.0,'JUL 27':1822.5,'AGO 27':1864.0};
   var futPrices = Object.assign({}, FUT_DEFAULT);
