@@ -2126,7 +2126,7 @@ window.BANDS_FEED_READY=(function(){
     var lblPlugin={ id:'canjeRefLabels', afterDatasetsDraw:function(ch){
       var ctx=ch.ctx, ca=ch.chartArea;
       /* etiquetas en el margen derecho (fuera del area del grafico) para que la linea no las tape */
-      ctx.save(); ctx.font='9px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.save(); ctx.font='10px system-ui'; ctx.textAlign='left'; ctx.textBaseline='middle';
       for(var k=1;k<ch.data.datasets.length;k++){
         var d=ch.data.datasets[k], y=ch.scales.y.getPixelForValue(d._refVal);
         ctx.fillStyle = k===1 ? 'rgba(173,186,199,.9)' : 'rgba(245,195,107,.85)';
