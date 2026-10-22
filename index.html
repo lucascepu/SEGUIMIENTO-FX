@@ -2010,13 +2010,15 @@
     var datasets=[
       {label:'Canje CCL/MEP', data:vals, borderColor:AMB, borderWidth:2, tension:.25, fill:false,
        pointRadius:ptR, pointBackgroundColor:AMB, pointBorderColor:'#fff3d6', pointBorderWidth:1, pointHoverRadius:4},
-      ref('μ',  mu,        'rgba(173,186,199,.6)', [4,4]),
-      ref('+1σ', mu+sd,    'rgba(245,195,107,.55)', []),
-      ref('−1σ', mu-sd,    'rgba(245,195,107,.55)', []),
-      ref('+2σ', mu+2*sd,  'rgba(245,195,107,.4)',  [4,4]),
-      ref('−2σ', mu-2*sd,  'rgba(245,195,107,.4)',  [4,4])
+      ref('Promedio',          mu,    'rgba(173,186,199,.6)', [4,4]),
+      ref('Zona habitual máx', mu+sd, 'rgba(245,195,107,0)', []),
+      ref('Zona habitual mín', mu-sd, 'rgba(245,195,107,0)', [])
     ];
-    var vMin=Math.min.apply(null,vals.concat([mu-2*sd])), vMax=Math.max.apply(null,vals.concat([mu+2*sd]));
+    /* Zona habitual = promedio ± 1 desvio estandar: banda sombreada entre los dos limites
+       (el dataset "mín" se rellena hasta el anterior, "máx"). */
+    datasets[2].borderWidth=0; datasets[3].borderWidth=0;
+    datasets[3].fill='-1'; datasets[3].backgroundColor='rgba(245,195,107,.13)';
+    var vMin=Math.min.apply(null,vals.concat([mu-sd])), vMax=Math.max.apply(null,vals.concat([mu+sd]));
     var pad=(vMax-vMin)*0.06 || 0.2;
     var f2=function(v){ return v.toFixed(2); };
     var lblPlugin={ id:'canjeRefLabels', afterDatasetsDraw:function(ch){
@@ -2042,7 +2044,7 @@
       options:{
         responsive:true, maintainAspectRatio:false, animation:{duration:0},
         interaction:{mode:'index', intersect:false},
-        layout:{padding:{top:10,right:62}},
+        layout:{padding:{top:10,right:120}},
         plugins:{
           legend:{display:false},
           tooltip:{
@@ -2068,7 +2070,8 @@
     if(foot){
       foot.style.display='block';
       foot.innerHTML=n+' ruedas · '+mcFmtDMY(dates[0])+' → '+mcFmtDMY(dates[n-1])+
-        ' · actual <b style="color:'+AMB+'">'+f2(lastV)+'%</b>';
+        ' · actual <b style="color:'+AMB+'">'+f2(lastV)+'%</b>'+
+        '<br><span style="opacity:.8">Zona habitual = promedio ± 1 desvío estándar del período visible.</span>';
     }
   }
 
