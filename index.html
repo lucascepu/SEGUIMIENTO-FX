@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIOPEL vs Techo de Banda – 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>if(window.Chart){Chart.defaults.font.family="'Inter', system-ui, sans-serif";}</script>
 <!-- Bandas BCRA: la ÚNICA fuente es el feed de REM Tracker (bandas-bcra.json). Esta app NO calcula bandas.
      Orden: URL principal → respaldo GitHub (mismo archivo) → última copia válida local (indicando antigüedad). -->
 <script>
@@ -1750,7 +1751,7 @@ window.BANDS_FEED_READY=(function(){
       ctx.setLineDash([4,3]); ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(xA,ca.top); ctx.lineTo(xA,ca.bottom); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.font='9px system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
+      ctx.font='9px Inter,system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
       /* Fecha de "hoy" en el label -- ANTES 'ib-SEP' escrito literal, ahora se arma
          con hDates[_lriHoy] real, mismo formato D-MES */
       var MESES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
@@ -1806,7 +1807,7 @@ window.BANDS_FEED_READY=(function(){
     var meta = c.getDatasetMeta(1);
     if(!meta || !meta.data) return;
     ctx.save();
-    ctx.font='600 10px system-ui';
+    ctx.font='600 10px Inter,system-ui';
     ctx.fillStyle='rgba(230,237,243,.75)';
     ctx.textAlign='center';
     meta.data.forEach(function(pt, i){
@@ -2126,7 +2127,7 @@ window.BANDS_FEED_READY=(function(){
     var lblPlugin={ id:'canjeRefLabels', afterDatasetsDraw:function(ch){
       var ctx=ch.ctx, ca=ch.chartArea;
       /* etiquetas en el margen derecho (fuera del area del grafico) para que la linea no las tape */
-      ctx.save(); ctx.font='10px system-ui'; ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.save(); ctx.font='10px Inter,system-ui'; ctx.textAlign='left'; ctx.textBaseline='middle';
       for(var k=1;k<ch.data.datasets.length;k++){
         var d=ch.data.datasets[k], y=ch.scales.y.getPixelForValue(d._refVal);
         ctx.fillStyle = k===1 ? 'rgba(173,186,199,.9)' : 'rgba(245,195,107,.85)';
@@ -2344,7 +2345,7 @@ window.BANDS_FEED_READY=(function(){
           ctx.strokeStyle='rgba(255,255,255,.18)'; ctx.setLineDash([4,3]); ctx.lineWidth=1;
           ctx.beginPath(); ctx.moveTo(x,ca.top); ctx.lineTo(x,ca.bottom); ctx.stroke();
           ctx.setLineDash([]);
-          ctx.font='9px system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
+          ctx.font='9px Inter,system-ui'; ctx.fillStyle='rgba(255,255,255,.45)';
           ctx.textAlign='right'; ctx.fillText('real ←',x-4,ca.top+12);
           ctx.textAlign='left';  ctx.fillText('→ proyección REM',x+4,ca.top+12);
           ctx.restore();
