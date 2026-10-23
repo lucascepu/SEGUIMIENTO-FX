@@ -142,7 +142,7 @@ window.BANDS_FEED_READY=(function(){
   .period-row{display:flex;gap:6px;margin-bottom:0;padding-top:16px;align-items:center;flex-wrap:wrap;}
   .pbtn{font-size:11px;padding:4px 14px;border-radius:0;border:none;border-bottom:2px solid transparent;cursor:pointer;background:transparent;color:var(--txt3);transition:all .15s;font-family:var(--font);}
   .pbtn.pon{background:transparent!important;color:var(--txt)!important;border-bottom:2px solid var(--accent)!important;}
-  .period-row input[type=date]{font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid var(--brd);background:var(--bg2);color:var(--txt);cursor:pointer;outline:none;}
+  .period-row input[type=date]{font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid var(--brd);background:var(--bg2);color:var(--txt);cursor:pointer;outline:none;font-family:var(--font);}
   .btn{padding:3px 14px;border-radius:0;border:none;border-bottom:2px solid transparent;cursor:pointer;font-size:12px;font-weight:500;letter-spacing:.03em;background:transparent;color:var(--txt3);transition:all .15s;}
   .btn-on{background:transparent!important;color:var(--txt)!important;border-bottom:2px solid var(--blue)!important;}
   .btn-off{background:var(--bg-card);color:var(--txt2);border:1px solid var(--brd);}
@@ -662,9 +662,9 @@ window.BANDS_FEED_READY=(function(){
     <button id="btnMcR6M"  onclick="setMcCanjeRange('6M')"  style="padding:4px 12px;font-size:10px;font-weight:600;border-radius:4px;cursor:pointer">6M</button>
     <button id="btnMcR12M" onclick="setMcCanjeRange('12M')" style="padding:4px 12px;font-size:10px;font-weight:600;border-radius:4px;cursor:pointer">12M</button>
     <span style="font-size:10px;color:var(--txt3);margin-left:6px">Rango:</span>
-    <input type="date" id="mcCanjeDesde" title="Desde" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--txt);color-scheme:dark;outline:none">
+    <input type="date" id="mcCanjeDesde" title="Desde" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--txt);color-scheme:dark;outline:none;font-family:var(--font)">
     <span style="font-size:11px;color:var(--txt3)">→</span>
-    <input type="date" id="mcCanjeHasta" title="Hasta" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--txt);color-scheme:dark;outline:none">
+    <input type="date" id="mcCanjeHasta" title="Hasta" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--txt);color-scheme:dark;outline:none;font-family:var(--font)">
     <button id="btnMcAplicar" onclick="applyMcCanjeRange()" style="padding:4px 12px;font-size:10px;font-weight:600;border-radius:4px;cursor:pointer;border:1px solid rgba(245,195,107,.5);background:rgba(245,195,107,.1);color:var(--amber)">Aplicar</button>
   </div>
   </div>
