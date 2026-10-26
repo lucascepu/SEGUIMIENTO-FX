@@ -1944,7 +1944,7 @@ window.BANDS_FEED_READY=(function(){
         /* top:26 -- deja espacio libre arriba para que las lineas (MEP/CCL/SIOPEL)
            no queden tapadas por el switch fijo "Techo BCRA" (.techo-toggle-fixed)
            anclado en la esquina superior derecha del contenedor del gráfico. */
-        layout:{padding:{top:26}},
+        layout:{padding:{top:34}},
         plugins:{
           legend:{display:false},
           tooltip:{
@@ -1964,7 +1964,7 @@ window.BANDS_FEED_READY=(function(){
                  if(pos<0) return null;
                  return (pos%2===0) ? mcMonthLbls[val] : null;
                }}, grid:{color:'rgba(255,255,255,.06)'}},
-          y:{ticks:{color:'#adbac7',font:{size:11},
+          y:{grace:'6%',ticks:{color:'#adbac7',font:{size:11},
                callback:function(v){ return mcView==='precio' ? '$'+Math.round(v).toLocaleString('es-AR') : v+'%'; }},
              grid:{color:'rgba(255,255,255,.06)'}}
         }
