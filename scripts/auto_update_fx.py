@@ -107,6 +107,18 @@ if source == 'mae':
                 siopel = round(float(det.get("precioCierre")), 2); break
         if siopel: break
     if not siopel:
+        # Diagnostico: que devolvio MAE realmente (para distinguir "sin datos del dia" de "cambio de ticker/segmento/plazo")
+        try:
+            print(f"[diag] MAE tipo={type(data).__name__} dias={len(data) if hasattr(data,'__len__') else '?'}")
+            combos = sorted({(str(d.get("ticker")), str(d.get("codigoSegmento")), str(d.get("plazo")))
+                             for dia in (data if isinstance(data, list) else []) for d in dia.get("details", [])})
+            print(f"[diag] MAE combinaciones (ticker, segmento, plazo): {len(combos)}")
+            print("[diag] MAE tickers USD/UST:", [c for c in combos if "UST" in c[0] or "USD" in c[0] or "DOL" in c[0].upper()][:20])
+            print("[diag] MAE primeras 12:", combos[:12])
+            if not combos:
+                print("[diag] MAE respuesta cruda (400 car.):", json.dumps(data, ensure_ascii=False)[:400])
+        except Exception as e:
+            print(f"[diag] no se pudo resumir la respuesta de MAE: {e}")
         print("ERROR: UST$T no encontrado en MAE"); sys.exit(1)
     print(f"[auto_update_fx] TC MAE: {siopel}")
     mep_val = None; ccl_val = None  # MAE no trae MEP/CCL, se omiten en este camino
