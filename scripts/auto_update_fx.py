@@ -101,6 +101,13 @@ if source == 'mae':
     except Exception as e:
         print(f"ERROR MAE: {e}"); sys.exit(1)
     siopel = None
+    try:  # diagnostico permanente: todas las filas UST$T que trae MAE ese dia (segmento / plazo / precio)
+        for dia in data:
+            for det in dia.get("details", []):
+                if det.get("ticker") == "UST$T":
+                    print("[diag] UST$T:", {k: det.get(k) for k in ("codigoSegmento","plazo","precioCierre","precioApertura","precioMaximo","precioMinimo","volumen","montoOperado","cantidadOperaciones") if k in det}, "| claves:", sorted(det.keys())[:20])
+    except Exception as e:
+        print(f"[diag] no se pudo listar UST$T: {e}")
     for dia in data:
         for det in dia.get("details", []):
             if det.get("ticker")=="UST$T" and det.get("codigoSegmento")=="M" and det.get("plazo")=="000":
