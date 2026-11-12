@@ -3353,13 +3353,13 @@ window.BANDS_FEED_READY=(function(){
   applyPeriod();
   chart.options.animation={duration:350,easing:'easeInOutQuart'};
 
-  /* ── LIVE INTRADAY — criptoya via /api/dolar ─────────────────────────────
+  /* ── LIVE INTRADAY — MAE via /api/dolar ─────────────────────────────
      FUENTES:
-       - Mercado ABIERTO (lun-vie 10:00-15:00 AR): criptoya.com → badge EN VIVO verde
-       - CIERRE PROV. (15:00-16:30 AR): último precio de criptoya → badge naranja + pasa al hero
+       - Mercado ABIERTO (lun-vie 10:00-15:00 AR): MAE (SIOPEL UST$T) → badge EN VIVO verde
+       - CIERRE PROV. (15:00-16:30 AR): último precio de MAE → badge naranja + pasa al hero
        - Fuera de horario (16:30-10:00 AR): badge oculto
        - Cierre oficial diario (~15:15 AR): GitHub Actions → API MAE → persiste en hS[]
-     NO usar criptoya para el cierre oficial — usar solo para display en tiempo real. */
+     El cierre oficial lo persiste GitHub Actions. */
   (function(){
     var badge   = document.getElementById('liveBadge');
     var timeEl  = document.getElementById('liveTime');
