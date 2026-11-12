@@ -108,11 +108,18 @@ if source == 'mae':
                     print("[diag] UST$T:", {k: det.get(k) for k in ("codigoSegmento","plazo","precioCierre","precioApertura","precioMaximo","precioMinimo","volumen","montoOperado","cantidadOperaciones") if k in det}, "| claves:", sorted(det.keys())[:20])
     except Exception as e:
         print(f"[diag] no se pudo listar UST$T: {e}")
-    for dia in data:
-        for det in dia.get("details", []):
-            if det.get("ticker")=="UST$T" and det.get("codigoSegmento")=="M" and det.get("plazo")=="000":
-                siopel = round(float(det.get("precioCierre")), 2); break
+    # Desde el 06-nov-2026 MAE dejo de informar UST$T con plazo 000 (contado inmediato) y el spot del
+    # segmento M figura con plazo 001 (24 hs). Se prefiere 000 (serie historica) y, si no esta, se usa 001.
+    plazo_usado = None
+    for plazo_buscado in ("000", "001"):
+        for dia in data:
+            for det in dia.get("details", []):
+                if det.get("ticker")=="UST$T" and det.get("codigoSegmento")=="M" and det.get("plazo")==plazo_buscado:
+                    siopel = round(float(det.get("precioCierre")), 2); plazo_usado = plazo_buscado; break
+            if siopel: break
         if siopel: break
+    if siopel and plazo_usado != "000":
+        print(f"[auto_update_fx] AVISO: MAE no informa UST$T plazo 000; se usa plazo {plazo_usado} (24 hs)")
     if not siopel:
         # Diagnostico: que devolvio MAE realmente (para distinguir "sin datos del dia" de "cambio de ticker/segmento/plazo")
         try:
