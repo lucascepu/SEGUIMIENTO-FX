@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     if (!response.ok) { res.status(502).json({ error: `MAE status ${response.status}` }); return; }
     const data = await response.json();
     let precio = null, plazo = null;
-    for (const p of ['001', '000']) {
+    for (const p of ['000', '001']) {
       for (const dia of (Array.isArray(data) ? data : [])) {
         for (const d of (dia.details || [])) {
           if (d.ticker === 'UST$T' && d.codigoSegmento === 'M' && d.plazo === p && d.precioCierre) {
