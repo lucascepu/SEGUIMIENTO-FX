@@ -838,6 +838,19 @@ window.BANDS_FEED_READY=(function(){
       var dt=hDates[i]; if(dt<'2026-01-02') continue;
       var r=BANDS.official[dt]||BANDS.projected[dt];
       hT[i]=r?r.techo:null;
+      /* Dias sin fila en el feed (feriados / sin publicacion del BCRA) pero con dato de SIOPEL: la banda se
+         capitaliza dia corrido, asi que se interpola geometricamente entre la fila anterior y la siguiente
+         del feed. Evita el hueco en BRECHA (ej. 6, 9 y 10 nov 2026). */
+      if(!r && hS[i]!=null){
+        var all=BANDS.official, prj=BANDS.projected, a=null, b=null, k;
+        for(k in all){ if(k<dt && (a==null||k>a)) a=k; if(k>dt && (b==null||k<b)) b=k; }
+        if(b==null) for(k in prj){ if(k>dt && (b==null||k<b)) b=k; }
+        if(a!=null && b!=null){
+          var ra=all[a], rb=all[b]||prj[b], D=function(x){return Date.parse(x+'T00:00:00Z')/864e5;};
+          var f=(D(dt)-D(a))/(D(b)-D(a));
+          hT[i]=Math.round(ra.techo*Math.pow(rb.techo/ra.techo,f)*100)/100;
+        }
+      }
     }
   })();
   var IDX_HIST_END = (function(){
