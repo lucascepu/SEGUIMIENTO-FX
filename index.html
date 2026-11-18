@@ -110,6 +110,8 @@ window.BANDS_FEED_READY=(function(){
   @keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.65);}}
   .live-price{font-size:42px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.03em;}
   .live-time{font-size:10px;color:var(--txt3);}
+  .live-row{display:flex;align-items:baseline;flex-wrap:nowrap;column-gap:12px;white-space:nowrap;}
+  .live-delta{margin-bottom:0;white-space:nowrap;}
   .live-badge.closed .live-label{color:var(--red);}
   .live-badge.closed .live-dot{background:var(--red);animation:none;}
   .live-badge.closed .live-time{display:block;}
@@ -323,7 +325,7 @@ window.BANDS_FEED_READY=(function(){
       <div class="bb-delta" id="deltaSiopelSub">—</div>
       <div class="live-badge" id="liveBadge">
         <div class="live-label"><span class="live-dot"></span><span id="liveStatusText">EN VIVO</span></div>
-        <div class="live-price" id="liveVal" style="display:none">—</div>
+        <div class="live-row"><div class="live-price" id="liveVal" style="display:none">—</div><div class="bb-delta live-delta" id="liveDelta"></div></div>
         <div class="live-time" id="liveTime">actualizando...</div>
       </div>
     </div>
@@ -3443,7 +3445,7 @@ window.BANDS_FEED_READY=(function(){
       var heroPrice = document.getElementById('siopelVal');
       if(heroPrice) heroPrice.textContent = fmt(lastLivePrice);
       if(_lri>=0) renderDelta('deltaSiopelSub', lastLivePrice, hS[_lri]);
-      var lv=document.getElementById('liveVal'); if(lv) lv.style.display='none';
+      var lv=document.getElementById('liveVal'); if(lv) lv.style.display='none'; var ld=document.getElementById('liveDelta'); if(ld) ld.innerHTML='';
       timeEl.textContent = 'Cierre provisorio';
       labelEl.innerHTML = '<span class="live-dot" style="background:var(--accent);animation:none"></span>PROVISORIO';
       badge.classList.add('visible');
@@ -3460,7 +3462,7 @@ window.BANDS_FEED_READY=(function(){
          lunes a la mañana), NO se usa -- mostrar el ultimo cierre real tal cual. */
       var _lri = realLri();
       if(_lri<0) return;
-      var lv=document.getElementById('liveVal'); if(lv) lv.style.display='none';
+      var lv=document.getElementById('liveVal'); if(lv) lv.style.display='none'; var ld=document.getElementById('liveDelta'); if(ld) ld.innerHTML='';
       var todayIso = hoyIso();
       var hSesHoy = (typeof hDates!=='undefined' && hDates[_lri]===todayIso);
       if(!hSesHoy && lastLivePrice && lastLivePriceDate===todayIso){
@@ -3590,6 +3592,7 @@ window.BANDS_FEED_READY=(function(){
           lastLivePriceDate = hoyIso();
           var lv=document.getElementById('liveVal');
           if(lv){ lv.textContent=fmt(price); lv.style.display='block'; }
+          var _lr=realLri(); if(_lr>=0) renderDelta('liveDelta', parseFloat(price), hS[_lr]); /* variacion vs ultimo cierre cargado */
           var ar=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
           timeEl.textContent='Últ. tick '+String(ar.getHours()).padStart(2,'0')+':'+String(ar.getMinutes()).padStart(2,'0')+':'+String(ar.getSeconds()).padStart(2,'0');
           labelEl.innerHTML='<span class="live-dot"></span>EN VIVO';
