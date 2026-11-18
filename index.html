@@ -121,7 +121,9 @@ window.BANDS_FEED_READY=(function(){
   .bb-sep{border:none;border-top:1px solid rgba(255,255,255,.07);margin:0;}
   /* ── Metrics strip ── */
   .bb-metrics{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;align-items:stretch;padding:7px 0;}
-  #bbMetricsMc{grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr 1px 1fr;}
+  #bbMetricsMc{grid-template-columns:1fr 1px 1fr 1px 1fr;}
+  .bb-m-brecha{font-size:11px;color:var(--txt3);margin-top:3px;}
+  .bb-m-brecha b{font-weight:600;color:var(--txt);}
   #bbMetricsHist{grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr;} /* 4 tarjetas, no 3 -- override puntual, .bb-metrics de FUTUROS sigue en 3 */
   .bb-metric{display:flex;flex-direction:column;gap:4px;padding:0 20px;min-height:56px;}
   .bb-metric:first-child{padding-left:0;}
@@ -221,7 +223,7 @@ window.BANDS_FEED_READY=(function(){
 
   /* KPIs: grid 3 columnas iguales, sin sub-texto en mobile */
   .bb-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:0; align-items:start; }
-  #bbMetricsMc { grid-template-columns:repeat(2,1fr); row-gap:14px; } /* 5 tarjetas: 2 columnas en mobile */
+  #bbMetricsMc { grid-template-columns:repeat(2,1fr); row-gap:14px; } /* 3 tarjetas: 2 columnas en mobile, la ultima ocupa todo el ancho */
   #bbMetricsMc .bb-metric:last-child { grid-column:1 / -1; }
   #bbMetricsMc .bb-metric { padding:0; }
   #bbMetricsHist { grid-template-columns:repeat(2,1fr); row-gap:14px; } /* 4 tarjetas: 2x2 en mobile, mas legible que 4 columnas angostas */
@@ -394,27 +396,20 @@ window.BANDS_FEED_READY=(function(){
       <div class="bb-m-label">MEP</div>
       <div class="bb-m-val" id="mepVal">—</div>
       <div class="bb-m-sub" id="mepDelta">—</div>
+      <div class="bb-m-brecha">Brecha vs oficial <b id="mcBrechaMep">—</b></div>
     </div>
     <div class="bb-vsep"></div>
     <div class="bb-metric">
       <div class="bb-m-label">CCL</div>
       <div class="bb-m-val" id="cclVal">—</div>
       <div class="bb-m-sub" id="cclDelta">—</div>
-    </div>
-    <div class="bb-vsep"></div>
-    <div class="bb-metric">
-      <div class="bb-m-label">Brecha MEP vs oficial</div>
-      <div class="bb-m-val" id="mcBrechaMep">—</div>
-    </div>
-    <div class="bb-vsep"></div>
-    <div class="bb-metric">
-      <div class="bb-m-label">Brecha CCL vs oficial</div>
-      <div class="bb-m-val" id="mcBrechaCcl">—</div>
+      <div class="bb-m-brecha">Brecha vs oficial <b id="mcBrechaCcl">—</b></div>
     </div>
     <div class="bb-vsep"></div>
     <div class="bb-metric">
       <div class="bb-m-label">Canje CCL/MEP</div>
       <div class="bb-m-val" id="mcCanje">—</div>
+      <div class="bb-m-sub">CCL sobre MEP</div>
     </div>
   </div>
 
