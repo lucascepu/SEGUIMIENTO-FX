@@ -1,0 +1,23 @@
+name: Auditoria calendario y cotizaciones
+
+on:
+  schedule:
+    - cron: '41 12 * * 1-5'   # 09:41 AR de lunes a viernes (revisa hasta el dia anterior)
+  workflow_dispatch:
+  push:
+    paths:
+      - 'data/feriados-ar.json'
+      - 'scripts/audit_calendario.py'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Auditar feriados y cotizaciones de dias habiles (contra MAE)
+        env:
+          MAE_API_KEY: ${{ secrets.MAE_API_KEY }}
+        run: python3 scripts/audit_calendario.py

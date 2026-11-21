@@ -229,6 +229,7 @@ if mep_val is not None and ccl_val is not None:
     cmd += ["--mep", str(mep_val), "--ccl", str(ccl_val)]
 if FORCE:
     cmd.append('--force')
+cmd.append('--insertar-dia')  # si la rueda no esta en el calendario y no es feriado, la agrega
 print(f"[auto_update_fx] Ejecutando: {' '.join(cmd)}")
 result = subprocess.run(cmd)
 sys.exit(result.returncode)

@@ -28,7 +28,7 @@ if '--mep' in raw_args:
 if '--ccl' in raw_args:
     i = raw_args.index('--ccl'); CCL_VAL = round(float(raw_args[i+1]), 2)
     raw_args = raw_args[:i] + raw_args[i+2:]
-args = [a for a in raw_args if a != '--force']
+args = [a for a in raw_args if a not in ('--force', '--insertar-dia')]
 if args:
     raw = args[0].strip()
     # Aceptar tanto YYYY-MM-DD como YYYYMMDD
@@ -45,6 +45,44 @@ content = open(HTML, encoding='utf-8').read()
 def get_arr_str(name):
     m = re.search(r'var\s+'+name+r'\s*=\s*\[(.*?)\];', content, re.S)
     return m.group(1), m.start(1), m.end(1)
+
+# ── Auto-alta de la rueda en el calendario (flag --insertar-dia) ─────────────
+# El calendario hDates es una grilla pre-armada con los feriados excluidos. Si el calendario
+# esta mal (ej. 20-nov-2026, que figuraba como feriado pero se opero) el script abortaba y la
+# cotizacion quedaba sin cargar. Con --insertar-dia, un dia habil que NO esta en
+# data/feriados-ar.json se agrega al calendario antes de cargar el dato.
+def _insertar_dia(content, iso):
+    import json as _json, os as _os
+    d0 = datetime.date.fromisoformat(iso)
+    if d0.weekday() >= 5:
+        print(f"ERROR: {iso} es fin de semana, no se agrega al calendario"); sys.exit(1)
+    fer = _json.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'data', 'feriados-ar.json'), encoding='utf-8'))['feriados']
+    if iso in fer:
+        print(f"ERROR: {iso} es feriado ({fer[iso]}), no se agrega al calendario"); sys.exit(1)
+    def span(name):
+        m = re.search(r'var\s+'+name+r'\s*=\s*\[(.*?)\];', content, re.S)
+        return m.start(1), m.end(1), m.group(1).split(',')
+    _, _, dts = span('hDates')
+    dts = [x.strip().strip("'") for x in dts]
+    pos = next((i for i, x in enumerate(dts) if x > iso), len(dts))
+    _, _, ht = span('hT')
+    try:
+        a = float(ht[pos-1]); b = float(ht[pos])
+        D = lambda x: datetime.date.fromisoformat(x).toordinal()
+        f = (D(iso) - D(dts[pos-1])) / (D(dts[pos]) - D(dts[pos-1]))
+        t_new = f"{round(a * (b / a) ** f, 2)}"
+    except Exception:
+        t_new = ht[pos-1].strip()
+    nuevos = {'hDates': f"'{iso}'", 'hS': 'null', 'hT': t_new, 'hLbl': f"'{d0.day}/{d0.month}'", 'hDispLbl': "''"}
+    for name, val in nuevos.items():
+        a0, a1, arr = span(name)
+        arr.insert(pos, val)
+        content = content[:a0] + ','.join(arr) + content[a1:]
+    print(f"  ✓ calendario: +{iso} en posicion {pos} (hDates/hS/hT/hLbl/hDispLbl)")
+    return content
+
+if '--insertar-dia' in sys.argv and HOY not in [x.strip().strip("'") for x in re.search(r'var\s+hDates\s*=\s*\[(.*?)\];', content, re.S).group(1).split(',')]:
+    content = _insertar_dia(content, HOY)
 
 hDates_str, _, _ = get_arr_str('hDates')
 hS_str, hS_s, hS_e = get_arr_str('hS')
