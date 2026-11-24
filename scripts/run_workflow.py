@@ -21,17 +21,35 @@ def set_source(src):
             f.write(f"FX_SOURCE={src}\n")
 
 # Determinar fecha AR
+import json
+FERIADOS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "feriados-ar.json"), encoding="utf-8"))["feriados"]
+
+def es_habil(d):
+    return d.weekday() < 5 and d.isoformat() not in FERIADOS
+
 if raw_fecha:
     raw = raw_fecha.replace("-", "")
     fecha = datetime.date(int(raw[:4]), int(raw[4:6]), int(raw[6:]))
 else:
-    fecha = (datetime.datetime.utcnow() - datetime.timedelta(hours=3)).date()
+    ahora_ar = datetime.datetime.utcnow() - datetime.timedelta(hours=3)
+    fecha = ahora_ar.date()
+    # GitHub puede demorar el cron horas (a veces pasa de medianoche AR). Si todavia no cerro la rueda
+    # de "hoy" (antes de las 15:30 AR) la corrida corresponde a la ultima rueda habil anterior; si no, se
+    # cargaria un valor viejo/provisorio en un dia que todavia no opero (paso el 24-nov-2026 a las 00:56).
+    if ahora_ar.hour * 60 + ahora_ar.minute < 15 * 60 + 30:
+        fecha -= datetime.timedelta(days=1)
+        while not es_habil(fecha):
+            fecha -= datetime.timedelta(days=1)
+        print(f"[workflow] Corrida antes del cierre ({ahora_ar:%H:%M} AR): se procesa la ultima rueda habil {fecha}.")
 
 fecha_iso = fecha.strftime("%Y-%m-%d")
 print(f"[workflow] Fecha: {fecha_iso}")
 
 if fecha.weekday() >= 5:
     print("[workflow] Fin de semana — no se actualiza.")
+    sys.exit(0)
+if fecha_iso in FERIADOS:
+    print(f"[workflow] Feriado ({FERIADOS[fecha_iso]}) — no se actualiza.")
     sys.exit(0)
 
 # ── Paso 1: valor manual o criptoya (provisorio) ─────────────────────────────
