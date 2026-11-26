@@ -61,8 +61,14 @@ if raw_valor:
         set_source("manual")
     sys.exit(r.returncode)
 
-print("[workflow] Paso 1: criptoya (provisorio)...")
-r1 = subprocess.run([sys.executable, "scripts/auto_update_fx.py", fecha_iso, "--source", "criptoya"])
+hoy_ar = (datetime.datetime.utcnow() - datetime.timedelta(hours=3)).date()
+if fecha < hoy_ar and api_key:
+    # Fecha pasada: criptoya devuelve el precio de HOY, no el de esa rueda -> solo MAE (cierre historico).
+    print("[workflow] Fecha pasada: se omite criptoya, solo MAE.")
+    r1 = subprocess.CompletedProcess([], 1)
+else:
+    print("[workflow] Paso 1: criptoya (provisorio)...")
+    r1 = subprocess.run([sys.executable, "scripts/auto_update_fx.py", fecha_iso, "--source", "criptoya"])
 if r1.returncode != 0:
     print("[workflow] Criptoya falló, intentando directo con MAE...")
 elif not api_key:
