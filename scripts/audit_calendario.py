@@ -35,6 +35,7 @@ except Exception:
 
 errores, avisos = [], []
 cache = {}
+VALS = {}
 def mae_tiene_dato(iso):
     """True/False si MAE informa UST$T ese dia; None si no se pudo consultar."""
     if SIN_MAE or not KEY: return None
@@ -46,7 +47,9 @@ def mae_tiene_dato(iso):
             headers={'x-api-key': KEY, 'Accept': 'application/json'})
         with urllib.request.urlopen(req, timeout=30) as r:
             data = json.loads(r.read())
-        ok = any(d.get('ticker') == 'UST$T' and d.get('precioCierre') for dia in (data if isinstance(data, list) else []) for d in dia.get('details', []))
+        filas = [d for dia in (data if isinstance(data, list) else []) for d in dia.get('details', []) if d.get('ticker') == 'UST$T' and d.get('precioCierre')]
+        ok = bool(filas)
+        VALS[iso] = [(d.get('codigoSegmento'), d.get('plazo', d.get('codigoPlazo')), d.get('precioCierre')) for d in filas]
     except Exception as e:
         print(f"  [aviso] no se pudo consultar MAE para {iso}: {e}")
         ok = None
@@ -69,7 +72,7 @@ while x <= b:
         if i not in ds and i not in FER:
             m = mae_tiene_dato(i)
             if m is True:
-                errores.append(f"{i}: dia habil con dato en MAE y FUERA del calendario hDates")
+                errores.append(f"{i}: dia habil con dato en MAE y FUERA del calendario hDates (MAE: {VALS.get(i)})")
             elif m is None:
                 avisos.append(f"{i}: dia habil fuera del calendario (no verificado contra MAE)")
             else:
